@@ -1,0 +1,23 @@
+[model]
+hidden_size = 512
+seq_len     = 1024
+vocab_size  = 30000
+dropout_pe  = 0.1
+
+# Encoder specific configs
+n_heads         = 8          # Number of heads in a multihead attention block
+#d_k             = 64         # Size of key vectors in the self-attention layer
+ff_hidden_size  = 2048       # Number of neurons in the feed forward network's hidden layer
+n_layers        = 6          # Number of layers in the encoder stack
+
+[tokenizer]
+kind        = 'tiktoken'     # tiktoken | custom
+model       = 'gpt-2'        # only applicable for titoken tokenizer
+
+[training]
+batch_size     = 32
+epochs         = 10
+learning_rate  = 0.0005
+
+[dataset]
+path           = "./data/TinyStories.txt"
