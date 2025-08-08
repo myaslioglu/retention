@@ -46,5 +46,5 @@ class FeedForward(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.W_1(x)
         x = self.relu(x)
-        x = self.W_2(x)
-        return self.dropout(x)
+        x = self.dropout(x)
+        return self.W_2(x)

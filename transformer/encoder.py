@@ -34,10 +34,8 @@ class TransformerEncoderLayer(nn.Module):
                                         dropout_pe=dropout_pe)
 
     def forward(self, token_ids: torch.Tensor) -> torch.Tensor:
-        tok = self.token_embedding(token_ids)
-        pos = self.position_encoding(tok)
-        attn_output = self.multi_head_attn(pos)
-        res_norm = self.residual_add_norm_attn(pos, attn_output)
+        attn_output = self.multi_head_attn(token_ids)
+        res_norm = self.residual_add_norm_attn(token_ids, attn_output)
         ff_output = self.feed_forward(res_norm)
         return self.residual_add_norm_ff(res_norm, ff_output)
 
