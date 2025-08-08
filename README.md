@@ -48,8 +48,8 @@ max_epochs = 100
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
-cd transformer-encoder
+git clone https://github.com/MayukhSobo/Transformer.git
+cd Transformer
 
 # Install dependencies
 pip install torch tiktoken toml
