@@ -3,7 +3,7 @@ import torch.nn as nn
 from config import Config
 from dataset import TinyStoryDataset
 from transformer.encoder import TransformerEncoderLayer
-
+import logging
 from transformer.embedding import InputEmbeddings
 from transformer.positional_encoding import PositionalEncoding
 
@@ -64,7 +64,7 @@ class TransformerEncoder(nn.Module):
             out = enc_layer(out)
         return out
 
-def get_encoder(conf: Config, dataset: TinyStoryDataset):
+def get_encoder(conf: Config,):
     """
     This function initializes and returns a TransformerEncoder instance based on the provided configuration and dataset.
     The encoder is configured using parameters including hidden size, vocabulary size, dropout rate, number of
@@ -80,14 +80,16 @@ def get_encoder(conf: Config, dataset: TinyStoryDataset):
     :rtype: TransformerEncoder
     """
     hidden_size: int = conf.model.hidden_size
-    vocab_size: int = dataset.vocab_size
+    seq_len: int = conf.model.seq_len
+    vocab_size: int = conf.model.vocab_size
+    logging.info(f"Vocab size: {vocab_size}")
     dropout_pe: float = conf.model.dropout_pe
     n_heads: int = conf.model.n_heads
     d_k: int = conf.model.get("d_k", None)
     ff_hidden_size: int = conf.model.ff_hidden_size
     n_layers: int = conf.model.n_layers
 
-    return TransformerEncoder(vocab_size, hidden_size, dataset.seq_len,
+    return TransformerEncoder(vocab_size, hidden_size, seq_len,
                               dropout_pe, n_layers,
                               n_heads, ff_hidden_size, d_k)
 

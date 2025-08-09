@@ -11,11 +11,13 @@ dependencies = [
     'python-box',
     'click',
     'codetiming',
+    "jupyter>=1.1.1",
 ]
 
 [project.optional-dependencies]
 dev = [
     "ipython>=9.4.0",
+    "jupyter",
 ]
 
 [tool.setuptools]
