@@ -1,45 +1,62 @@
-# Transformer Encoder Implementation
+# Transformer Implementation
 
-A clean, educational implementation of the Transformer Encoder architecture from the "Attention Is All You Need" paper, built with PyTorch.
+A complete, educational implementation of the Transformer architecture from the "Attention Is All You Need" paper, built with PyTorch. This implementation includes both encoder and decoder components with a modular, well-documented design.
 
 ## 🚀 Features
 
-- **Complete Transformer Encoder**: 6-layer encoder with multi-head self-attention
-- **Modular Design**: Clean separation of components for easy understanding and modification
+- **Complete Transformer Architecture**: Full encoder-decoder implementation
+- **Modular Attention System**: Separate self-attention, multi-head attention, and cross-attention modules
 - **Configurable Architecture**: TOML-based configuration for easy experimentation
-- **Educational Focus**: Well-documented code with clear variable names and comprehensive docstrings
+- **Educational Focus**: Well-documented code with comprehensive docstrings
 - **Production Ready**: Proper error handling, logging, and CLI interface
 - **Flexible Tokenization**: Support for both tiktoken (GPT-2 style) and custom tokenizers
+- **TinyStories Dataset**: Integrated dataset loading and preprocessing
 
 ## 📋 Architecture Overview
 
-### Key Components
+### Core Components
 
-- **InputEmbeddings**: Token embedding layer with learnable parameters
-- **PositionalEncoding**: Sinusoidal positional encodings with dropout
+#### Attention Mechanisms
 - **SelfAttention**: Single attention head with optional causal masking
 - **MultiHeadAttention**: Parallel attention heads with output projection
+- **CrossAttention**: Cross-attention for encoder-decoder interaction (placeholder)
+
+#### Encoder Stack
+- **EncoderLayer**: Self-attention + feed-forward with residual connections
+- **Encoder**: Complete encoder with embeddings, positional encoding, and N layers
+
+#### Decoder Stack
+- **DecoderLayer**: Masked self-attention + cross-attention + feed-forward
+- **Decoder**: Complete decoder with embeddings, positional encoding, and N layers
+
+#### Supporting Modules
+- **Embeddings**: Token embedding layer with learnable parameters
+- **PositionalEncoding**: Sinusoidal positional encodings with dropout
 - **ResidualAddNorm**: Residual connections followed by layer normalization
 - **FeedForward**: Two-layer MLP with ReLU activation and dropout
-- **TransformerEncoderLayer**: Complete encoder layer combining all components
-- **TransformerEncoder**: Full encoder stack with embeddings and N layers
 
 ### Default Configuration
 
 ```toml
-# Model architecture
+[model]
 vocab_size = 50257        # GPT-2 style vocabulary
 hidden_size = 512         # Model dimension
 seq_len = 1024           # Maximum sequence length
 n_heads = 8              # Number of attention heads
 ff_hidden_size = 2048    # Feed-forward hidden dimension
-n_layers = 6             # Number of encoder layers
+n_layers = 6             # Number of encoder/decoder layers
 dropout_pe = 0.1         # Dropout probability
 
-# Training
+[training]
 batch_size = 32
-learning_rate = 1e-4
-max_epochs = 100
+epochs = 100
+
+[tokenizer]
+kind = "tiktoken"
+model = "gpt2"
+
+[dataset]
+path = "data/TinyStories.txt"
 ```
 
 **Parameters**: ~85M (similar to GPT-2 Small)
@@ -51,11 +68,11 @@ max_epochs = 100
 git clone https://github.com/MayukhSobo/Transformer.git
 cd Transformer
 
-# Install dependencies
-pip install torch tiktoken toml
+# Install dependencies using uv (recommended)
+uv sync
 
-# Or using requirements.txt
-pip install -r requirements.txt
+# Or using pip
+pip install torch tiktoken toml
 ```
 
 ## 📖 Usage
@@ -63,36 +80,31 @@ pip install -r requirements.txt
 ### Basic Usage
 
 ```python
-from transformer.encoder import TransformerEncoder
+from transformer.encoder.model import get_encoder
+from transformer.decoder.model import get_decoder
+from config import Config
 import torch
 
-# Create model
-model = TransformerEncoder(
-    vocab_size=50257,
-    hidden_size=512,
-    seq_len=1024,
-    dropout_pe=0.1,
-    n_heads=8,
-    ff_hidden_size=2048,
-    n_layers=6
-)
+# Load configuration
+config = Config("config.toml")
+
+# Create models
+encoder = get_encoder(config)
+decoder = get_decoder(config)
 
 # Forward pass
 token_ids = torch.randint(0, 50257, (32, 128))  # [batch, seq_len]
-output = model(token_ids)  # [batch, seq_len, hidden_size]
+encoder_output = encoder(token_ids)             # [batch, seq_len, hidden_size]
+decoder_output = decoder(token_ids, encoder_output)  # [batch, seq_len, hidden_size]
 ```
 
-### Configuration-Based Usage
+### Training Pipeline
 
 ```python
-import toml
-from transformer.encoder import TransformerEncoder
+from model import create_model
 
-# Load configuration
-config = toml.load('config/model_config.toml')
-
-# Create model from config
-model = TransformerEncoder(**config['model'])
+# Train model with configuration
+create_model("config.toml")
 ```
 
 ### Command Line Interface
@@ -103,29 +115,45 @@ python main.py
 
 # Train with custom config
 python main.py --config path/to/config.toml
-
-# Training with custom parameters
-python main.py --batch_size 64 --learning_rate 5e-4
 ```
 
 ## 📁 Project Structure
 
 ```
-transformer-encoder/
-├── transformer/
+Transformer/
+├── transformer/                 # Core transformer modules
 │   ├── __init__.py
-│   ├── attention.py          # Self-attention and multi-head attention
-│   ├── embedding.py          # Token embeddings and positional encoding
-│   ├── encoder.py            # Encoder layers and full encoder
-│   ├── feed_forward.py       # Feed-forward network
-│   └── normalization.py      # Residual connections and layer norm
-├── data/
-│   ├── __init__.py
-│   └── dataset.py           # TinyStory dataset implementation
-├── config/
-│   └── model_config.toml    # Model and training configuration
-├── main.py                  # Training script with CLI
-├── requirements.txt
+│   ├── attentions/             # Attention mechanisms
+│   │   ├── __init__.py
+│   │   ├── self.py             # Self-attention implementation
+│   │   ├── multihead.py        # Multi-head attention
+│   │   └── cross.py            # Cross-attention (placeholder)
+│   ├── encoder/                # Encoder components
+│   │   ├── __init__.py
+│   │   ├── layer.py            # Single encoder layer
+│   │   └── model.py            # Complete encoder model
+│   ├── decoder/                # Decoder components
+│   │   ├── __init__.py
+│   │   ├── layer.py            # Single decoder layer
+│   │   └── model.py            # Complete decoder model
+│   ├── embedding.py            # Token embeddings
+│   ├── positional_encoding.py  # Positional encoding
+│   ├── feed_forward.py         # Feed-forward network
+│   └── residual_add_norm.py    # Residual connections & layer norm
+├── data/                       # Dataset directory
+│   ├── .gitkeep               # Preserves directory structure
+│   └── TinyStories.txt        # Training dataset (not in git)
+├── experiments/               # Jupyter notebooks
+│   └── Transformers.ipynb    # Experimental notebook
+├── config.py                 # Configuration management
+├── config.toml              # Model and training configuration
+├── dataset.py               # Dataset loading and preprocessing
+├── tokenizer.py             # Tokenization utilities
+├── training.py              # Training loop implementation
+├── model.py                 # Model creation and orchestration
+├── main.py                  # CLI entry point
+├── log_config.py            # Logging configuration
+├── pyproject.toml           # Project metadata and dependencies
 └── README.md
 ```
 
@@ -138,6 +166,12 @@ transformer-encoder/
 - **Separate Q, K, V projections** for each head
 - **Output projection** to combine all heads
 
+### Encoder-Decoder Architecture
+
+- **Encoder**: Bidirectional self-attention for input processing
+- **Decoder**: Masked self-attention + cross-attention for autoregressive generation
+- **Cross-attention**: Allows decoder to attend to encoder outputs
+
 ### Feed-Forward Network
 
 - **Two linear layers**: 512 → 2048 → 512
@@ -146,9 +180,9 @@ transformer-encoder/
 
 ### Residual Connections & Normalization
 
-- **Pre-norm architecture**: LayerNorm applied before sub-layers
+- **Post-norm architecture**: LayerNorm applied after residual addition
 - **Residual connections** around attention and feed-forward blocks
-- **Separate normalization** for attention and FFN paths
+- **Separate normalization** for each sub-layer
 
 ### Positional Encoding
 
@@ -171,20 +205,22 @@ This implementation prioritizes:
 ### Creating Custom Attention Patterns
 
 ```python
+from transformer.attentions.multihead import MultiHeadAttention
+
 # Encoder attention (bidirectional)
-encoder_attention = SelfAttention(
+encoder_attention = MultiHeadAttention(
+    n_heads=8,
     hidden_size=512,
     max_seq_len=1024,
-    d_k=64,
     dropout_pe=0.1,
     masking=False  # No causal masking
 )
 
 # Decoder attention (causal)
-decoder_attention = SelfAttention(
+decoder_attention = MultiHeadAttention(
+    n_heads=8,
     hidden_size=512,
     max_seq_len=1024,
-    d_k=64,
     dropout_pe=0.1,
     masking=True  # Causal masking enabled
 )
@@ -193,35 +229,53 @@ decoder_attention = SelfAttention(
 ### Adjusting Model Size
 
 ```python
-# Smaller model (similar to GPT-2 micro)
-small_model = TransformerEncoder(
-    hidden_size=256,
-    n_heads=4,
-    ff_hidden_size=1024,
-    n_layers=4
-)
+from config import Config
 
-# Larger model (similar to GPT-2 medium)
-large_model = TransformerEncoder(
-    hidden_size=1024,
-    n_heads=16,
-    ff_hidden_size=4096,
-    n_layers=12
-)
+# Smaller model configuration
+small_config = {
+    "hidden_size": 256,
+    "n_heads": 4,
+    "ff_hidden_size": 1024,
+    "n_layers": 4
+}
+
+# Larger model configuration
+large_config = {
+    "hidden_size": 1024,
+    "n_heads": 16,
+    "ff_hidden_size": 4096,
+    "n_layers": 12
+}
 ```
 
 ## 📊 Training
 
 The implementation includes:
 
-- **TinyStory dataset** support for quick experimentation
-- **Configurable training loop** with proper loss computation
-- **Gradient clipping** and learning rate scheduling
-- **Model checkpointing** and logging
+- **TinyStories dataset** support for quick experimentation
+- **Configurable training loop** with encoder-decoder coordination
+- **Comprehensive logging** with configurable log levels
+- **Model checkpointing** and configuration management
+- **Flexible tokenization** with multiple tokenizer backends
+
+### Training Pipeline
+
+1. **Data Loading**: TinyStories dataset with configurable preprocessing
+2. **Tokenization**: Support for tiktoken and custom tokenizers
+3. **Model Creation**: Automatic encoder-decoder instantiation
+4. **Training Loop**: Batch processing with proper encoder-decoder flow
+
+## 🔬 Current Status
+
+- ✅ **Encoder**: Fully implemented and tested
+- ✅ **Decoder**: Architecture complete, ready for cross-attention
+- ⏳ **Cross-Attention**: Placeholder implementation (to be completed)
+- ✅ **Training Infrastructure**: Complete pipeline with logging
+- ✅ **Configuration System**: TOML-based configuration management
 
 ## 🤝 Contributing
 
-This is an educational implementation. Contributions that improve clarity, add documentation, or fix bugs are welcome!
+This is an educational implementation. Contributions that improve clarity, add documentation, or enhance the learning experience are welcome!
 
 ## 📚 References
 
@@ -235,4 +289,4 @@ MIT License - Feel free to use this code for educational purposes.
 
 ---
 
-**Note**: This implementation focuses on the encoder portion of the Transformer. For sequence-to-sequence tasks, you would need to implement the decoder as well.
+**Note**: This implementation includes both encoder and decoder components of the Transformer architecture, making it suitable for sequence-to-sequence tasks once the cross-attention mechanism is completed.
