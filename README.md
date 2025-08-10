@@ -1,4 +1,4 @@
-# Transformer Implementation
+# [Attention Is All You Need](https://arxiv.org/pdf/1706.03762)
 
 A complete, educational implementation of the Transformer architecture from the "Attention Is All You Need" paper, built with PyTorch. This implementation includes both encoder and decoder components with a modular, well-documented design.
 
