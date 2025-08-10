@@ -4,11 +4,14 @@ from config import Config
 from dataset import TinyStoryDataset
 import logging
 from training import train
-from transformer.model_encoder import get_encoder
 from tokenizer import get_tokenizer
+from transformer.encoder.model import get_encoder
+from transformer.decoder.model import get_decoder
+
+logger = logging.getLogger(__name__)
 
 
-def run(config_file: Path):
+def create_model(config_file: Path):
     config = Config(config_file=config_file)
 
     # Get the Tokenizer
@@ -24,14 +27,20 @@ def run(config_file: Path):
     DATAPATH = Path(config.dataset.path)
     data = load_data(DATAPATH)
     n_tokens: int = dataset.tokenize(tokenizer, data, inplace=True)
-    logging.info(f"Data converted into {n_tokens} tokens")
+    logger.info("Data converted into %d tokens", n_tokens)
 
 
     # Get the encoder
-    encoder = get_encoder(conf=config)
-    print(encoder)
+    encoder_model = get_encoder(conf=config)
+    logger.debug("Encoder initialized: %s", encoder_model)
+
+    # Get the decoder
+    decoder_model = get_decoder(conf=config)
+    logger.debug("Decoder initialized: %s", decoder_model)
 
     # Iterate over the dataset
     batch_size: int = config.training.batch_size
     epochs: int = config.training.epochs
-    train(encoder, dataset, batch_size, epochs)
+    logger.info("Starting training: batch_size=%d, epochs=%d", batch_size, epochs)
+
+    train(encoder_model, decoder_model, dataset, batch_size, epochs)

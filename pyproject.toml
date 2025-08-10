@@ -12,6 +12,7 @@ dependencies = [
     'click',
     'codetiming',
     "jupyter>=1.1.1",
+    "torchtext",
 ]
 
 [project.optional-dependencies]

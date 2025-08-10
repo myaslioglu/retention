@@ -1,7 +1,9 @@
 import logging
 import torch
 
-def train(model, dataset, batch_size: int, epoch: int):
+logger = logging.getLogger(__name__)
+
+def train(encoder_model, decoder_model, dataset, batch_size: int, epoch: int):
     """
     Trains the provided model using the given dataset, processing it in batches
     of the specified size for the defined number of epochs. The function
@@ -25,11 +27,11 @@ def train(model, dataset, batch_size: int, epoch: int):
         buffer.append(data)
         if len(buffer) == batch_size:
             count += 1
-            logging.info(f"Processing batch {count}")
-            train_one(model, torch.stack(buffer))
+            logger.info(f"Processing batch {count}")
+            train_one(encoder_model, decoder_model, torch.stack(buffer))
             buffer = []
 
-def train_one(model, x: torch.Tensor):
+def train_one(encoder_model, decoder_model, x: torch.Tensor):
     """
     Trains a single batch using the provided model and input tensor. Logs the
     input and output shapes during the process.
@@ -40,6 +42,7 @@ def train_one(model, x: torch.Tensor):
     :return: The output tensor resulting from the model's forward pass.
     :rtype: torch.Tensor
     """
-    logging.info(f"Training on batch: {x.shape}")
-    out = model(x)
-    logging.info(f"Training output: {out.shape}")
+    logger.info(f"Training on batch: {x.shape}")
+    encoder_output = encoder_model(x)
+    output = decoder_model(x, encoder_output)
+    logger.info(f"Training output: {output.shape}")

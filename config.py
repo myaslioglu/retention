@@ -1,6 +1,9 @@
 import tomllib
 from pathlib import Path
 from box import Box
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Config:
@@ -28,4 +31,4 @@ class Config:
 
 if __name__ == '__main__':
     config = Config(config_file=Path('config.toml'))
-    print(config.model.get('ffwfs'))
+    logger.info("Model.ffwfs = %s", config.model.get('ffwfs'))

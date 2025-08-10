@@ -2,6 +2,8 @@ import  re
 import logging
 from tqdm import tqdm
 
+logger = logging.getLogger(__name__)
+
 class WordTokenizer:
     def __init__(self, vocab_size: int, unknown_token: str = None):
         if not unknown_token:
@@ -25,14 +27,14 @@ class WordTokenizer:
     def encode(self, text):
         self.build_vocab(text)
         if len(self.word_to_id) < 2 or len(self.id_to_word) < 2:
-            logging.error("🚫Please build the vocab first 🚫")
+            logger.error("Please build the vocab first")
             return None
         words = WordTokenizer.extract_words(text)
         return [self.word_to_id.get(word, self.word_to_id[self.unknown_token]) for word in words]
 
     def decode(self, ids):
         if len(self.word_to_id) < 2 or len(self.id_to_word) < 2:
-            logging.error("🚫Please build the vocab first 🚫")
+            logger.error("Please build the vocab first")
             return None
         return " ".join(self.id_to_word[i] for i in ids)
 

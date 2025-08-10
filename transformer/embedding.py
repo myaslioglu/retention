@@ -1,7 +1,8 @@
 import torch
 import torch.nn as nn
+import math
 
-class InputEmbeddings(nn.Module):
+class Embeddings(nn.Module):
     """
     Handles the conversion of input tokens into embeddings, providing scaled
     embeddings for further processing. The class is designed to initialize
@@ -27,10 +28,10 @@ class InputEmbeddings(nn.Module):
             hidden_size (int): Dimension of the embeddings
         """
         super().__init__()
-        self.d_model = torch.tensor(hidden_size)
+        self.d_model = hidden_size
         self.n_vocab = vocab_size
         self.embedding = nn.Embedding(self.n_vocab, hidden_size)
-        self.factor = torch.sqrt(self.d_model)
+        self.factor = math.sqrt(self.d_model)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
 

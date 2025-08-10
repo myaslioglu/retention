@@ -71,7 +71,8 @@ class PositionalEncoding(nn.Module):
 
     def forward(self, x) -> torch.Tensor:
         seq_len = x.size(1)
-        x = x + self.pe[:, :seq_len, :] # Take all the batch, only up to seq len and for all the columns (hidden_size)
+        # Take all the batch, only up to seq len and for all the columns (hidden_size)
+        x = x + self.pe[:, :seq_len, :] # type: ignore
         return self.dropout(x) # [BATCH, SEQ_LEN, HIDDEN_SIZE]
 
 
