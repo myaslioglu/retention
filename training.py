@@ -5,18 +5,21 @@ logger = logging.getLogger(__name__)
 
 def train(encoder_model, decoder_model, dataset, batch_size: int, epoch: int):
     """
-    Trains the provided model using the given dataset, processing it in batches
-    of the specified size for the defined number of epochs. The function
-    accumulates data from the dataset in a buffer until it matches the batch
-    size, then processes the batch by invoking `train_one()`. Training proceeds
-    through the dataset until the specified number of epochs is completed.
+    Trains the provided encoder and decoder models using the given dataset, processing it in batches
+    of the specified size. The function accumulates data from the dataset in a buffer until it matches 
+    the batch size, then processes the batch by invoking `train_one()`. Training proceeds through the 
+    dataset until the specified number of batches is completed.
 
-    :param model: Model to be trained.
-    :type model: Any
+    :param encoder_model: The encoder model to be trained.
+    :type encoder_model: nn.Module
+    :param decoder_model: The decoder model to be trained.
+    :type decoder_model: nn.Module
     :param dataset: Iterable dataset used for training.
     :type dataset: Iterable
     :param batch_size: Number of samples per batch.
-    :param epoch: Number of epochs for training.
+    :type batch_size: int
+    :param epoch: Number of batches to process (note: this is number of batches, not epochs).
+    :type epoch: int
     :return: None.
     """
     count = 0
@@ -33,14 +36,17 @@ def train(encoder_model, decoder_model, dataset, batch_size: int, epoch: int):
 
 def train_one(encoder_model, decoder_model, x: torch.Tensor):
     """
-    Trains a single batch using the provided model and input tensor. Logs the
-    input and output shapes during the process.
+    Processes a single batch using the provided encoder and decoder models. Logs the
+    input and output shapes during the process. Note: This function currently only
+    performs forward pass without actual training (no loss computation or backpropagation).
 
-    :param model: The model to be trained.
-    :type model: typing.Any
+    :param encoder_model: The encoder model to process the input.
+    :type encoder_model: nn.Module
+    :param decoder_model: The decoder model to process the encoder output.
+    :type decoder_model: nn.Module
     :param x: Input tensor representing a batch of data.
-    :return: The output tensor resulting from the model's forward pass.
-    :rtype: torch.Tensor
+    :type x: torch.Tensor
+    :return: None (currently doesn't return anything).
     """
     logger.info(f"Training on batch: {x.shape}")
     encoder_output = encoder_model(x)

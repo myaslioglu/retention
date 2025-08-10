@@ -13,9 +13,10 @@ class FeedForward(nn.Module):
 
     :ivar W_1: Linear transformation layer mapping the input to the intermediate
        hidden layer.
-    :type W_1: nn.Linear    :ivar W_2:  transformation layer mapping the intermediate hidden
+    :type W_1: nn.Linear
+    :ivar W_2: Linear transformation layer mapping the intermediate hidden
        representation back to the original feature size.
-    :type W_2: Nn.Linear
+    :type W_2: nn.Linear
     :ivar relu: ReLU activation function applied after the first linear transformation.
     :type relu: nn.ReLU
     :ivar dropout: Dropout layer used to regularize the output from the feed-forward

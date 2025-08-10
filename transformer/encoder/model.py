@@ -18,7 +18,7 @@ class Encoder(nn.Module):
 
     :ivar token_embedding: Embedding layer to convert input tokens into dense vector
         representations.
-    :type token_embedding: InputEmbeddings
+    :type token_embedding: Embeddings
     :ivar position_encoding: Positional encoding module to incorporate sequence
         position information into the embeddings.
     :type position_encoding: PositionalEncoding

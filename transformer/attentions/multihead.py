@@ -27,8 +27,11 @@ class MultiHeadAttention(nn.Module):
         Validates input parameters for compatibility, including ensuring the key dimension is not
         greater than the hidden size and that the number of heads divides the hidden size evenly.
 
-        :param hidden_size: The size of the input representation or embeddings.
         :param n_heads: The number of attention heads.
+        :param hidden_size: The size of the input representation or embeddings.
+        :param max_seq_len: Maximum sequence length for attention mechanism.
+        :param dropout_pe: Dropout probability for attention outputs.
+        :param masking: Whether to apply causal masking (True for decoder, False for encoder).
         :param d_k: (Optional) The size of the query/key vectors. If not provided, it will be
             automatically calculated as `hidden_size // n_heads`.
         :raises ValueError: If the provided key dimension exceeds the hidden size.

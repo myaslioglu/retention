@@ -9,15 +9,13 @@ class EncoderLayer(nn.Module):
     def __init__(self, hidden_size: int, max_seq_len: int, dropout_pe: float,
                  n_heads: int, ff_hidden_size: int, d_k: int|None = None):
         """
-        Initializes the transformer layer with token embeddings, positional
-        encoding, multi-head attention mechanism, residual connections,
-        and a feed-forward network.
+        Initializes the encoder layer with multi-head attention mechanism, residual connections,
+        and a feed-forward network. This layer does not include token embeddings or positional
+        encoding as those are handled at the model level.
 
-        :param vocab_size: Size of the vocabulary for embedding initialization.
-        :param hidden_size: Dimensionality of the token embeddings and model hidden states.
-        :param seq_len: Sequence length for positional encoding.
-        :param dropout_pe: Dropout rate for positional encoding, multi-head attention,
-                           and feed-forward layers.
+        :param hidden_size: Dimensionality of the input embeddings and model hidden states.
+        :param max_seq_len: Maximum sequence length for attention mechanism.
+        :param dropout_pe: Dropout rate for multi-head attention and feed-forward layers.
         :param n_heads: Number of attention heads in the multi-head attention mechanism.
         :param ff_hidden_size: Dimensionality of the hidden layer in the feed-forward network.
         :param d_k: Dimensionality of the key (and query) vectors in attention. If None,

@@ -9,6 +9,19 @@ from transformer.decoder.layer import DecoderLayer
 logger = logging.getLogger(__name__)
 class Decoder(nn.Module):
     """
+    Represents a Transformer Decoder module which processes target sequences and encoder outputs
+    to generate predictions. Commonly used in sequence-to-sequence tasks like machine translation.
+
+    This class is composed of token embeddings, positional encodings, and a stack of
+    Transformer decoder layers. Each decoder layer includes masked self-attention, cross-attention
+    with encoder outputs, and feed-forward networks.
+
+    :ivar token_embedding: Embedding layer to convert target tokens into dense vector representations.
+    :type token_embedding: Embeddings
+    :ivar position_encoding: Positional encoding module to incorporate sequence position information.
+    :type position_encoding: PositionalEncoding
+    :ivar decoder_layers: List of Transformer decoder layers stacked sequentially.
+    :type decoder_layers: nn.ModuleList
     """
     def __init__(self, vocab_size: int, hidden_size: int, seq_len: int, 
                  dropout_pe: float, n_layers:int, n_heads: int, ff_size: int, d_k:int):
@@ -34,6 +47,17 @@ class Decoder(nn.Module):
 
 
 def get_decoder(conf: Config) -> Decoder:
+    """
+    Creates and returns a Decoder instance based on the provided configuration.
+    The decoder is configured using parameters including hidden size, vocabulary size, 
+    dropout rate, number of attention heads, feed-forward hidden size, and number of layers.
+
+    :param conf: Configuration object containing model parameters such as hidden size, 
+        dropout probability, number of heads, feed-forward hidden size, and number of layers.
+    :type conf: Config
+    :return: An instance of Decoder initialized with parameters from the configuration.
+    :rtype: Decoder
+    """
     hidden_size: int = conf.model.hidden_size
     seq_len: int = conf.model.seq_len
     vocab_size: int = conf.model.vocab_size
