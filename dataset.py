@@ -50,12 +50,19 @@ class TinyStoryDataset(IterableDataset):
         (non-overlapping windows by default).
     :type stride: int | None
     """
-    def __init__(self, config: Config,
+    def __init__(self, config: Config | None = None,
+                 seq_len: int | None = None,
                  stride: int | None = None):
         self.config = config
-        self.seq_len = config.model.seq_len
+        if config is not None:
+            self.seq_len = config.model.seq_len
+        elif seq_len is not None:
+            self.seq_len = seq_len
+        else:
+            raise ValueError("Provide either config or seq_len to TinyStoryDataset")
         self.token_ids = None
         self.stride = stride if stride is not None else self.seq_len  # non-overlapping by default
+        self._vocab_size: int | None = None
 
     @Timer(name="tokenize", text="Tokenization took {:.2f} seconds")
     def tokenize(self, tokenizer, data: str, inplace: bool = False):
@@ -74,13 +81,15 @@ class TinyStoryDataset(IterableDataset):
             count of tokens if `inplace` is True.
         """
         tokens = tokenizer.encode(data)
-        self.config.model.vocab_size = tokenizer.n_vocab
+        self._vocab_size = getattr(tokenizer, 'n_vocab', None)
+        if self.config is not None and self._vocab_size is not None:
+            # keep config in sync when using Config-based setup
+            self.config.model.vocab_size = self._vocab_size
         if inplace:
             self.token_ids = tokens
             return len(tokens)
         else:
             return tokens
-
 
     def __len__(self) -> int:
         """Length only meaningful for eager mode when token_ids is available."""
@@ -129,7 +138,12 @@ class TinyStoryDataset(IterableDataset):
             yield torch.tensor(window, dtype=torch.long)
             start += self.stride
 
-
     @property
     def tokens_ids(self):
         return self.token_ids
+
+    @property
+    def vocab_size(self) -> int:
+        if self._vocab_size is None:
+            raise RuntimeError("vocab_size is unknown; call tokenize(...) first")
+        return self._vocab_size
