@@ -4,3 +4,10 @@ __pycache__/
 transformer/__pycache__/
 uv.lock
 .idea/**
+
+# Data files - exclude large datasets
+data/TinyStories.txt
+data/*.txt
+data/*.csv
+data/*.json
+data/*.parquet
