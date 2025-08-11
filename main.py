@@ -12,7 +12,8 @@ from log_config import setup_logging
 def main(config: Path):
     setup_logging(for_notebook=False)
     logging.info(f"Running transformer with config {config}")
-    create_model(config_file=config)
+    model = create_model(config_file=config)
+    logging.info(f"The model is {model}")
 
 if __name__ == '__main__':
     main()

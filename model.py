@@ -5,13 +5,20 @@ from dataset import TinyStoryDataset
 import logging
 from training import train
 from tokenizer import get_tokenizer
-from transformer.encoder.model import get_encoder
-from transformer.decoder.model import get_decoder
+from transformer.encoder.model import get_encoder, Encoder
+from transformer.decoder.model import get_decoder, Decoder
+from transformer.classifier import get_classifier, Classifier
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
+@dataclass
+class Model:
+    encoder: Encoder
+    decoder: Decoder
+    classifier: Classifier
 
-def create_model(config_file: Path):
+def create_model(config_file: Path) -> Model:
     config = Config(config_file=config_file)
 
     # Get the Tokenizer
@@ -43,4 +50,10 @@ def create_model(config_file: Path):
     epochs: int = config.training.epochs
     logger.info("Starting training: batch_size=%d, epochs=%d", batch_size, epochs)
 
-    train(encoder_model, decoder_model, dataset, batch_size, epochs)
+    # Get the Classifier Head
+    classifier_model = get_classifier(conf=config)
+    return Model(
+        encoder=encoder_model,
+        decoder=decoder_model,
+        classifier=classifier_model
+    )

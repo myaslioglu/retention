@@ -4,7 +4,6 @@ import math
 
 
 class CrossAttention(nn.Module):
-
     def __init__(self, hidden_size: int, max_seq_len: int,
                  d_k: int, dropout_pe: float, masking: bool = False):
         super().__init__()
