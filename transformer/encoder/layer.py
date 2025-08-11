@@ -4,6 +4,7 @@ import torch
 from transformer.attentions.multihead import MultiHeadAttention
 from transformer.residual_add_norm import ResidualAddNorm
 from transformer.feed_forward import FeedForward
+from transformer.attentions.self import SelfAttention
 
 class EncoderLayer(nn.Module):
     def __init__(self, hidden_size: int, max_seq_len: int, dropout_pe: float,
@@ -22,7 +23,7 @@ class EncoderLayer(nn.Module):
                     a default dimension is computed using hidden size and number of heads.
         """
         super().__init__()
-        self.multi_head_attn = MultiHeadAttention(n_heads, hidden_size, max_seq_len, 
+        self.multi_head_attn = MultiHeadAttention(SelfAttention, n_heads, hidden_size, max_seq_len,
                                                   dropout_pe, False, d_k)
         self.residual_add_norm_attn = ResidualAddNorm(n_features=hidden_size)
         self.residual_add_norm_ff = ResidualAddNorm(n_features=hidden_size)
