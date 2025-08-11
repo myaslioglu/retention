@@ -4,6 +4,28 @@ import math
 
 
 class CrossAttention(nn.Module):
+    """
+    Implements the Cross-Attention mechanism.
+
+    The CrossAttention class is a module designed to compute cross-attention,
+    which allows a sequence in one context to attend to a sequence in another
+    context effectively. This is typically used in tasks that require correlating
+    information between two separate sequences, such as in sequence-to-sequence
+    models or transformer architectures.
+
+    :ivar d_model: Hidden size of the input sequence representations.
+    :type d_model: int
+    :ivar d_k: Dimensionality of the query/key/value vectors.
+    :type d_k: int
+    :ivar W_q: Linear transformation layer to compute query vectors.
+    :type W_q: torch.nn.Linear :ivar W_k:  transformation layer to compute key vectors.
+    :type W_k: torch.nn.Linear :ivar W_v:  transformation layer to compute value vectors.
+    :type W_v: torch.nn.Linear
+    :ivar softmax: Softmax layer to compute attention weights.
+    :type softmax: torch.nn.Softmax
+    :ivar attn_dropout: Dropout layer applied to the attention weights to mitigate overfitting.
+    :type attn_dropout: torch.nn.Dropout
+    """
     def __init__(self, hidden_size: int, max_seq_len: int,
                  d_k: int, dropout_pe: float, masking: bool = False):
         super().__init__()
@@ -20,7 +42,7 @@ class CrossAttention(nn.Module):
 
         self.attn_dropout = nn.Dropout(p=dropout_pe)
 
-        # Masking is not required in cross attention
+        # Masking is not required in cross-attention
         _ = masking
 
     def forward(self, x: torch.Tensor, encoder_output: torch.Tensor) -> torch.Tensor:

@@ -9,6 +9,19 @@ class LogColors:
 
 
 class ColoredFormatter(logging.Formatter):
+    """
+    Custom logging formatter for adding color to log messages.
+
+    This class provides functionality to format log records with color codes
+    based on the severity level (INFO, WARNING, ERROR). Each log level is
+    assigned a specific color, making log outputs more readable and
+    aesthetically pleasing.
+
+    :ivar default_format: The default format string used by the formatter.
+    :type default_format: str
+    :ivar color_map: A dictionary mapping log levels to their respective color codes.
+    :type color_map: dict
+    """
     def format(self, record: logging.LogRecord) -> str:
         color_map = {
             logging.INFO: LogColors.BLUE,
@@ -24,10 +37,17 @@ class ColoredFormatter(logging.Formatter):
 
 def setup_logging(for_notebook: bool = False, level: int = logging.INFO) -> None:
     """
-    Configure root logging so logs appear in both CLI and Jupyter.
+    Sets up the logging configuration for an application.
 
-    - Clears existing handlers to avoid duplicates when reconfiguring
-    - Uses colorized output in terminal; plain output in notebooks
+    This function configures the root logger by removing existing handlers, setting
+    the log level, and adding a new stream handler with an appropriate formatter.
+    The formatter can be adjusted for notebook environments.
+
+    :param for_notebook: A flag indicating if the logging setup is for a notebook
+        environment (True) or not (False).
+    :param level: The logging level to be set for the root logger (e.g.,
+        logging.INFO, logging.DEBUG).
+    :return: None
     """
     root_logger = logging.getLogger()
 
@@ -45,5 +65,3 @@ def setup_logging(for_notebook: bool = False, level: int = logging.INFO) -> None
     stream_handler.setFormatter(formatter)
 
     root_logger.addHandler(stream_handler)
-
-

@@ -1,6 +1,7 @@
-import  re
+import re
 import logging
 from tqdm import tqdm
+import tiktoken
 
 logger = logging.getLogger(__name__)
 
@@ -9,8 +10,8 @@ class WordTokenizer:
         if not unknown_token:
             unknown_token = '<UNK>'
         self.unknown_token = unknown_token
-        self.word_to_id = dict()
-        self.id_to_word = dict()
+        self.word_to_id = {}
+        self.id_to_word = {}
         self.word_to_id[self.unknown_token] = 0
         self.id_to_word[0] = self.unknown_token
         self.next_id = 1 # Reserve 0 for UNKNOWN words
@@ -50,7 +51,6 @@ class WordTokenizer:
 def get_tokenizer(tokenizer_kind: str, tokenizer_model: str, vocab_size: int | None = None):
     """Return a tokenizer based on config; builds vocab for the custom tokenizer."""
     if tokenizer_kind == 'tiktoken':
-        import tiktoken
         tk = tiktoken.encoding_for_model(tokenizer_model)
     elif tokenizer_kind == 'custom':
         if not vocab_size:

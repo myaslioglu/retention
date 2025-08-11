@@ -42,4 +42,3 @@ class ResidualAddNorm(nn.Module):
                 sublayer_output: torch.Tensor) -> torch.Tensor:
         add = residual + sublayer_output
         return self.norm_layer(add)
-        

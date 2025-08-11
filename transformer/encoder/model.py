@@ -68,10 +68,11 @@ def get_encoder(conf: Config) -> Encoder:
     """
     This function initializes and returns a TransformerEncoder instance based on the provided configuration and dataset.
     The encoder is configured using parameters including hidden size, vocabulary size, dropout rate, number of
-    attention heads, feed-forward hidden size, optional dimensionality of the attention key, and number of encoding layers.
+    attention heads, feed-forward hidden size, optional dimensionality of the attention key,
+    and number of encoding layers.
 
-    :param conf: Configuration object containing model parameters such as hidden size, dropout probability, number of heads,
-        feed-forward hidden size, and optionally the dimensionality of the attention key.
+    :param conf: Configuration object containing model parameters such as hidden size, dropout probability,
+        number of heads, feed-forward hidden size, and optionally the dimensionality of the attention key.
     :type conf: Config
     :return: An instance of TransformerEncoder initialized with parameters derived from the configuration and dataset.
     :rtype: Encoder
@@ -85,7 +86,7 @@ def get_encoder(conf: Config) -> Encoder:
     ff_hidden_size: int = conf.model.ff_hidden_size
     n_layers: int = conf.model.n_layers
 
-    return Encoder(vocab_size, hidden_size, seq_len, dropout_pe, 
+    return Encoder(vocab_size, hidden_size, seq_len, dropout_pe,
                    n_layers, n_heads, ff_hidden_size, d_k)
 
 

@@ -6,8 +6,8 @@ logger = logging.getLogger(__name__)
 def train(encoder_model, decoder_model, dataset, batch_size: int, epoch: int):
     """
     Trains the provided encoder and decoder models using the given dataset, processing it in batches
-    of the specified size. The function accumulates data from the dataset in a buffer until it matches 
-    the batch size, then processes the batch by invoking `train_one()`. Training proceeds through the 
+    of the specified size. The function accumulates data from the dataset in a buffer until it matches
+    the batch size, then processes the batch by invoking `train_one()`. Training proceeds through the
     dataset until the specified number of batches is completed.
 
     :param encoder_model: The encoder model to be trained.

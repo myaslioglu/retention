@@ -88,8 +88,7 @@ class TinyStoryDataset(IterableDataset):
         if inplace:
             self.token_ids = tokens
             return len(tokens)
-        else:
-            return tokens
+        return tokens
 
     def __len__(self) -> int:
         """Length only meaningful for eager mode when token_ids is available."""

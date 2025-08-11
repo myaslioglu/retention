@@ -74,7 +74,3 @@ class PositionalEncoding(nn.Module):
         # Take all the batch, only up to seq len and for all the columns (hidden_size)
         x = x + self.pe[:, :seq_len, :] # type: ignore
         return self.dropout(x) # [BATCH, SEQ_LEN, HIDDEN_SIZE]
-
-
-
-

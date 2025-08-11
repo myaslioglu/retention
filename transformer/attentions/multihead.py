@@ -1,12 +1,6 @@
 import torch
 import torch.nn as nn
-from typing import Union
-
-from sympy.sets.sets import set_function
-from torch.onnx.ops import attention
-
 from transformer.attentions.self import SelfAttention
-from transformer.attentions.cross import CrossAttention
 
 class MultiHeadAttention(nn.Module):
     """
@@ -35,7 +29,7 @@ class MultiHeadAttention(nn.Module):
 
         :param n_heads: The number of attention heads.
         :param hidden_size: The size of the input representation or embeddings.
-        :param max_seq_len: Maximum sequence length for attention mechanism.
+        :param max_seq_len: Maximum sequence length for an attention mechanism.
         :param dropout_pe: Dropout probability for attention outputs.
         :param masking: Whether to apply causal masking (True for decoder, False for encoder).
         :param d_k: (Optional) The size of the query/key vectors. If not provided, it will be
@@ -47,13 +41,12 @@ class MultiHeadAttention(nn.Module):
         super().__init__()
         if d_k and d_k > hidden_size:
             raise ValueError("Key dimension must be less than or equal to hidden size")
-        else:
-            if hidden_size % n_heads != 0:
-                raise ValueError("Number of heads must divide hidden size evenly")
-            d_k = hidden_size // n_heads
+        if hidden_size % n_heads != 0:
+            raise ValueError("Number of heads must divide hidden size evenly")
+        d_k = hidden_size // n_heads
 
         self.d_k = d_k
-        self.IsSelfAttention = True if isinstance(attention_type, SelfAttention) else False
+        self.IsSelfAttention = isinstance(attention_type, SelfAttention)
         # Create `n_heads` number of self-attention heads
         self.self_attention_heads = nn.ModuleList([
             attention_type(hidden_size=hidden_size, max_seq_len=max_seq_len,

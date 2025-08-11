@@ -23,8 +23,8 @@ class Decoder(nn.Module):
     :ivar decoder_layers: List of Transformer decoder layers stacked sequentially.
     :type decoder_layers: nn.ModuleList
     """
-    def __init__(self, vocab_size: int, hidden_size: int, seq_len: int, 
-                 dropout_pe: float, n_layers:int, n_heads: int, ff_size: int, d_k:int):
+    def __init__(self, vocab_size: int, hidden_size: int, seq_len: int,
+                 dropout_pe: float, n_layers: int, n_heads: int, ff_size: int, d_k: int):
         super().__init__()
         self.token_embedding = Embeddings(vocab_size=vocab_size, hidden_size=hidden_size)
         self.position_encoding = PositionalEncoding(seq_len, hidden_size, dropout_pe)
@@ -34,7 +34,7 @@ class Decoder(nn.Module):
                 dropout_pe=dropout_pe,
                 n_heads=n_heads,
                 ff_hidden_size=ff_size,
-                d_k=d_k) 
+                d_k=d_k)
             for _ in range(n_layers)
         ])
 
@@ -49,10 +49,10 @@ class Decoder(nn.Module):
 def get_decoder(conf: Config) -> Decoder:
     """
     Creates and returns a Decoder instance based on the provided configuration.
-    The decoder is configured using parameters including hidden size, vocabulary size, 
+    The decoder is configured using parameters including hidden size, vocabulary size,
     dropout rate, number of attention heads, feed-forward hidden size, and number of layers.
 
-    :param conf: Configuration object containing model parameters such as hidden size, 
+    :param conf: Configuration object containing model parameters such as hidden size,
         dropout probability, number of heads, feed-forward hidden size, and number of layers.
     :type conf: Config
     :return: An instance of Decoder initialized with parameters from the configuration.

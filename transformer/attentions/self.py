@@ -102,4 +102,3 @@ class SelfAttention(nn.Module):
         # Take the key vector of dim [BATCH, SEQ_LEN, d_k]
         # Swap dim 1 and dim 2
         return key.transpose(1, 2)
-

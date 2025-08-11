@@ -3,7 +3,6 @@ from pathlib import Path
 from config import Config
 from dataset import TinyStoryDataset
 import logging
-from training import train
 from tokenizer import get_tokenizer
 from transformer.encoder.model import get_encoder, Encoder
 from transformer.decoder.model import get_decoder, Decoder
