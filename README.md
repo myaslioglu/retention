@@ -19,7 +19,7 @@ A complete, educational implementation of the Transformer architecture from the 
 #### Attention Mechanisms
 - **SelfAttention**: Single attention head with optional causal masking
 - **MultiHeadAttention**: Parallel attention heads with output projection
-- **CrossAttention**: Cross-attention for encoder-decoder interaction (placeholder)
+- **CrossAttention**: Cross-attention for encoder-decoder interaction (fully implemented)
 
 #### Encoder Stack
 - **EncoderLayer**: Self-attention + feed-forward with residual connections
@@ -39,24 +39,25 @@ A complete, educational implementation of the Transformer architecture from the 
 
 ```toml
 [model]
-vocab_size = 50257        # GPT-2 style vocabulary
 hidden_size = 512         # Model dimension
 seq_len = 1024           # Maximum sequence length
+vocab_size = 30000       # Vocabulary size
+dropout_pe = 0.1         # Dropout probability
 n_heads = 8              # Number of attention heads
 ff_hidden_size = 2048    # Feed-forward hidden dimension
 n_layers = 6             # Number of encoder/decoder layers
-dropout_pe = 0.1         # Dropout probability
+
+[tokenizer]
+kind = 'tiktoken'        # tiktoken | custom
+model = 'gpt-2'          # only applicable for tiktoken tokenizer
 
 [training]
 batch_size = 32
-epochs = 100
-
-[tokenizer]
-kind = "tiktoken"
-model = "gpt2"
+epochs = 10
+learning_rate = 0.0005
 
 [dataset]
-path = "data/TinyStories.txt"
+path = "./data/TinyStories.txt"
 ```
 
 **Parameters**: ~85M (similar to GPT-2 Small)
@@ -72,7 +73,7 @@ cd Transformer
 uv sync
 
 # Or using pip
-pip install torch tiktoken toml
+pip install torch tiktoken python-box click datasets codetiming tqdm
 ```
 
 ## 📖 Usage
@@ -86,7 +87,8 @@ from config import Config
 import torch
 
 # Load configuration
-config = Config("config.toml")
+from pathlib import Path
+config = Config(Path("config.toml"))
 
 # Create models
 encoder = get_encoder(config)
@@ -104,7 +106,8 @@ decoder_output = decoder(token_ids, encoder_output)  # [batch, seq_len, hidden_s
 from model import create_model
 
 # Train model with configuration
-create_model("config.toml")
+from pathlib import Path
+create_model(Path("config.toml"))
 ```
 
 ### Command Line Interface
@@ -127,7 +130,7 @@ Transformer/
 │   │   ├── __init__.py
 │   │   ├── self.py             # Self-attention implementation
 │   │   ├── multihead.py        # Multi-head attention
-│   │   └── cross.py            # Cross-attention (placeholder)
+│   │   └── cross.py            # Cross-attention implementation
 │   ├── encoder/                # Encoder components
 │   │   ├── __init__.py
 │   │   ├── layer.py            # Single encoder layer
@@ -206,9 +209,11 @@ This implementation prioritizes:
 
 ```python
 from transformer.attentions.multihead import MultiHeadAttention
+from transformer.attentions.self import SelfAttention
 
 # Encoder attention (bidirectional)
 encoder_attention = MultiHeadAttention(
+    attention_type=SelfAttention,
     n_heads=8,
     hidden_size=512,
     max_seq_len=1024,
@@ -218,6 +223,7 @@ encoder_attention = MultiHeadAttention(
 
 # Decoder attention (causal)
 decoder_attention = MultiHeadAttention(
+    attention_type=SelfAttention,
     n_heads=8,
     hidden_size=512,
     max_seq_len=1024,
@@ -255,7 +261,7 @@ The implementation includes:
 - **TinyStories dataset** support for quick experimentation
 - **Configurable training loop** with encoder-decoder coordination
 - **Comprehensive logging** with configurable log levels
-- **Model checkpointing** and configuration management
+- **Configuration management** with TOML-based settings
 - **Flexible tokenization** with multiple tokenizer backends
 
 ### Training Pipeline
@@ -268,10 +274,11 @@ The implementation includes:
 ## 🔬 Current Status
 
 - ✅ **Encoder**: Fully implemented and tested
-- ✅ **Decoder**: Architecture complete, ready for cross-attention
-- ⏳ **Cross-Attention**: Placeholder implementation (to be completed)
-- ✅ **Training Infrastructure**: Complete pipeline with logging
+- ✅ **Decoder**: Complete architecture with cross-attention
+- ✅ **Cross-Attention**: Fully implemented and functional
+- ⚠️ **Training Loop**: Forward pass implemented, needs loss computation and backpropagation
 - ✅ **Configuration System**: TOML-based configuration management
+- ✅ **Dataset Integration**: TinyStories dataset with tokenization support
 
 ## 🤝 Contributing
 
@@ -289,4 +296,4 @@ MIT License - Feel free to use this code for educational purposes.
 
 ---
 
-**Note**: This implementation includes both encoder and decoder components of the Transformer architecture, making it suitable for sequence-to-sequence tasks once the cross-attention mechanism is completed.
+**Note**: This implementation includes both encoder and decoder components of the Transformer architecture with fully functional cross-attention. The core architecture is complete and ready for sequence-to-sequence tasks. The main remaining work is completing the training loop with proper loss computation and optimization.
