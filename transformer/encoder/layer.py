@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torch
-
+from typing import Union
 from transformer.attentions.multihead import MultiHeadAttention
 from transformer.residual_add_norm import ResidualAddNorm
 from transformer.feed_forward import FeedForward
@@ -8,7 +8,7 @@ from transformer.attentions.self import SelfAttention
 
 class EncoderLayer(nn.Module):
     def __init__(self, hidden_size: int, max_seq_len: int, dropout_pe: float,
-                 n_heads: int, ff_hidden_size: int, d_k: int|None = None):
+                 n_heads: int, ff_hidden_size: int, d_k: Union[int, None] = None):
         """
         Initializes the encoder layer with a multi-head attention mechanism, residual connections,
         and a feed-forward network. This layer does not include token embeddings or positional

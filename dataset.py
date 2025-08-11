@@ -4,6 +4,7 @@ from datasets import load_dataset
 from codetiming import Timer
 import torch
 from torch.utils.data import IterableDataset
+from typing import Union
 
 @Timer(name="load_data", text="Loading data took {:.2f} seconds")
 def load_data(data_path: Path) -> str:
@@ -50,9 +51,9 @@ class TinyStoryDataset(IterableDataset):
         (non-overlapping windows by default).
     :type stride: int | None
     """
-    def __init__(self, config: Config | None = None,
-                 seq_len: int | None = None,
-                 stride: int | None = None):
+    def __init__(self, config: Union[Config, None] = None,
+                 seq_len: Union[int, None] = None,
+                 stride: Union[int, None] = None):
         self.config = config
         if config is not None:
             self.seq_len = config.model.seq_len
@@ -62,7 +63,7 @@ class TinyStoryDataset(IterableDataset):
             raise ValueError("Provide either config or seq_len to TinyStoryDataset")
         self.token_ids = None
         self.stride = stride if stride is not None else self.seq_len  # non-overlapping by default
-        self._vocab_size: int | None = None
+        self._vocab_size: Union[int, None] = None
 
     @Timer(name="tokenize", text="Tokenization took {:.2f} seconds")
     def tokenize(self, tokenizer, data: str, inplace: bool = False):

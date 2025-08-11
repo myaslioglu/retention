@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from typing import Union
 from transformer.attentions.multihead import MultiHeadAttention
 from transformer.attentions.cross import CrossAttention
 from transformer.residual_add_norm import ResidualAddNorm
@@ -36,7 +37,7 @@ class DecoderLayer(nn.Module):
     :type residual_add_norm_ff: ResidualAddNorm
     """
     def __init__(self,hidden_size: int, max_seq_len: int,
-                 dropout_pe: float, n_heads: int, ff_hidden_size: int, d_k: int|None = None):
+                 dropout_pe: float, n_heads: int, ff_hidden_size: int, d_k: Union[int, None] = None):
         """
         Initializes a decoder layer consisting of masked multi-head attention, cross-multi-head
         attention, feed-forward network, and corresponding residual normalization components.
