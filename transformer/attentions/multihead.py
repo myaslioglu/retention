@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from transformer.attentions.self import SelfAttention
+from typing import Union
 
 class MultiHeadAttention(nn.Module):
     """
@@ -21,7 +22,7 @@ class MultiHeadAttention(nn.Module):
 
     def __init__(self, attention_type,
                  n_heads: int, hidden_size: int, max_seq_len: int,
-                 dropout_pe: float, masking: bool, d_k: int | None = None):
+                 dropout_pe: float, masking: bool, d_k: Union[int, None] = None):
         """
         Initializes the class instance and configures the multi-head self-attention mechanism.
         Validates input parameters for compatibility, including ensuring the key dimension is not
