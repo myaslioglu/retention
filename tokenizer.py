@@ -2,6 +2,7 @@ import re
 import logging
 from tqdm import tqdm
 import tiktoken
+from typing import Union
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +49,7 @@ class WordTokenizer:
         return self._n_vocab
 
 
-def get_tokenizer(tokenizer_kind: str, tokenizer_model: str, vocab_size: int | None = None):
+def get_tokenizer(tokenizer_kind: str, tokenizer_model: str, vocab_size: Union[int, None] = None):
     """Return a tokenizer based on config; builds vocab for the custom tokenizer."""
     if tokenizer_kind == 'tiktoken':
         tk = tiktoken.encoding_for_model(tokenizer_model)
