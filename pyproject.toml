@@ -13,6 +13,7 @@ dependencies = [
     'codetiming',
     "jupyter>=1.1.1",
     "sentencepiece",
+    "psutil",
 ]
 
 [project.optional-dependencies]
