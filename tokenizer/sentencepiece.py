@@ -91,15 +91,3 @@ class SentencePieceTokenizer:
         tgt_tokens = self._model.encode(tgt_txt, out_type=int)
         return src_tokens, tgt_tokens
 
-    @property
-    def pad_id(self):
-        return self._model.pad_id() if self._model else 0
-
-    @property
-    def bos_id(self):
-        return self._model.bos_id() if self._model else 2
-
-    @property
-    def eos_id(self):
-        return self._model.eos_id() if self._model else 3
-
