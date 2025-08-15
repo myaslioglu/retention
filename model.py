@@ -1,15 +1,20 @@
-from dataset import load_data
 from pathlib import Path
 from config import Config
-from dataset import TinyStoryDataset
+from dataset import TransformerDataset, get_dataset
 import logging
-from tokenizer import get_tokenizer
-from transformer.encoder.model import get_encoder, Encoder
-from transformer.decoder.model import get_decoder, Decoder
-from transformer.classifier import get_classifier, Classifier
+from tokenizer.tokenizer import get_tokenizer
+from arch.encoder.model import get_encoder, Encoder
+from arch.decoder.model import get_decoder, Decoder
+from arch.classifier import get_classifier, Classifier
 from dataclasses import dataclass
+from shutil import rmtree
 
 logger = logging.getLogger(__name__)
+
+@dataclass
+class Dataset:
+    dataset: TransformerDataset
+    tokenizer: object
 
 @dataclass
 class Model:
@@ -17,24 +22,48 @@ class Model:
     decoder: Decoder
     classifier: Classifier
 
-def create_model(config_file: Path) -> Model:
-    config = Config(config_file=config_file)
 
-    # Get the Tokenizer
-    tokenizer_kind: str = config.tokenizer.kind
-    tokenizer_model: str = config.tokenizer.model
-    vocab_size: int = config.model.vocab_size # Needed ONLY for custom tokenizer
-    tokenizer = get_tokenizer(tokenizer_kind, tokenizer_model, vocab_size)
+def init_dataset(tokenizer, config: Config):
+    dataset_path = Path(config.dataset.path)
 
-    # Get the pytorch dataset
-    dataset = TinyStoryDataset(config)
+    # // TODO: Cater for test and validation datasets
+    train, _, _ = get_dataset(dataset_path, validation=False)
+    train_ds = TransformerDataset(train, tokenizer, config.model.max_seq_len)
+    return train_ds
 
-    # Tokenize the data
-    DATAPATH = Path(config.dataset.path)
-    data = load_data(DATAPATH)
-    n_tokens: int = dataset.tokenize(tokenizer, data, inplace=True)
-    logger.info("Data converted into %d tokens", n_tokens)
 
+def init_tokenizer(config: Config):
+    kind = config.tokenizer.kind
+    vocab_size = config.model.vocab_size
+    tk_model_path = Path(config.tokenizer.model)
+    if config.tokenizer.recreate:
+        # Delete the existing model and vocab files
+        rmtree(tk_model_path.parent, ignore_errors=True)
+    return get_tokenizer(kind, tk_model_path, vocab_size)
+
+
+def build_transformer(config: Config) -> tuple[Model, Dataset]:
+    """
+    Builds and initializes the main transformer model and its associated dataset.
+    This function performs the following steps:
+    - Initializes the tokenizer based on the provided configuration.
+    - Prepares the dataset, ensuring the tokenizer and dataset align in terms of
+      vocabulary size.
+    - Initializes encoder, decoder, and classifier modules to construct the model.
+
+    :param config: Configuration object containing parameters for initializing
+        the tokenizer, dataset, and model components.
+    :type config: Config
+    :return: A tuple containing the initialized `Model` and `Dataset` objects.
+    :rtype: tuple[Model, Dataset]
+    """
+    # Get the tokenizer
+    tokenizer = init_tokenizer(config=config)
+
+    # Get the dataset
+    dataset = init_dataset(config=config, tokenizer=tokenizer)
+    # This is needed because the tokenizer can have vocab size != desired vocab size
+    config.model.vocab_size = dataset.tokenizer.n_vocab
 
     # Get the encoder
     encoder_model = get_encoder(conf=config)
@@ -44,15 +73,14 @@ def create_model(config_file: Path) -> Model:
     decoder_model = get_decoder(conf=config)
     logger.debug("Decoder initialized: %s", decoder_model)
 
-    # Iterate over the dataset
-    batch_size: int = config.training.batch_size
-    epochs: int = config.training.epochs
-    logger.info("Starting training: batch_size=%d, epochs=%d", batch_size, epochs)
-
     # Get the Classifier Head
     classifier_model = get_classifier(conf=config)
+
     return Model(
         encoder=encoder_model,
         decoder=decoder_model,
         classifier=classifier_model
+    ), Dataset(
+        dataset=dataset,
+        tokenizer=tokenizer
     )

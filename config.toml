@@ -1,8 +1,8 @@
 [model]
-hidden_size = 512
-seq_len     = 1024
-vocab_size  = 30000
-dropout_pe  = 0.1
+hidden_size     = 512
+max_seq_len     = 1024
+vocab_size      = 30000
+dropout_pe      = 0.1
 
 # Encoder specific configs
 n_heads         = 8          # Number of heads in a multihead attention block
@@ -11,8 +11,11 @@ ff_hidden_size  = 2048       # Number of neurons in the feed forward network's h
 n_layers        = 6          # Number of layers in the encoder stack
 
 [tokenizer]
-kind        = 'tiktoken'     # tiktoken | custom
-model       = 'gpt-2'        # only applicable for titoken tokenizer
+kind        = 'sentencepiece'                         # sentencepiece | custom
+model       = './models/en-de/wmt/shared'             # only applicable for sentencepiece tokenizer
+sample_size = 200000                                  # Number of input pairs to learn from while creating token rules
+algorithm   = 'bpe'                                   # bpe | unigram
+recreate    = false                                    # Use the previously created tokenizer model?
 
 [training]
 batch_size     = 32
@@ -20,4 +23,4 @@ epochs         = 10
 learning_rate  = 0.0005
 
 [dataset]
-path           = "./data/TinyStories.txt"
+path           = "./data/"

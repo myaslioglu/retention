@@ -1,13 +1,12 @@
 .venv
 .DS_Store
 __pycache__/
-transformer/__pycache__/
+arch/__pycache__/
 uv.lock
 .idea/**
 
-# Data files - exclude large datasets
-data/TinyStories.txt
-data/*.txt
-data/*.csv
-data/*.json
-data/*.parquet
+# Keep directories but ignore their contents
+models/*
+!models/.gitkeep
+data/*
+!data/.gitkeep

@@ -4,12 +4,12 @@ import torch.nn as nn
 
 class FeedForward(nn.Module):
     """
-    Implements a feed-forward neural network module commonly used in transformer
+    Implements a feed-forward neural network module commonly used in arch
     architectures.
 
     This module includes two linear layers with a non-linear ReLU activation
     function in between and a Dropout layer for regularization. It is typically
-    applied to model intermediate transformations within transformer blocks.
+    applied to model intermediate transformations within arch blocks.
 
     :ivar W_1: Linear transformation layer mapping the input to the intermediate
        hidden layer.
@@ -27,7 +27,7 @@ class FeedForward(nn.Module):
                  ff_hidden_size: int,
                  dropout_pe: float):
         """
-        Initializes the feed-forward neural network module typically used in transformer
+        Initializes the feed-forward neural network module typically used in arch
         architectures. This module consists of two linear transformations with a ReLU
         activation function in between, followed by a Dropout layer for regularization.
 

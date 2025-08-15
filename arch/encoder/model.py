@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
 from config import Config
-from transformer.encoder.layer import EncoderLayer
+from arch.encoder.layer import EncoderLayer
 import logging
-from transformer.embedding import Embeddings
-from transformer.positional_encoding import PositionalEncoding
+from arch.embedding import Embeddings
+from arch.positional_encoding import PositionalEncoding
 
 logger = logging.getLogger(__name__)
 class Encoder(nn.Module):
@@ -30,19 +30,17 @@ class Encoder(nn.Module):
                  seq_len: int, dropout_pe: float,
                  n_layers: int, n_heads: int, ff_size: int, d_k:int):
         """
-        Represents a transformer-based encoder module that includes token embeddings,
-        positional encodings, and multiple layers of transformer encoder components.
-        This module is designed to handle input sequences and generate contextualized
-        representations leveraging attention mechanisms.
+        Represents a transformer-based encoder model, comprising token embeddings,
+        positional encodings, and multiple encoder layers.
 
-        :param vocab_size: Size of the input vocabulary.
-        :param hidden_size: Dimensionality of the token embeddings and hidden state.
-        :param seq_len: Maximum sequence length for input data.
-        :param dropout_pe: Dropout probability for positional encoding.
-        :param n_layers: Number of encoder layers.
-        :param n_heads: Number of attention heads in each encoder layer.
-        :param ff_size: Dimensionality of the feed-forward network hidden layer within the encoder.
-        :param d_k: Dimensionality of the query and key vectors in the attention mechanism.
+        :param vocab_size: The size of the vocabulary used in the token embedding layer.
+        :param hidden_size: The dimensionality of token and positional embeddings as well as hidden states.
+        :param seq_len: The maximum sequence length processed by the encoder.
+        :param dropout_pe: Dropout probability applied to positional encoding.
+        :param n_layers: The number of transformer encoder layers in the model.
+        :param n_heads: The number of attention heads in each encoder layer.
+        :param ff_size: The hidden layer dimensionality of the feed-forward network in each encoder layer.
+        :param d_k: Dimensionality of each attention head.
         """
         super().__init__()
         self.token_embedding = Embeddings(vocab_size, hidden_size)
@@ -78,7 +76,7 @@ def get_encoder(conf: Config) -> Encoder:
     :rtype: Encoder
     """
     hidden_size: int = conf.model.hidden_size
-    seq_len: int = conf.model.seq_len
+    max_seq_len: int = conf.model.max_seq_len
     vocab_size: int = conf.model.vocab_size
     dropout_pe: float = conf.model.dropout_pe
     n_heads: int = conf.model.n_heads
@@ -86,7 +84,7 @@ def get_encoder(conf: Config) -> Encoder:
     ff_hidden_size: int = conf.model.ff_hidden_size
     n_layers: int = conf.model.n_layers
 
-    return Encoder(vocab_size, hidden_size, seq_len, dropout_pe,
+    return Encoder(vocab_size, hidden_size, max_seq_len, dropout_pe,
                    n_layers, n_heads, ff_hidden_size, d_k)
 
 

@@ -14,7 +14,7 @@ Transformers can preserve the context but can't preserve the order
 # Mayukh kills Lion
 # Lion kills Mayukh
 
-In the above 2 sentences, attention for kills will be the same in transformer,
+In the above 2 sentences, attention for kills will be the same in arch,
 but they mean entirely opposite just because of positioning.
 
 ++++++++++++ THIS MODULE IS USED TO ADD THAT POSITIONING DETAIL TO A TRANSFORMER WHICH WAS MISSING ++++++++++++
@@ -28,26 +28,26 @@ class PositionalEncoding(nn.Module):
     Encodes the positional information of input tensors for transformers.
 
     This class implements a positional encoding mechanism that is commonly used
-    in transformer-based neural network architectures. Positional encoding is
+    in arch-based neural network architectures. Positional encoding is
     used to provide information about the relative or absolute position of tokens
     in a sequence. This encoding is added to the token embeddings and enables
     transformers to take the order of tokens into account, which is necessary
     since transformers do not have a built-in sense of sequence order.
     """
-    def __init__(self, seq_len: int, hidden_size: int, dropout: float):
+    def __init__(self, max_seq_len: int, hidden_size: int, dropout: float):
         """
         Represents a class that precomputes positional encodings for a fixed sequence length and hidden size,
-        used in transformer-based models. Positional encodings inject information about the position of
+        used in arch-based models. Positional encodings inject information about the position of
         tokens in the sequence into the model. This implementation uses sine and cosine functions
         to compute the encodings and stores them in a buffer, making them available for the forward pass.
 
-        :param seq_len: The length of the sequence for which positional encodings are calculated.
+        :param max_seq_len: The length of the sequence for which positional encodings are calculated.
         :param hidden_size: The size of the hidden representation (or embedding dimension) used in the model.
         :param dropout: Dropout rate to apply to the positional encodings.
         """
         super().__init__()
         self.d_model = hidden_size
-        self.seq_len = seq_len
+        self.seq_len = max_seq_len
         self.dropout = nn.Dropout(p=dropout)
 
         # We can have at-most seq_len number of positions for the input
@@ -70,7 +70,8 @@ class PositionalEncoding(nn.Module):
         self.register_buffer('pe', pos_encodings)
 
     def forward(self, x) -> torch.Tensor:
-        seq_len = x.size(1)
+        actual_seq_len = x.size(1)
         # Take all the batch, only up to seq len and for all the columns (hidden_size)
-        x = x + self.pe[:, :seq_len, :] # type: ignore
+        # We are doing this because the length of an actual input sequence can be less than max_seq_len
+        x = x + self.pe[:, :actual_seq_len, :] # type: ignore
         return self.dropout(x) # [BATCH, SEQ_LEN, HIDDEN_SIZE]

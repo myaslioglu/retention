@@ -1,10 +1,10 @@
 import torch.nn as nn
 import torch
 from typing import Union
-from transformer.attentions.multihead import MultiHeadAttention
-from transformer.residual_add_norm import ResidualAddNorm
-from transformer.feed_forward import FeedForward
-from transformer.attentions.self import SelfAttention
+from arch.attentions.multihead import MultiHeadAttention
+from arch.residual_add_norm import ResidualAddNorm
+from arch.feed_forward import FeedForward
+from arch.attentions.self import SelfAttention
 
 class EncoderLayer(nn.Module):
     def __init__(self, hidden_size: int, max_seq_len: int, dropout_pe: float,

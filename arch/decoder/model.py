@@ -2,9 +2,9 @@ import logging
 import torch
 import torch.nn as nn
 from config import Config
-from transformer.embedding import Embeddings
-from transformer.positional_encoding import PositionalEncoding
-from transformer.decoder.layer import DecoderLayer
+from arch.embedding import Embeddings
+from arch.positional_encoding import PositionalEncoding
+from arch.decoder.layer import DecoderLayer
 
 logger = logging.getLogger(__name__)
 class Decoder(nn.Module):
@@ -59,12 +59,12 @@ def get_decoder(conf: Config) -> Decoder:
     :rtype: Decoder
     """
     hidden_size: int = conf.model.hidden_size
-    seq_len: int = conf.model.seq_len
+    max_seq_len: int = conf.model.max_seq_len
     vocab_size: int = conf.model.vocab_size
     dropout_pe: float = conf.model.dropout_pe
     n_heads: int = conf.model.n_heads
     d_k: int = conf.model.get("d_k", None)
     ff_hidden_size: int = conf.model.ff_hidden_size
     n_layers: int = conf.model.n_layers
-    return Decoder(vocab_size, hidden_size, seq_len,
+    return Decoder(vocab_size, hidden_size, max_seq_len,
                    dropout_pe, n_layers, n_heads, ff_hidden_size, d_k)

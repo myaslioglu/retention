@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from transformer.attentions.self import SelfAttention
+from arch.attentions.self import SelfAttention
 from typing import Union
 
 class MultiHeadAttention(nn.Module):

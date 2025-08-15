@@ -51,7 +51,8 @@ class SelfAttention(nn.Module):
         # Create the masking buffer
         self.masking = masking
         inf: torch.Tensor = torch.full((max_seq_len, max_seq_len), float("-inf"))
-        self.register_buffer('causal_mask', torch.triu(inf, diagonal=1))
+        causal_mask: torch.Tensor = torch.triu(inf, diagonal=1)
+        self.register_buffer('causal_mask', causal_mask)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # [BATCH, SEQ_LEN, d_k]

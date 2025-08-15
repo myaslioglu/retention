@@ -11,7 +11,7 @@ class CrossAttention(nn.Module):
     which allows a sequence in one context to attend to a sequence in another
     context effectively. This is typically used in tasks that require correlating
     information between two separate sequences, such as in sequence-to-sequence
-    models or transformer architectures.
+    models or arch architectures.
 
     :ivar d_model: Hidden size of the input sequence representations.
     :type d_model: int

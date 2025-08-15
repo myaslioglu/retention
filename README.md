@@ -84,13 +84,14 @@ pip install torch tiktoken python-box click datasets codetiming tqdm
 ### Basic Usage
 
 ```python
-from transformer.encoder.model import get_encoder
-from transformer.decoder.model import get_decoder
+from arch.encoder.model import get_encoder
+from arch.decoder.model import get_decoder
 from config import Config
 import torch
 
 # Load configuration
 from pathlib import Path
+
 config = Config(Path("config.toml"))
 
 # Create models
@@ -99,18 +100,19 @@ decoder = get_decoder(config)
 
 # Forward pass
 token_ids = torch.randint(0, 50257, (32, 128))  # [batch, seq_len]
-encoder_output = encoder(token_ids)             # [batch, seq_len, hidden_size]
+encoder_output = encoder(token_ids)  # [batch, seq_len, hidden_size]
 decoder_output = decoder(token_ids, encoder_output)  # [batch, seq_len, hidden_size]
 ```
 
 ### Training Pipeline
 
 ```python
-from model import create_model
+from model import build_transformer
 
 # Train model with configuration
 from pathlib import Path
-create_model(Path("config.toml"))
+
+build_transformer(Path("config.toml"))
 ```
 
 ### Command Line Interface
@@ -211,8 +213,8 @@ This implementation prioritizes:
 ### Creating Custom Attention Patterns
 
 ```python
-from transformer.attentions.multihead import MultiHeadAttention
-from transformer.attentions.self import SelfAttention
+from arch.attentions.multihead import MultiHeadAttention
+from arch.attentions.self import SelfAttention
 
 # Encoder attention (bidirectional)
 encoder_attention = MultiHeadAttention(

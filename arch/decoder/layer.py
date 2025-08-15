@@ -1,21 +1,21 @@
 import torch
 import torch.nn as nn
 from typing import Union
-from transformer.attentions.multihead import MultiHeadAttention
-from transformer.attentions.cross import CrossAttention
-from transformer.residual_add_norm import ResidualAddNorm
-from transformer.feed_forward import FeedForward
-from transformer.attentions.self import SelfAttention
+from arch.attentions.multihead import MultiHeadAttention
+from arch.attentions.cross import CrossAttention
+from arch.residual_add_norm import ResidualAddNorm
+from arch.feed_forward import FeedForward
+from arch.attentions.self import SelfAttention
 
 class DecoderLayer(nn.Module):
     """
-    Represents a single decoder layer for transformer-based models.
+    Represents a single decoder layer for arch-based models.
 
     This layer is designed to perform masked self-attention, cross-attention,
     and feed-forward transformations with residual connections and layer
     normalization applied to each stage. These components work together
     to facilitate effective learning and contextual understanding in the
-    decoder part of the transformer architecture.
+    decoder part of the arch architecture.
 
     :ivar masked_multi_head_attn: Layer for performing masked multi-head
         attention on the input sequence, ensuring future tokens remain masked.
