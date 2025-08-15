@@ -1,4 +1,6 @@
 from pathlib import Path
+from typing import Union
+
 from config import Config
 from dataset import TransformerDataset, get_dataset
 import logging
@@ -8,13 +10,15 @@ from arch.decoder.model import get_decoder, Decoder
 from arch.classifier import get_classifier, Classifier
 from dataclasses import dataclass
 from shutil import rmtree
+from tokenizer.sentencepiece import SentencePieceTokenizer
+from tokenizer.word import WordTokenizer
 
 logger = logging.getLogger(__name__)
 
 @dataclass
 class Dataset:
     dataset: TransformerDataset
-    tokenizer: object
+    tokenizer: Union[SentencePieceTokenizer, WordTokenizer]
 
 @dataclass
 class Model:

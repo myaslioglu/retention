@@ -16,6 +16,10 @@ class WordTokenizer:
         self.id_to_word[0] = self.unknown_token
         self.next_id = 1 # Reserve 0 for UNKNOWN words
         self._n_vocab = vocab_size
+        self.pad_id = 0
+        self.unk_id = 1
+        self.bos_id = 2
+        self.eos_id = 3
 
     def build_vocab(self, text):
         words = WordTokenizer.extract_words(text)

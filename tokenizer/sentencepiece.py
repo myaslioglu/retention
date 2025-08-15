@@ -27,6 +27,10 @@ class SentencePieceTokenizer:
         self._model = None
         self.add_special_tokens = add_special_tokens
         self.actual_vocab_size = None  # This can differ from the provided vocab_size
+        self.pad_id = 0
+        self.unk_id = 1
+        self.bos_id = 2
+        self.eos_id = 3
 
     @property
     def model(self):
@@ -56,10 +60,10 @@ class SentencePieceTokenizer:
                     vocab_size=self.vocab_size,
                     character_coverage=0.9995,  # High coverage for both languages
                     model_type=self.algorithm,
-                    pad_id=0,
-                    unk_id=1,
-                    bos_id=2,
-                    eos_id=3,
+                    pad_id=self.pad_id,
+                    unk_id=self.unk_id,
+                    bos_id=self.bos_id,
+                    eos_id=self.eos_id,
                     pad_piece=self.PAD,
                     unk_piece=self.UNK,
                     bos_piece=self.BOS,
@@ -68,6 +72,8 @@ class SentencePieceTokenizer:
                     shuffle_input_sentence=True,  # Better statistical coverage
                 )
         self._model, self.actual_vocab_size = self.model
+        self.pad_id = self._model.pad_id() # This is required at collate function for batch creation
+
         if self.actual_vocab_size != self.vocab_size:
             logger.warning("Actual vocab size (%d) does not match the provided one (%d)",
                            self.actual_vocab_size, self.vocab_size)
@@ -83,18 +89,5 @@ class SentencePieceTokenizer:
             return None, None
         src_tokens = self._model.encode(src_txt, out_type=int)
         tgt_tokens = self._model.encode(tgt_txt, out_type=int)
-
-        bos_id = self._model.bos_id()
-        eos_id = self._model.eos_id()
-        pad_id = self._model.pad_id()
-
-        if self.add_special_tokens:
-            src_tokens = [bos_id] + src_tokens[:stride - 2] + [eos_id]
-            tgt_tokens = [bos_id] + tgt_tokens[:stride - 2] + [eos_id]
-
-        # Add the padding to the tokens
-        src_tokens += [pad_id] * (stride - len(src_tokens))
-        tgt_tokens += [pad_id] * (stride - len(tgt_tokens))
-
         return src_tokens, tgt_tokens
 

@@ -77,9 +77,5 @@ class TransformerDataset(IterableDataset):
             tgt_text = sample["translation"]["de"]
 
             src_tokens, tgt_tokens = self.tokenizer.encode(src_text, tgt_text, self.max_seq_len)
-
             if src_tokens and tgt_tokens:
-                # Convert to tensors
-                src_tokens = torch.tensor(src_tokens, dtype=torch.long)
-                tgt_tokens = torch.tensor(tgt_tokens, dtype=torch.long)
                 yield src_tokens, tgt_tokens

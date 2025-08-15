@@ -58,7 +58,8 @@ class Encoder(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         inp_embd = self.token_embedding(x)
         out = self.position_encoding(inp_embd)
-        for enc_layer in self.encoder_layers:
+        for layer_id, enc_layer in enumerate(self.encoder_layers, start=1):
+            logger.debug(f"Encoder Layer: {layer_id}")
             out = enc_layer(out)
         return out
 
@@ -86,7 +87,3 @@ def get_encoder(conf: Config) -> Encoder:
 
     return Encoder(vocab_size, hidden_size, max_seq_len, dropout_pe,
                    n_layers, n_heads, ff_hidden_size, d_k)
-
-
-def get_decoder():
-    pass

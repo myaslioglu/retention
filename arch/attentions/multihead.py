@@ -47,7 +47,7 @@ class MultiHeadAttention(nn.Module):
         d_k = hidden_size // n_heads
 
         self.d_k = d_k
-        self.IsSelfAttention = isinstance(attention_type, SelfAttention)
+        self.IsSelfAttention = attention_type == SelfAttention
         # Create `n_heads` number of self-attention heads
         self.self_attention_heads = nn.ModuleList([
             attention_type(hidden_size=hidden_size, max_seq_len=max_seq_len,
@@ -59,7 +59,7 @@ class MultiHeadAttention(nn.Module):
         self.W_o = nn.Linear(d_k * n_heads, hidden_size)
         self.out_dropout = nn.Dropout(p=dropout_pe)
 
-    def forward(self, x: torch.Tensor, encoder_output: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, encoder_output: Union[torch.Tensor, None]=None) -> torch.Tensor:
         head_outputs = []
 
         if self.IsSelfAttention:
