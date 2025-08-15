@@ -6,12 +6,12 @@ from torch.utils.data import DataLoader
 from collections import namedtuple
 
 
-def collate_fn(batch, pad_id: int,  bos_id: int, eos_id: int, max_seq_len: int):
-    src_batch_X = []
-    tgt_batch_X = []
-    tgt_batch_y = []
+def collate_fn(batch, pad_id: int,  bos_id: int, eos_id: int, max_seq_len: int, device: torch.device):
+    src_batch_X = torch.zeros(len(batch), max_seq_len, dtype=torch.long, device=device)
+    tgt_batch_X = torch.zeros(len(batch), max_seq_len, dtype=torch.long, device=device)
+    tgt_batch_y = torch.zeros(len(batch), max_seq_len, dtype=torch.long, device=device)
 
-    for src_tkn, tgt_tkn in batch:
+    for i, (src_tkn, tgt_tkn) in enumerate(batch):
         #  For encoder input
         #  SRC_TOKENS + EOS + [PAD]
         src_X = src_tkn[:max_seq_len - 1] + [eos_id] # Make room for EOS
@@ -30,19 +30,14 @@ def collate_fn(batch, pad_id: int,  bos_id: int, eos_id: int, max_seq_len: int):
         tgt_X = tgt_X + [pad_id] * (max_seq_len - len(tgt_X))
         tgt_y = tgt_y + [pad_id] * (max_seq_len - len(tgt_y))
 
-        # Convert to tensors
-        src_batch_X.append(torch.tensor(src_X, dtype=torch.long))
-        tgt_batch_X.append(torch.tensor(tgt_X, dtype=torch.long))
-        tgt_batch_y.append(torch.tensor(tgt_y, dtype=torch.long))
-
-    # Stack into batch tensors
-    src_batch_X_tensor = torch.stack(src_batch_X)  # [batch_size, max_seq_len]
-    tgt_batch_X_tensor = torch.stack(tgt_batch_X)  # [batch_size, max_seq_len]
-    tgt_batch_y_tensor = torch.stack(tgt_batch_y)  # [batch_size, max_seq_len]
+        # Assign sequences directly to pre-allocated tensors  
+        src_batch_X[i, :len(src_X)] = torch.tensor(src_X, dtype=torch.long, device=device)
+        tgt_batch_X[i, :len(tgt_X)] = torch.tensor(tgt_X, dtype=torch.long, device=device)
+        tgt_batch_y[i, :len(tgt_y)] = torch.tensor(tgt_y, dtype=torch.long, device=device)
 
     BatchTensors = namedtuple('BatchTensors',
                               ['src_batch_X', 'tgt_batch_X', 'tgt_batch_y'])
-    return BatchTensors(src_batch_X_tensor, tgt_batch_X_tensor, tgt_batch_y_tensor)
+    return BatchTensors(src_batch_X, tgt_batch_X, tgt_batch_y)
 
 
 def run(config_file: Path):
@@ -56,12 +51,26 @@ def run(config_file: Path):
             pad_id=ds.tokenizer.pad_id,
             bos_id=ds.tokenizer.bos_id,
             eos_id=ds.tokenizer.eos_id,
-            max_seq_len=config.model.max_seq_len
+            max_seq_len=config.model.max_seq_len,
+            device=transformer.device
         )
     )
     for batch in train_data_loader:
-        print(batch.src_batch_X.shape)
-        print(batch.tgt_batch_X.shape)
-        print(batch.tgt_batch_y.shape)
+        print(f"Batch shapes on device {transformer.device}:")
+        print(f"  Source: {batch.src_batch_X.shape} - Device: {batch.src_batch_X.device}")
+        print(f"  Target Input: {batch.tgt_batch_X.shape} - Device: {batch.tgt_batch_X.device}")
+        print(f"  Target Output: {batch.tgt_batch_y.shape} - Device: {batch.tgt_batch_y.device}")
+        
+        # Test forward pass to verify device compatibility
+        print(f"\nTesting forward pass...")
+        try:
+            with torch.no_grad():  # No gradients needed for testing
+                logits = transformer.forward(batch.src_batch_X, batch.tgt_batch_X)
+                print(f"Forward pass successful!")
+                print(f"  Output logits shape: {logits.shape} - Device: {logits.device}")
+                print(f"  Expected shape: [batch_size={batch.src_batch_X.shape[0]}, seq_len={batch.src_batch_X.shape[1]}, vocab_size={config.model.vocab_size}]")
+        except Exception as e:
+            print(f"Forward pass failed: {e}")
+        
         break
 
