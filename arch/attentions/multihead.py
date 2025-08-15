@@ -1,7 +1,8 @@
 import torch
 import torch.nn as nn
 from arch.attentions.self import SelfAttention
-from typing import Union
+from arch.attentions.cross import CrossAttention
+from typing import Union, Type
 
 class MultiHeadAttention(nn.Module):
     """
@@ -20,7 +21,7 @@ class MultiHeadAttention(nn.Module):
     :type W_o: Nn.Linear
     """
 
-    def __init__(self, attention_type,
+    def __init__(self, attention_type: Type[Union[SelfAttention, CrossAttention]],
                  n_heads: int, hidden_size: int, max_seq_len: int,
                  dropout_pe: float, masking: bool, d_k: Union[int, None] = None):
         """
@@ -44,10 +45,11 @@ class MultiHeadAttention(nn.Module):
             raise ValueError("Key dimension must be less than or equal to hidden size")
         if hidden_size % n_heads != 0:
             raise ValueError("Number of heads must divide hidden size evenly")
-        d_k = hidden_size // n_heads
+        if not d_k:
+            d_k = hidden_size // n_heads
 
         self.d_k = d_k
-        self.IsSelfAttention = attention_type == SelfAttention
+        self.IsSelfAttention = attention_type is SelfAttention
         # Create `n_heads` number of self-attention heads
         self.self_attention_heads = nn.ModuleList([
             attention_type(hidden_size=hidden_size, max_seq_len=max_seq_len,
