@@ -21,7 +21,7 @@ class Classifier(nn.Module):
     def __init__(self, hidden_size: int, vocab_size: int):
         super().__init__()
         self.linear = nn.Linear(hidden_size, vocab_size)
-        self.softmax = nn.Softmax(dim=-1)
+        # self.softmax = nn.Softmax(dim=-1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -38,8 +38,9 @@ class Classifier(nn.Module):
         :rtype: torch.Tensor
         """
         logits = self.linear(x) # [BATCH, SEQ_LEN, VOCAB_SIZE]
-        prob = self.softmax(logits) # [BATCH, SEQ_LEN, VOCAB_SIZE]
-        return prob
+        # We don't need to apply softmax because we are using CrossEntropyLoss
+        # prob = self.softmax(logits) # [BATCH, SEQ_LEN, VOCAB_SIZE]
+        return logits
 
 
 def get_classifier(conf: Config) -> Classifier:
