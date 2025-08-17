@@ -76,6 +76,6 @@ class TransformerDataset(IterableDataset):
             src_text = sample["translation"]["en"]
             tgt_text = sample["translation"]["de"]
 
-            src_tokens, tgt_tokens = self.tokenizer.encode(src_text, tgt_text, self.max_seq_len)
+            src_tokens, tgt_tokens = self.tokenizer.encode(src_text, tgt_text)
             if src_tokens and tgt_tokens:
                 yield src_tokens, tgt_tokens

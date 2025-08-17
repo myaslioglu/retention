@@ -2,14 +2,20 @@ from model import build_transformer
 from config import Config
 from pathlib import Path
 import torch
+import logging
 from torch.utils.data import DataLoader
 from collections import namedtuple
 
+logger = logging.getLogger(__name__)
 
-def collate_fn(batch, pad_id: int,  bos_id: int, eos_id: int, max_seq_len: int, device: torch.device):
-    src_batch_X = torch.zeros(len(batch), max_seq_len, dtype=torch.long, device=device)
-    tgt_batch_X = torch.zeros(len(batch), max_seq_len, dtype=torch.long, device=device)
-    tgt_batch_y = torch.zeros(len(batch), max_seq_len, dtype=torch.long, device=device)
+def collate_fn(batch, pad_id: int,  bos_id: int, eos_id: int,
+               max_seq_len: int, device: torch.device):
+    src_batch_X = torch.zeros(len(batch), max_seq_len,
+                              dtype=torch.long, device=device)
+    tgt_batch_X = torch.zeros(len(batch), max_seq_len,
+                              dtype=torch.long, device=device)
+    tgt_batch_y = torch.zeros(len(batch), max_seq_len,
+                              dtype=torch.long, device=device)
 
     for i, (src_tkn, tgt_tkn) in enumerate(batch):
         #  For encoder input
@@ -40,14 +46,23 @@ def collate_fn(batch, pad_id: int,  bos_id: int, eos_id: int, max_seq_len: int, 
     return BatchTensors(src_batch_X, tgt_batch_X, tgt_batch_y)
 
 
-def run(config_file: Path):
+def test_run(config_file: Path):
+    """
+    Tests the forward pass of the transformer model with a dataset loaded and prepared according to
+    the given configuration file. This is used to verify the compatibility and correctness of the model
+    and data pipeline components.
+
+    :param config_file: Path to the configuration file containing model, dataset, and training settings.
+    :type config_file: Path
+    :return: None
+    """
     config = Config(config_file=config_file)
     transformer, ds = build_transformer(config)
     train_data_loader = DataLoader(
         dataset=ds.dataset,
         batch_size=config.training.batch_size,
-        collate_fn=lambda b: collate_fn(
-            b,
+        collate_fn=lambda _batch: collate_fn(
+            _batch,
             pad_id=ds.tokenizer.pad_id,
             bos_id=ds.tokenizer.bos_id,
             eos_id=ds.tokenizer.eos_id,
@@ -56,21 +71,22 @@ def run(config_file: Path):
         )
     )
     for batch in train_data_loader:
-        print(f"Batch shapes on device {transformer.device}:")
-        print(f"  Source: {batch.src_batch_X.shape} - Device: {batch.src_batch_X.device}")
-        print(f"  Target Input: {batch.tgt_batch_X.shape} - Device: {batch.tgt_batch_X.device}")
-        print(f"  Target Output: {batch.tgt_batch_y.shape} - Device: {batch.tgt_batch_y.device}")
-        
+        logger.debug(f"  Source: {batch.src_batch_X.shape} - Device: {batch.src_batch_X.device}")
+        logger.debug(f"  Target Input: {batch.tgt_batch_X.shape} - Device: {batch.tgt_batch_X.device}")
+        logger.debug(f"  Target Output: {batch.tgt_batch_y.shape} - Device: {batch.tgt_batch_y.device}")
+
         # Test forward pass to verify device compatibility
-        print(f"\nTesting forward pass...")
+        logger.info(f"Testing forward pass...")
         try:
             with torch.no_grad():  # No gradients needed for testing
                 logits = transformer.forward(batch.src_batch_X, batch.tgt_batch_X)
-                print(f"Forward pass successful!")
-                print(f"  Output logits shape: {logits.shape} - Device: {logits.device}")
-                print(f"  Expected shape: [batch_size={batch.src_batch_X.shape[0]}, seq_len={batch.src_batch_X.shape[1]}, vocab_size={config.model.vocab_size}]")
+                logger.info(f"Forward pass successful!")
+                logger.debug(f"  Output logits shape: {logits.shape} - Device: {logits.device}")
+                logger.debug(f"  Expected shape: ["
+                      f"batch_size={batch.src_batch_X.shape[0]}, "
+                      f"seq_len={batch.src_batch_X.shape[1]}, "
+                      f"vocab_size={config.model.vocab_size}]")
         except Exception as e:
-            print(f"Forward pass failed: {e}")
-        
+            logger.error(f"Forward pass failed: {e}")
         break
 

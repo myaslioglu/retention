@@ -1,6 +1,6 @@
 import click
 from pathlib import Path
-from run import run
+from run import test_run
 import logging
 from log_config import setup_logging
 
@@ -12,7 +12,7 @@ from log_config import setup_logging
 def main(config: Path):
     setup_logging(for_notebook=False)
     logging.info(f"Running transformer with config {config}")
-    run(config_file=config)
+    test_run(config_file=config)
 
 if __name__ == '__main__':
     main()

@@ -2,7 +2,7 @@ import logging
 import sentencepiece as spm
 from pathlib import Path
 import tempfile
-
+from codetiming import Timer
 from datasets.arrow_dataset import Dataset
 
 logger = logging.getLogger(__name__)
@@ -39,6 +39,7 @@ class SentencePieceTokenizer:
         model.Load(str(self.model_path.with_suffix(".model")))
         return model, model.GetPieceSize()
 
+    @Timer(name="tokenizer.train", text="Loading/training tokenizer model took {:.2f} seconds")
     def train(self, dataset: Dataset, lang_keys: list):
         self.model_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -83,7 +84,7 @@ class SentencePieceTokenizer:
     def n_vocab(self):
         return self.actual_vocab_size
 
-    def encode(self, src_txt: str, tgt_txt: str, stride: int) -> tuple[list[int], list[int]] | tuple[None, None]:
+    def encode(self, src_txt: str, tgt_txt: str) -> tuple[list[int], list[int]] | tuple[None, None]:
         if not self._model:
             logger.error("Please train the sentencepiece tokenizer first")
             return None, None

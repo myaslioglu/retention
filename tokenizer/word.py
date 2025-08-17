@@ -29,7 +29,7 @@ class WordTokenizer:
                 self.id_to_word[self.next_id] = word
                 self.next_id += 1
 
-    def encode(self, src_txt: str, tgt_txt: str, stride: int) -> tuple[list[int], list[int]] | tuple[None, None]:
+    def encode(self, src_txt: str, tgt_txt: str) -> tuple[list[int], list[int]] | tuple[None, None]:
         pass
         # self.build_vocab(text)
         # if len(self.word_to_id) < 2 or len(self.id_to_word) < 2:

@@ -14,7 +14,7 @@ class SelfAttention(nn.Module):
     :ivar d_model: Dimensionality of the input feature space (hidden size).
     :type d_model: Int
     :ivar d_k: Dimensionality of the key, value, and query vectors.
-    :type d_k: Int-    :ivar W_q: Learnable linear transformation for computing query vectors.
+    :type d_k: Int- :ivar W_q: Learnable linear transformation for computing query vectors.
     :type W_q: Nn.Linear
     :ivar W_k: Learnable linear transformation for computing key vectors.
     :type W_k: Nn.Linear
