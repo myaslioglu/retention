@@ -48,13 +48,14 @@ class SelfAttention(nn.Module):
 
         self.attn_dropout = nn.Dropout(p=dropout_pe)
 
+
         # Create the masking buffer
         self.masking = masking
-        inf: torch.Tensor = torch.full((max_seq_len, max_seq_len), float("-inf"))
+        inf: torch.Tensor = torch.ones(max_seq_len, max_seq_len, dtype=torch.bool)
         causal_mask: torch.Tensor = torch.triu(inf, diagonal=1)
-        self.register_buffer('causal_mask', causal_mask)
+        self.register_buffer('causal_mask', causal_mask, persistent=True)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, padding_mask: torch.Tensor = None) -> torch.Tensor:
         # [BATCH, SEQ_LEN, d_k]
         Q = self.W_q(x) # Query Vector
         K = self.W_k(x) # Key Vector
@@ -65,22 +66,31 @@ class SelfAttention(nn.Module):
         # K -> [BATCH, SEQ_LEN, d_k]
         # So we need to transpose K to calculate dot product
         K_t = SelfAttention.transpose(K)
-        scores = Q @ K_t
+        scores = Q @ K_t    # [BATCH, SEQ_LEN, SEQ_LEN], a perfect square matrix for each batch
 
         # Now scale the attention scores
         scores = scores / math.sqrt(self.d_k)
+
+        neg_inf = torch.finfo(scores.dtype).min
+
+        # Apply padding mask
+        if padding_mask is not None:
+            scores = scores.masked_fill(padding_mask.unsqueeze(1), self.neg_inf)
 
         # Apply masking
         if self.masking:
             _, SeqLen, _ = scores.shape
             mask: torch.Tensor = self.causal_mask[:SeqLen, :SeqLen]
-            scores = scores + mask
+            scores = scores.masked_fill(mask, neg_inf)
 
         # Apply Softmax
         scores = self.softmax(scores) # [BATCH, SEQ_LEN, SEQ_LEN]
 
         # Apply dropout
         W = self.attn_dropout(scores)
+
+        #  Zero PAD QUERIES (rows) AFTER softmax
+        W = W.masked_fill(padding_mask.unsqueeze(-1), 0.0)
 
         # Linear Projection
         return W @ V # [BATCH, SEQ_LEN, d_k]
