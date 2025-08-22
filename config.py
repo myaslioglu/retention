@@ -28,6 +28,10 @@ class Config:
     def dataset(self):
         return self._config.dataset
 
+    @property
+    def loss(self):
+        return self._config.loss
+
 
 if __name__ == '__main__':
     config = Config(config_file=Path('config.toml'))

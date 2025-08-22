@@ -14,6 +14,7 @@ dependencies = [
     "jupyter>=1.1.1",
     "sentencepiece",
     "psutil",
+    "humanize",
 ]
 
 [project.optional-dependencies]
@@ -21,6 +22,48 @@ dev = [
     "ipython>=9.4.0",
     "jupyter",
 ]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-html>=3.0.0",
+    "pytest-xdist>=3.0.0",
+    "pytest-sugar>=0.9.7",
+    "pytest-clarity>=1.0.1",
+    "pytest-mock>=3.10.0",
+    "pytest-benchmark>=4.0.0",
+    "rich>=13.0.0",
+    "colorama>=0.4.6",
+]
 
 [tool.setuptools]
 packages = ["transformer"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--verbose",
+    "--tb=short",
+    "--strict-markers",
+    "--strict-config",
+    "--color=yes",
+    "--durations=10",
+    "--html=reports/report.html",
+    "--self-contained-html",
+    "--cov=.",
+    "--cov-report=html:reports/coverage",
+    "--cov-report=term-missing",
+    "--cov-fail-under=80",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "gpu: marks tests that require GPU",
+]
+filterwarnings = [
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+]

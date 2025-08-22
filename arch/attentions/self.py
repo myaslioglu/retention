@@ -89,8 +89,9 @@ class SelfAttention(nn.Module):
         # Apply dropout
         W = self.attn_dropout(scores)
 
-        #  Zero PAD QUERIES (rows) AFTER softmax
-        W = W.masked_fill(padding_mask.unsqueeze(-1), 0.0)
+        if padding_mask is not None:
+            #  Zero PAD QUERIES (rows) AFTER softmax
+            W = W.masked_fill(padding_mask.unsqueeze(-1), 0.0)
 
         # Linear Projection
         return W @ V # [BATCH, SEQ_LEN, d_k]

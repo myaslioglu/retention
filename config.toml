@@ -25,3 +25,7 @@ device         = "auto"                                    # auto | cuda | mps |
 
 [dataset]
 path           = "./data/"
+
+[loss]
+type           = "cross_entropy"
+label_smoothing = 0.1

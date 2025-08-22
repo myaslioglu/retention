@@ -9,6 +9,9 @@ from typing import Union
 import logging
 from typing import Iterator, Tuple
 from sentencepiece import SentencePieceProcessor
+from dataclasses import dataclass
+from tokenizer.sentencepiece import SentencePieceTokenizer
+from tokenizer.word import WordTokenizer
 
 logger = logging.getLogger(__name__)
 
@@ -79,3 +82,9 @@ class TransformerDataset(IterableDataset):
             src_tokens, tgt_tokens = self.tokenizer.encode(src_text, tgt_text)
             if src_tokens and tgt_tokens:
                 yield src_tokens, tgt_tokens
+
+
+@dataclass
+class Dataset:
+    dataset: TransformerDataset
+    tokenizer: Union[SentencePieceTokenizer, WordTokenizer]
