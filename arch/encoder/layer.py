@@ -63,7 +63,7 @@ class EncoderLayer(nn.Module):
                                         dropout_pe=dropout_pe)
 
     def forward(self, x: torch.Tensor, pad_mask: torch.Tensor) -> torch.Tensor:
-        attn_output = self.multi_head_attn(x=x, encoder_pad_mask=pad_mask)
+        attn_output = self.multi_head_attn(x=x, pad_mask=pad_mask)
         res_norm = self.residual_add_norm_attn(x, attn_output)
         ff_output = self.feed_forward(res_norm)
         return self.residual_add_norm_ff(res_norm, ff_output)

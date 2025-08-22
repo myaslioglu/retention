@@ -38,11 +38,11 @@ class Decoder(nn.Module):
             for _ in range(n_layers)
         ])
 
-    def forward(self, x: torch.Tensor, encoder_output: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, pad_mask: torch.Tensor, encoder_output: torch.Tensor) -> torch.Tensor:
         out_embd = self.token_embedding(x)
         out = self.position_encoding(out_embd)
         for dec_layer in self.decoder_layers:
-            out = dec_layer(out, encoder_output)
+            out = dec_layer(out, pad_mask, encoder_output)
         return out
 
 

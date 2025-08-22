@@ -178,7 +178,8 @@ def standalone_test_run(config_file: Path):
                 src_batch_X=batch.src_batch_X.to(transformer.device),
                 tgt_batch_X=batch.tgt_batch_X.to(transformer.device),
                 tgt_batch_y=batch.tgt_batch_y.to(transformer.device),
-                src_batch_X_pad_mask=batch.src_batch_X_pad_mask.to(transformer.device)
+                src_batch_X_pad_mask=batch.src_batch_X_pad_mask.to(transformer.device),
+                tgt_batch_X_pad_mask=batch.tgt_batch_X_pad_mask.to(transformer.device)
             )
             progress.update(task5, completed=True, description="✅ Moved to device")
             
