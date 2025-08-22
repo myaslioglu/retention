@@ -60,7 +60,7 @@ python test_runner.py benchmark
    - Verifies all required sections and values
 
 2. **`test_model_device_placement`** 🖥️
-   - Tests model device placement (CPU/GPU/MPS)
+   - Tests model device placement (CPU/GPU)
    - Shows device information in formatted panels
    - Validates device compatibility
 

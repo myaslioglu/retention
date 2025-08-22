@@ -77,6 +77,7 @@ class SelfAttention(nn.Module):
 
         # Apply padding mask
         if padding_mask is not None:
+            padding_mask = padding_mask.to(scores.device)
             scores = scores.masked_fill(padding_mask.unsqueeze(1), neg_inf)
 
         # Apply masking

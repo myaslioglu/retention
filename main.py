@@ -2,6 +2,8 @@ import click
 from pathlib import Path
 import logging
 from log_config import setup_logging
+from run import run_train
+
 
 @click.command()
 @click.option('--config',
@@ -11,7 +13,7 @@ from log_config import setup_logging
 def main(config: Path):
     setup_logging(for_notebook=False)
     logging.info(f"Running transformer with config {config}")
-    # test_run(config_file=config)
+    run_train(config_file=config)
 
 if __name__ == '__main__':
     main()

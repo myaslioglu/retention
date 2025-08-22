@@ -1,15 +1,16 @@
-from tokenizer.word import WordTokenizer
+import logging
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Iterator, Tuple
+from typing import Union
+
+import torch
+from codetiming import Timer
 from datasets import load_dataset
 from datasets.arrow_dataset import Dataset
-from codetiming import Timer
-import torch
-from torch.utils.data import IterableDataset
-from typing import Union
-import logging
-from typing import Iterator, Tuple
 from sentencepiece import SentencePieceProcessor
-from dataclasses import dataclass
+from torch.utils.data import IterableDataset
+
 from tokenizer.sentencepiece import SentencePieceTokenizer
 from tokenizer.word import WordTokenizer
 
@@ -26,11 +27,11 @@ def get_dataset(data_path: Path, validation: object = True) -> tuple:
     :type data_path: Path
     :param validation: Whether to include the validation dataset. Defaults to
         True.
-    :type validation: bool
+    :type validation: Bool
     :return: If validation is True, returns a tuple containing the training,
         validation, and test datasets. If False, returns a tuple containing the
         training and test datasets.
-    :rtype: tuple
+    :rtype: Tuple
     """
     dataset = load_dataset("wmt/wmt14", "de-en",
                  cache_dir=str(data_path),

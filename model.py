@@ -23,7 +23,8 @@ class TransformerModel:
     classifier: Classifier
     device: torch.device
     
-    def forward(self, src_batch: torch.Tensor, tgt_batch: torch.Tensor, src_pad_mask: torch.Tensor, tgt_pad_mask: torch.Tensor) -> torch.Tensor:
+    def forward(self, src_batch: torch.Tensor, tgt_batch: torch.Tensor, 
+                src_pad_mask: torch.Tensor, tgt_pad_mask: torch.Tensor) -> torch.Tensor:
         """
         Forward pass through the complete transformer model.
         
@@ -31,10 +32,6 @@ class TransformerModel:
         :param tgt_batch: Target sequences [batch_size, seq_len]
         :return: Output logits [batch_size, seq_len, vocab_size]
         """
-        # Ensure inputs are on the correct device
-        src_batch = src_batch.to(self.device)
-        tgt_batch = tgt_batch.to(self.device)
-        
         # Encoder forward pass
         encoder_output = self.encoder(src_batch, src_pad_mask)
 

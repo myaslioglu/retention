@@ -14,3 +14,4 @@ data/*
 .vscode/
 .coverage
 *.html
+wandb/

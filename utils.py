@@ -73,7 +73,11 @@ def get_dataloader(ds: Dataset, config: Config):
     """
     Fixed dataloader that doesn't pass device to collate function.
     Device transfer will happen in the model.forward() method.
+    Enables pin_memory for GPU performance when CUDA is available.
     """
+    # Determine if we should use pin_memory for GPU optimization
+    use_pin_memory = torch.cuda.is_available()
+    
     return DataLoader(
         dataset=ds.dataset,
         batch_size=config.training.batch_size,
@@ -85,14 +89,14 @@ def get_dataloader(ds: Dataset, config: Config):
             max_seq_len=config.model.max_seq_len
         ),
         num_workers=0,  # Avoid multiprocessing issues
-        pin_memory=False  # Not needed for CPU
+        pin_memory=use_pin_memory  # Enable for GPU performance when CUDA available
     )
 
 
 def get_device(config: Config) -> torch.device:
     """
     Determines the device to use for training based on configuration and availability.
-    Supports CUDA (NVIDIA), MPS (Apple Silicon), and CPU.
+    Supports CUDA (NVIDIA) and CPU.
     
     :param config: Configuration object containing device preference
     :type config: Config
@@ -106,16 +110,6 @@ def get_device(config: Config) -> torch.device:
             device = torch.device('cuda')
             logger.info(f"Auto-selected CUDA device: {torch.cuda.get_device_name(0)}")
             logger.info(f"CUDA memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
-        elif torch.backends.mps.is_available():
-            device = torch.device('mps')
-            logger.info("Auto-selected MPS device (Apple Silicon)")
-            # Get system memory info for Apple Silicon
-            try:
-                import psutil
-                memory_gb = psutil.virtual_memory().total / 1e9
-                logger.info(f"System memory: {memory_gb:.1f} GB")
-            except ImportError:
-                logger.info("MPS device selected (install psutil for memory info)")
         else:
             device = torch.device('cpu')
             logger.info("No GPU acceleration available, auto-selected CPU")
@@ -127,24 +121,11 @@ def get_device(config: Config) -> torch.device:
         else:
             logger.warning("CUDA requested but not available, falling back to CPU")
             device = torch.device('cpu')
-    elif device_preference == 'mps':
-        if torch.backends.mps.is_available():
-            device = torch.device('mps')
-            logger.info("Using configured MPS device (Apple Silicon)")
-            try:
-                import psutil
-                memory_gb = psutil.virtual_memory().total / 1e9
-                logger.info(f"System memory: {memory_gb:.1f} GB")
-            except ImportError:
-                logger.info("MPS device configured (install psutil for memory info)")
-        else:
-            logger.warning("MPS requested but not available, falling back to CPU")
-            device = torch.device('cpu')
     elif device_preference == 'cpu':
         device = torch.device('cpu')
         logger.info("Using configured CPU device")
     else:
         logger.warning(f"Unknown device preference '{device_preference}'")
-        raise ValueError(f"Invalid device configuration: '{device_preference}'. Must be 'auto', 'cuda', 'mps', or 'cpu'")
+        raise ValueError(f"Invalid device configuration: '{device_preference}'. Must be 'auto', 'cuda', or 'cpu'")
     
     return device

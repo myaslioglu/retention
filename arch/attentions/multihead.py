@@ -61,17 +61,18 @@ class MultiHeadAttention(nn.Module):
         self.W_o = nn.Linear(d_k * n_heads, hidden_size)
         self.out_dropout = nn.Dropout(p=dropout_pe)
 
-    def forward(self, x: torch.Tensor, pad_mask: torch.Tensor, encoder_output: Union[torch.Tensor, None]=None) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, pad_mask: torch.Tensor,
+                encoder_output: Union[torch.Tensor, None]=None) -> torch.Tensor:
         head_outputs = []
 
         if self.IsSelfAttention:
             # Pass the inputs with all the attn heads
             for head in self.attention_heads:
-                head_outputs.append(head(x, pad_mask))    # Self Attention head
+                head_outputs.append(head(x, pad_mask))    # Self-Attention head
         else:
             # For Cross Attention, we give both input and encoder output
             for head in self.attention_heads:
-                head_outputs.append(head(x, encoder_output))    # Cross Attention head
+                head_outputs.append(head(x, encoder_output))    # Cross-Attention head
 
         # Concat all the head's output horizontally
         # dim = -1 indicate the last dimension wise which is hidden_size
