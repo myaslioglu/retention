@@ -7,6 +7,37 @@ from arch.feed_forward import FeedForward
 from arch.attentions.self import SelfAttention
 
 class EncoderLayer(nn.Module):
+    """
+    A single encoder layer implementing the transformer encoder architecture.
+    This layer consists of a multi-head self-attention mechanism followed by a position-wise
+    feed-forward network, with residual connections and layer normalization applied around
+    each sub-layer. The layer follows the "Pre-LN" transformer variant where layer
+    normalization is applied before the sub-layers.
+    The encoder layer processes input sequences and outputs representations of the same
+    dimensionality, making it suitable for stacking multiple layers to form a complete
+    transformer encoder.
+    Attributes:
+        multi_head_attn (MultiHeadAttention): Multi-head self-attention mechanism that
+            allows the model to attend to different representation subspaces.
+        residual_add_norm_attn (ResidualAddNorm): Residual connection and layer normalization
+            applied around the attention sub-layer.
+        residual_add_norm_ff (ResidualAddNorm): Residual connection and layer normalization
+            applied around the feed-forward sub-layer.
+        feed_forward (FeedForward): Position-wise feed-forward network that processes
+            each position independently.
+    Example:
+        >>> encoder_layer = EncoderLayer(
+        ...     hidden_size=512,
+        ...     max_seq_len=128,
+        ...     dropout_pe=0.1,
+        ...     n_heads=8,
+        ...     ff_hidden_size=2048
+        ... )
+        >>> input_tensor = torch.randn(32, 128, 512)  # (batch_size, seq_len, hidden_size)
+        >>> output = encoder_layer(input_tensor)
+        >>> output.shape
+        torch.Size([32, 128, 512])
+    """
     def __init__(self, hidden_size: int, max_seq_len: int, dropout_pe: float,
                  n_heads: int, ff_hidden_size: int, d_k: Union[int, None] = None):
         """
@@ -31,8 +62,8 @@ class EncoderLayer(nn.Module):
                                         ff_hidden_size=ff_hidden_size,
                                         dropout_pe=dropout_pe)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        attn_output = self.multi_head_attn(x)
+    def forward(self, x: torch.Tensor, pad_mask: torch.Tensor) -> torch.Tensor:
+        attn_output = self.multi_head_attn(x=x, encoder_pad_mask=pad_mask)
         res_norm = self.residual_add_norm_attn(x, attn_output)
         ff_output = self.feed_forward(res_norm)
         return self.residual_add_norm_ff(res_norm, ff_output)

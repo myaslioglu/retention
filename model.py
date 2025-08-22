@@ -23,7 +23,7 @@ class TransformerModel:
     classifier: Classifier
     device: torch.device
     
-    def forward(self, src_batch: torch.Tensor, tgt_batch: torch.Tensor) -> torch.Tensor:
+    def forward(self, src_batch: torch.Tensor, tgt_batch: torch.Tensor, src_pad_mask: torch.Tensor) -> torch.Tensor:
         """
         Forward pass through the complete transformer model.
         
@@ -36,8 +36,8 @@ class TransformerModel:
         tgt_batch = tgt_batch.to(self.device)
         
         # Encoder forward pass
-        encoder_output = self.encoder(src_batch)
-        
+        encoder_output = self.encoder(src_batch, src_pad_mask)
+
         # Decoder forward pass with cross-attention to encoder output
         decoder_output = self.decoder(tgt_batch, encoder_output)
         

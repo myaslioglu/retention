@@ -6,16 +6,37 @@ import logging
 from collections import namedtuple
 
 # Define BatchTensors here to avoid circular imports
-BatchTensors = namedtuple('BatchTensors', ['src_batch_X', 'tgt_batch_X', 'tgt_batch_y'])
+BatchTensors = namedtuple('BatchTensors', ['src_batch_X', 'tgt_batch_X', 'tgt_batch_y', 'src_batch_X_pad_mask'])
 
 
 logger = logging.getLogger(__name__)
 
 def collate_fn(batch, pad_id: int, bos_id: int, eos_id: int, max_seq_len: int):
     """
-    Fixed collate function that creates tensors on CPU first, then moves to device.
-    This prevents memory issues during data loading.
+    Collate function for batching tokenized sequence pairs for transformer training.
+    This function processes a batch of (source, target) token sequences and prepares them
+    for transformer model training by adding special tokens and padding to a fixed length.
+    Args:
+        batch: List of tuples containing (src_tokens, tgt_tokens) pairs where each
+               element is a list of token IDs.
+        pad_id (int): Token ID used for padding sequences to max_seq_len.
+        bos_id (int): Beginning-of-sequence token ID added to decoder input.
+        eos_id (int): End-of-sequence token ID added to encoder input and decoder target.
+        max_seq_len (int): Maximum sequence length for padding/truncation.
+    Returns:
+        BatchTensors: Named tuple containing:
+            - src_batch_X: Tensor of shape (batch_size, max_seq_len) for encoder input
+              Format: [SRC_TOKENS + EOS + PAD...]
+            - tgt_batch_X: Tensor of shape (batch_size, max_seq_len) for decoder input
+              Format: [BOS + TGT_TOKENS + PAD...]
+            - tgt_batch_y: Tensor of shape (batch_size, max_seq_len) for decoder target
+              Format: [TGT_TOKENS + EOS + PAD...]
+    Note:
+        - Sequences longer than max_seq_len-1 are truncated to accommodate special tokens
+        - All tensors are created on CPU with dtype=torch.long
+        - The function assumes BatchTensors is a named tuple or similar container class
     """
+    
     # Create tensors on CPU first
     src_batch_X = torch.zeros(len(batch), max_seq_len, dtype=torch.long)
     tgt_batch_X = torch.zeros(len(batch), max_seq_len, dtype=torch.long)
@@ -41,8 +62,9 @@ def collate_fn(batch, pad_id: int, bos_id: int, eos_id: int, max_seq_len: int):
         src_batch_X[i] = torch.tensor(src_X, dtype=torch.long)
         tgt_batch_X[i] = torch.tensor(tgt_X, dtype=torch.long)
         tgt_batch_y[i] = torch.tensor(tgt_y, dtype=torch.long)
-    
-    return BatchTensors(src_batch_X, tgt_batch_X, tgt_batch_y)
+
+    src_batch_X_pad_mask = (src_batch_X == pad_id)
+    return BatchTensors(src_batch_X, tgt_batch_X, tgt_batch_y, src_batch_X_pad_mask)
 
 def get_dataloader(ds: Dataset, config: Config):
     """

@@ -79,9 +79,10 @@ class DecoderLayer(nn.Module):
         self.residual_add_norm_ff = ResidualAddNorm(n_features=hidden_size)
 
     def forward(self, x: torch.Tensor, encoder_output: torch.Tensor) -> torch.Tensor:
-        masked_attn_output = self.masked_multi_head_attn(x)
+        masked_attn_output = self.masked_multi_head_attn(x=x, encoder_pad_mask=None)
         res_norm_ma = self.residual_add_norm_ma(x, masked_attn_output)
-        cross_attn_output = self.cross_multi_head_attn(res_norm_ma, encoder_output)
+        cross_attn_output = self.cross_multi_head_attn(x=res_norm_ma, encoder_pad_mask=None,
+                                                       encoder_output=encoder_output)
         res_norm_ca = self.residual_add_norm_ca(res_norm_ma, cross_attn_output)
         ff_output = self.feed_forward(res_norm_ca)
         return self.residual_add_norm_ff(res_norm_ca, ff_output)

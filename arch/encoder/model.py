@@ -55,12 +55,12 @@ class Encoder(nn.Module):
             for _ in range(n_layers)
         ])
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, pad_mask: torch.Tensor) -> torch.Tensor:
         inp_embd = self.token_embedding(x)
         out = self.position_encoding(inp_embd)
         for layer_id, enc_layer in enumerate(self.encoder_layers, start=1):
             logger.debug(f"Encoder Layer: {layer_id}")
-            out = enc_layer(out)
+            out = enc_layer(out, pad_mask)
         return out
 
 def get_encoder(conf: Config) -> Encoder:

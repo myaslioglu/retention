@@ -25,8 +25,9 @@ def train_batch_CE(model: TransformerModel, batch: BatchTensors, loss_fn) -> tor
     src_batch_X = batch.src_batch_X
     tgt_batch_X = batch.tgt_batch_X
     tgt_batch_y = batch.tgt_batch_y
+    src_batch_X_pad_mask = batch.src_batch_X_pad_mask
 
-    logits = model.forward(src_batch_X, tgt_batch_X)  # [BATCH_SIZE, SEQ_LEN, VOCAB_SIZE]
+    logits = model.forward(src_batch_X, tgt_batch_X, src_batch_X_pad_mask)  # [BATCH_SIZE, SEQ_LEN, VOCAB_SIZE]
     
     # Calculate loss if a loss function is provided
     # CrossEntropy Loss expects the logits for all the inputs in the batch of size [BATCH_SIZE, VOCAB_SIZE, SEQ_LEN]
