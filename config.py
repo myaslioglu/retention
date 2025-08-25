@@ -32,6 +32,10 @@ class Config:
     def loss(self):
         return self._config.loss
 
+    @property
+    def experiment(self):
+        return self._config.experiment
+
 
 if __name__ == '__main__':
     config = Config(config_file=Path('config.toml'))

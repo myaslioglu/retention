@@ -16,19 +16,15 @@ logger = logging.getLogger(__name__)
 
 
 def run_train(config_file: Path):
-    # Load the config from the file
     config = Config(config_file=config_file)
 
-    # Get the model and dataset
     transformer, dataset = build_transformer(config)
 
-    # Get the dataloader from the dataset
     train_data_loader = get_dataloader(dataset, config)
 
-    # Get loss function based on config
     loss_fn = get_loss_function(config, dataset.tokenizer.pad_id)
 
-    # Use wandb tracking
+    # Wandb requires metrics to be in dict format
     wandb_config = {
         'batch_size': config.training.batch_size,
         'd_model': config.model.hidden_size,
@@ -36,11 +32,21 @@ def run_train(config_file: Path):
         'num_layers': config.model.n_layers,
         'max_seq_len': config.model.max_seq_len,
     }
-    
-    with ExperimentTracker("transformer", wandb_config, config_file=config_file) as run:
+
+    # Experiment tracking can be off if running offline without internet
+    if config.experiment.active:
+        logger.info("Experiment tracking is enabled")
+        with ExperimentTracker(config.experiment.name, wandb_config, config_file=config_file) as run:
+            avg_batch_loss = train_epoch_avg_CE(model=transformer,
+                                                train_data_loader=train_data_loader,
+                                                loss_fn=loss_fn,
+                                                wandb_run=run)
+            run.log({"epoch_avg_loss": avg_batch_loss.item()})
+            logger.info(f"Average training loss in one epoch: {avg_batch_loss.item(): .5f}")
+    else:
+        logger.info("Experiment tracking is disabled")
         avg_batch_loss = train_epoch_avg_CE(model=transformer,
                                             train_data_loader=train_data_loader,
                                             loss_fn=loss_fn,
-                                            wandb_run=run)
-        run.log({"epoch_avg_loss": avg_batch_loss.item()})
+                                            wandb_run=None)
         logger.info(f"Average training loss in one epoch: {avg_batch_loss.item(): .5f}")

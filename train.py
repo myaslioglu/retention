@@ -16,37 +16,12 @@ def train_epoch_avg_CE(model: TransformerModel,
                        wandb_run=None,
                        max_batches: int = 100) -> torch.Tensor:
     """
-    Computes the average cross-entropy loss per batch for a given epoch during training.
     
-    Memory optimized version that limits the number of batches processed to prevent RAM overflow.
-
-    The function iterates through the provided training data loader, processes each batch by
-    moving data to the device associated with the model, and calculates per-batch loss using
-    the provided loss function. The computed batch losses are aggregated and averaged over
-    the total number of batches to determine and return the mean loss for the epoch.
-
-    :param max_batches: Maximum number of batches to process to prevent memory overflow
-    :type max_batches: int
-    :param wandb_run: The wandb run object to log to. If None, no logging will be done.
-    :type wandb_run: wandb.Run
-    :param model: The model to train. It should have a `device` attribute where computations
-        should occur.
-    :type model: TransformerModel
-    :param train_data_loader: DataLoader object yielding batches of training data. Each batch is
-        expected to provide tensors for source input, target input, target labels, and padding
-        masks for respective inputs.
-    :type train_data_loader: DataLoader[BatchTensors]
-    :param loss_fn: A callable that computes the loss given model predictions and target values.
-        The function should return a tensor containing the computed loss value.
-    :type loss_fn: callable
-    :return: A tensor representing the average loss per batch for the training epoch. If no
-        batches exist in the loader, it returns `float('inf')` as the loss.
-    :rtype: torch.Tensor
     """
     batch_loss = 0.0
     num_batches = 0
     
-    for idx, batch in enumerate(train_data_loader):
+    for idx, batch in enumerate(train_data_loader, start=1):
         # Limit number of batches to prevent memory overflow
         if idx >= max_batches:
             logger.info(f"Reached maximum batch limit of {max_batches}, stopping epoch")
@@ -62,9 +37,9 @@ def train_epoch_avg_CE(model: TransformerModel,
         
         try:
             loss = train_batch_CE(model=model, batch=batch_on_device, loss_fn=loss_fn).item()
-            logger.info(f"Batch: {idx} loss: {loss}")
-            
-            # Log to wandb if available
+            logger.info(f"Batch: {idx} loss: {loss: .5f}")
+
+            # Wandb logging
             if wandb_run is not None:
                 wandb_run.log({"batch_loss": loss, "batch_idx": idx})
                 
