@@ -9,38 +9,37 @@ from arch.positional_encoding import PositionalEncoding
 logger = logging.getLogger(__name__)
 class Encoder(nn.Module):
     """
-    Represents a Transformer Encoder module which processes input sequences to generate
-    contextualized embeddings. Commonly used in natural language processing tasks.
-
-    This class is composed of token embeddings, positional encodings, and a stack of
-    Transformer encoder layers. The Transformer Encoder allows sequence-based data to
-    be processed efficiently using self-attention mechanisms.
-
-    :ivar token_embedding: Embedding layer to convert input tokens into dense vector
-        representations.
-    :type token_embedding: Embeddings
-    :ivar position_encoding: Positional encoding module to incorporate sequence
-        position information into the embeddings.
-    :type position_encoding: PositionalEncoding
-    :ivar encoder_layers: List of Transformer encoder layers stacked sequentially
-        for processing the input sequence.
-    :type encoder_layers: nn.ModuleList
+    Transformer Encoder module for processing input sequences into contextualized embeddings.
+    
+    This class implements a complete Transformer encoder consisting of token embeddings,
+    positional encodings, and a stack of encoder layers. The encoder processes sequences
+    efficiently using self-attention mechanisms, making it suitable for various NLP tasks.
+    
+    Attributes:
+        token_embedding (Embeddings): Embedding layer to convert input tokens into dense
+            vector representations.
+        position_encoding (PositionalEncoding): Positional encoding module to incorporate
+            sequence position information into the embeddings.
+        encoder_layers (nn.ModuleList): Stack of Transformer encoder layers for sequential
+            processing of the input sequence.
     """
     def __init__(self, vocab_size: int, hidden_size: int,
                  seq_len: int, dropout_pe: float,
                  n_layers: int, n_heads: int, ff_size: int, d_k:int):
         """
-        Represents a transformer-based encoder model, comprising token embeddings,
-        positional encodings, and multiple encoder layers.
-
-        :param vocab_size: The size of the vocabulary used in the token embedding layer.
-        :param hidden_size: The dimensionality of token and positional embeddings as well as hidden states.
-        :param seq_len: The maximum sequence length processed by the encoder.
-        :param dropout_pe: Dropout probability applied to positional encoding.
-        :param n_layers: The number of transformer encoder layers in the model.
-        :param n_heads: The number of attention heads in each encoder layer.
-        :param ff_size: The hidden layer dimensionality of the feed-forward network in each encoder layer.
-        :param d_k: Dimensionality of each attention head.
+        Initialize the Transformer encoder with specified architecture parameters.
+        
+        Args:
+            vocab_size (int): Size of the vocabulary for the token embedding layer.
+            hidden_size (int): Dimensionality of token embeddings, positional encodings,
+                and hidden states throughout the model.
+            seq_len (int): Maximum sequence length that the encoder can process.
+            dropout_pe (float): Dropout probability applied to positional encodings.
+            n_layers (int): Number of transformer encoder layers in the stack.
+            n_heads (int): Number of attention heads in each encoder layer.
+            ff_size (int): Hidden layer dimensionality of the feed-forward network
+                in each encoder layer.
+            d_k (int): Dimensionality of each attention head's key and query vectors.
         """
         super().__init__()
         self.token_embedding = Embeddings(vocab_size, hidden_size)
@@ -56,6 +55,17 @@ class Encoder(nn.Module):
         ])
 
     def forward(self, x: torch.Tensor, pad_mask: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass through the encoder stack.
+        
+        Args:
+            x (torch.Tensor): Input token IDs tensor of shape [batch_size, seq_len].
+            pad_mask (torch.Tensor): Padding mask tensor of shape [batch_size, seq_len]
+                where True indicates padding tokens to be ignored.
+        
+        Returns:
+            torch.Tensor: Encoded representations of shape [batch_size, seq_len, hidden_size].
+        """
         inp_embd = self.token_embedding(x)
         out = self.position_encoding(inp_embd)
         for layer_id, enc_layer in enumerate(self.encoder_layers, start=1):
@@ -65,16 +75,25 @@ class Encoder(nn.Module):
 
 def get_encoder(conf: Config) -> Encoder:
     """
-    This function initializes and returns a TransformerEncoder instance based on the provided configuration and dataset.
-    The encoder is configured using parameters including hidden size, vocabulary size, dropout rate, number of
-    attention heads, feed-forward hidden size, optional dimensionality of the attention key,
-    and number of encoding layers.
-
-    :param conf: Configuration object containing model parameters such as hidden size, dropout probability,
-        number of heads, feed-forward hidden size, and optionally the dimensionality of the attention key.
-    :type conf: Config
-    :return: An instance of TransformerEncoder initialized with parameters derived from the configuration and dataset.
-    :rtype: Encoder
+    Create and configure a Transformer encoder based on the provided configuration.
+    
+    This function initializes an Encoder instance with parameters derived from the
+    configuration object, including model architecture settings like hidden dimensions,
+    attention heads, and layer counts.
+    
+    Args:
+        conf (Config): Configuration object containing model parameters including:
+            - model.hidden_size: Hidden dimension size
+            - model.max_seq_len: Maximum sequence length
+            - model.vocab_size: Vocabulary size
+            - model.dropout_pe: Positional encoding dropout rate
+            - model.n_heads: Number of attention heads
+            - model.ff_hidden_size: Feed-forward hidden size
+            - model.n_layers: Number of encoder layers
+            - model.d_k: Key dimension (optional)
+    
+    Returns:
+        Encoder: Initialized Transformer encoder ready for training or inference.
     """
     hidden_size: int = conf.model.hidden_size
     max_seq_len: int = conf.model.max_seq_len

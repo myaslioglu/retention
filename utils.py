@@ -71,10 +71,25 @@ def collate_fn(batch, pad_id: int, bos_id: int, eos_id: int, max_seq_len: int):
 
 def get_dataloader(ds: Dataset, config: Config):
     """
-    Fixed dataloader that doesn't pass device to collate function.
-    Device transfer will happen in the model.forward() method.
-    Enables pin_memory for GPU performance when CUDA is available.
-    Optimized for memory efficiency.
+    Creates an optimized DataLoader for training with GPU performance considerations.
+    This function creates a DataLoader that is specifically optimized for transformer
+    training workflows. It handles device management efficiently by deferring device
+    transfer to the model's forward pass rather than in the collate function.
+    Args:
+        ds (Dataset): Dataset object containing the dataset and tokenizer with
+                     pad_id, bos_id, and eos_id attributes.
+        config (Config): Configuration object with training.batch_size and
+                        model.max_seq_len attributes.
+    Returns:
+        DataLoader: Configured DataLoader with optimized settings for training:
+                   - Uses custom collate function with tokenizer parameters
+                   - Enables pin_memory when CUDA is available for GPU optimization
+                   - Single-threaded (num_workers=0) to avoid multiprocessing overhead
+                   - Drops incomplete batches for consistent batch sizes
+    Note:
+        Device transfer is intentionally deferred to the model.forward() method
+        rather than happening in the collate function, which improves memory
+        efficiency and reduces potential device management issues.
     """
     # Determine if we should use pin_memory for GPU optimization
     use_pin_memory = torch.cuda.is_available()
@@ -97,13 +112,32 @@ def get_dataloader(ds: Dataset, config: Config):
 
 def get_device(config: Config) -> torch.device:
     """
-    Determines the device to use for training based on configuration and availability.
-    Supports CUDA (NVIDIA) and CPU.
-    
-    :param config: Configuration object containing device preference
-    :type config: Config
-    :return: The device to use for training
-    :rtype: torch.device
+    Determines the appropriate PyTorch device for model training and inference.
+    This function analyzes the configuration settings and system capabilities to select
+    the optimal device. It supports automatic device selection, explicit CUDA/CPU
+    configuration, and provides detailed logging about device selection and capabilities.
+    Args:
+        config (Config): Configuration object containing training parameters. Expected
+                        to have a 'training.device' attribute with values: 'auto', 
+                        'cuda', or 'cpu'.
+    Returns:
+        torch.device: Configured PyTorch device object ready for tensor operations.
+    Raises:
+        ValueError: If an invalid device preference is specified in the configuration.
+                   Valid options are 'auto', 'cuda', or 'cpu'.
+    Device Selection Logic:
+        - 'auto': Automatically selects CUDA if available, otherwise falls back to CPU
+        - 'cuda': Forces CUDA usage if available, warns and falls back to CPU if not
+        - 'cpu': Explicitly uses CPU regardless of GPU availability
+    Note:
+        The function logs detailed information about the selected device, including
+        GPU model name and memory capacity when CUDA is selected.
+    Example:
+        >>> config = Config()
+        >>> config.training.device = 'auto'
+        >>> device = get_device(config)
+        >>> print(device)
+        device(type='cuda', index=0)
     """
     device_preference = getattr(config.training, 'device', 'auto').lower()
     

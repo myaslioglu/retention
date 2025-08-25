@@ -16,7 +16,34 @@ def train_epoch_avg_CE(model: TransformerModel,
                        wandb_run=None,
                        max_batches: int = 100) -> torch.Tensor:
     """
+    Computes the average cross-entropy loss per batch for a training epoch.
     
+    This function iterates through the training data loader, processes each batch by
+    moving data to the device associated with the model, and calculates per-batch loss
+    using the provided loss function. The computed batch losses are aggregated and
+    averaged over the total number of batches to determine the mean loss for the epoch.
+    Memory optimized version that limits the number of batches processed to prevent
+    RAM overflow.
+    
+    Args:
+        model (TransformerModel): The model to train. Must have a `device` attribute
+            where computations should occur.
+        train_data_loader (DataLoader[BatchTensors]): DataLoader object yielding batches
+            of training data. Each batch provides tensors for source input, target input,
+            target labels, and padding masks.
+        loss_fn: A callable that computes the loss given model predictions and target
+            values. Should return a tensor containing the computed loss value.
+        wandb_run: The wandb run object to log to. If None, no logging will be done.
+        max_batches (int): Maximum number of batches to process to prevent memory
+            overflow. Defaults to 100.
+    
+    Returns:
+        torch.Tensor: A tensor representing the average loss per batch for the training
+            epoch. If no batches exist in the loader, returns `float('inf')` as the loss.
+    
+    Note:
+        The function includes memory management features such as CUDA cache clearing
+        and OOM error handling to prevent system crashes during training.
     """
     batch_loss = 0.0
     num_batches = 0
@@ -67,18 +94,31 @@ def train_epoch_avg_CE(model: TransformerModel,
 
 def train_batch_CE(model: TransformerModel, batch: BatchTensors, loss_fn) -> torch.Tensor:
     """
-    Trains one step in an encoder-decoder model by passing the source and target tokens
-    through the complete model forward pass.
-
-    :param loss_fn:
-    :param model: The encoder-decoder model consists of an encoder, decoder,
-        and classifier.
-    :type model: Model
-    :param batch: The batch containing src_batch_X, tgt_batch_X, and tgt_batch_y tensors
-    :type batch: NamedTuple
-    :return: The model's output logits after processing the input sequences.
-    :rtype: Torch.Tensor
-
+    Performs a single training step through the transformer model with cross-entropy loss.
+    
+    This function processes one batch of data through the complete transformer pipeline,
+    including encoder, decoder, and classifier components. It computes the cross-entropy
+    loss for the batch and returns it for further processing (like gradient computation).
+    
+    Args:
+        model (TransformerModel): The transformer model containing encoder, decoder,
+            and classifier components.
+        batch (BatchTensors): Named tuple containing:
+            - src_batch_X: Source sequences tensor [batch_size, seq_len]
+            - tgt_batch_X: Target input sequences tensor [batch_size, seq_len]
+            - tgt_batch_y: Target output sequences tensor [batch_size, seq_len]
+            - src_batch_X_pad_mask: Source padding mask [batch_size, seq_len]
+            - tgt_batch_X_pad_mask: Target padding mask [batch_size, seq_len]
+        loss_fn: Loss function that computes cross-entropy loss. Expected to take
+            logits and targets as arguments.
+    
+    Returns:
+        torch.Tensor: The computed loss value for the batch. Returns infinite loss
+            if no loss function is provided.
+    
+    Note:
+        The function transposes logits from [B, S, V] to [B, V, S] format as required
+        by PyTorch's CrossEntropyLoss function.
     """
     src_batch_X = batch.src_batch_X
     tgt_batch_X = batch.tgt_batch_X

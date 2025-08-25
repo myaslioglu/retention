@@ -44,7 +44,15 @@ class TransformerModel:
         return logits
     
     def to(self, device: torch.device):
-        """Move all model components to the specified device."""
+        """
+        Move all model components to the specified device.
+        
+        Args:
+            device (torch.device): Target device for model components.
+            
+        Returns:
+            TransformerModel: Self reference for method chaining.
+        """
         self.encoder = self.encoder.to(device)
         self.decoder = self.decoder.to(device)
         self.classifier = self.classifier.to(device)
@@ -53,6 +61,26 @@ class TransformerModel:
 
 
 def init_dataset(tokenizer, config: Config):
+    """
+    Initialize the training dataset with streaming support for memory efficiency.
+    
+    This function loads the WMT14 German-English dataset in streaming mode to avoid
+    loading the entire dataset into memory, which can cause RAM overflow issues.
+    
+    Args:
+        tokenizer: Tokenizer instance (SentencePiece or Word tokenizer) for text
+            processing.
+        config (Config): Configuration object containing dataset path and model
+            parameters.
+    
+    Returns:
+        TransformerDataset: Initialized dataset ready for training with the
+            specified tokenizer and maximum sequence length.
+    
+    Note:
+        Currently only loads the training split. Validation and test datasets
+        are not yet implemented (marked as TODO).
+    """
     dataset_path = Path(config.dataset.path)
 
     # // TODO: Cater for test and validation datasets
@@ -63,6 +91,32 @@ def init_dataset(tokenizer, config: Config):
 
 
 def init_tokenizer(config: Config):
+    """
+    Initialize a tokenizer with configuration-specific model paths.
+    
+    This function creates a tokenizer with a unique directory structure based on
+    the tokenizer configuration parameters (sample_size, algorithm, vocab_size).
+    This ensures that different tokenizer configurations don't conflict with
+    each other and allows for easy parameter experimentation.
+    
+    Args:
+        config (Config): Configuration object containing tokenizer parameters:
+            - tokenizer.kind: Type of tokenizer ('sentencepiece' or 'custom')
+            - tokenizer.model: Base path for tokenizer model storage
+            - tokenizer.sample_size: Number of samples for training
+            - tokenizer.algorithm: Algorithm type ('bpe' or 'unigram')
+            - tokenizer.recreate: Whether to recreate existing models
+            - model.vocab_size: Target vocabulary size
+    
+    Returns:
+        Tokenizer: Initialized tokenizer instance (SentencePiece or Word tokenizer)
+            ready for training and encoding.
+    
+    Note:
+        The tokenizer model path follows the pattern:
+        base_path/sample_size-algorithm-vocab_size/tokenizer.model
+        This allows multiple configurations to coexist without conflicts.
+    """
     kind = config.tokenizer.kind
     vocab_size = config.model.vocab_size
     base_path = Path(config.tokenizer.model)

@@ -34,6 +34,19 @@ class SentencePieceTokenizer:
 
     @property
     def model(self):
+        """
+        Load and return the trained SentencePiece model with vocabulary size.
+        
+        This property loads the SentencePiece model from the saved .model file
+        and returns both the model instance and its vocabulary size.
+        
+        Returns:
+            tuple[smp.SentencePieceProcessor, int]: A tuple containing the loaded
+                SentencePiece processor and the actual vocabulary size.
+        
+        Note:
+            The model file must exist at the specified model path with .model extension.
+        """
         model = spm.SentencePieceProcessor()
         logger.info("Loading SentencePiece model from %s", self.model_path)
         model.Load(str(self.model_path.with_suffix(".model")))
@@ -101,9 +114,35 @@ class SentencePieceTokenizer:
 
     @property
     def n_vocab(self):
+        """
+        Get the actual vocabulary size of the trained tokenizer.
+        
+        Returns:
+            int: The actual vocabulary size after training, which may differ
+                from the requested vocabulary size.
+        """
         return self.actual_vocab_size
 
     def encode(self, src_txt: str, tgt_txt: str) -> tuple[list[int], list[int]] | tuple[None, None]:
+        """
+        Encode source and target text into token sequences.
+        
+        This method tokenizes both source and target text using the trained
+        SentencePiece model and returns the corresponding token ID sequences.
+        
+        Args:
+            src_txt (str): Source text to be tokenized.
+            tgt_txt (str): Target text to be tokenized.
+        
+        Returns:
+            tuple[list[int], list[int]] | tuple[None, None]: A tuple containing
+                (src_tokens, tgt_tokens) where each is a list of token IDs, or
+                (None, None) if the tokenizer model hasn't been trained yet.
+        
+        Note:
+            Returns (None, None) if the SentencePiece model hasn't been trained.
+            Make sure to call the train() method before using encode().
+        """
         if not self._model:
             logger.error("Please train the sentencepiece tokenizer first")
             return None, None

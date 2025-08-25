@@ -4,39 +4,32 @@ import torch.nn as nn
 
 class FeedForward(nn.Module):
     """
-    Implements a feed-forward neural network module commonly used in arch
-    architectures.
-
-    This module includes two linear layers with a non-linear ReLU activation
-    function in between and a Dropout layer for regularization. It is typically
-    applied to model intermediate transformations within arch blocks.
-
-    :ivar W_1: Linear transformation layer mapping the input to the intermediate
-       hidden layer.
-    :type W_1: nn.Linear
-    :ivar W_2: Linear transformation layer mapping the intermediate hidden
-       representation back to the original feature size.
-    :type W_2: nn.Linear
-    :ivar relu: ReLU activation function applied after the first linear transformation.
-    :type relu: nn.ReLU
-    :ivar dropout: Dropout layer used to regularize the output from the feed-forward
-       network.
-    :type dropout: nn.Dropout
+    Position-wise feed-forward network used in transformer architectures.
+    
+    This module implements the feed-forward network described in "Attention Is All You Need".
+    It consists of two linear transformations with a ReLU activation in between,
+    followed by dropout for regularization. This is applied to each position separately
+    and identically in transformer layers.
+    
+    Attributes:
+        W_1 (nn.Linear): First linear transformation that expands the hidden dimension
+            to the feed-forward dimension.
+        W_2 (nn.Linear): Second linear transformation that projects back to the
+            original hidden dimension.
+        relu (nn.ReLU): ReLU activation function applied between the linear layers.
+        dropout (nn.Dropout): Dropout layer for regularization.
     """
     def __init__(self, hidden_size: int,
                  ff_hidden_size: int,
                  dropout_pe: float):
         """
-        Initializes the feed-forward neural network module typically used in arch
-        architectures. This module consists of two linear transformations with a ReLU
-        activation function in between, followed by a Dropout layer for regularization.
-
-        :param hidden_size: The size of the input and output features for the feed-forward
-           network.
-        :param ff_hidden_size: The size of the intermediate hidden layer in the feed-forward
-           network.
-        :param dropout_pe: The dropout probability applied to the output of the non-linear
-           activation.
+        Initialize the feed-forward network with specified dimensions.
+        
+        Args:
+            hidden_size (int): Dimension of the input and output features.
+            ff_hidden_size (int): Dimension of the intermediate hidden layer
+                (typically 4x the hidden_size in standard transformers).
+            dropout_pe (float): Dropout probability applied after the ReLU activation.
         """
         super().__init__()
         self.W_1 = nn.Linear(hidden_size, ff_hidden_size)
@@ -45,6 +38,15 @@ class FeedForward(nn.Module):
         self.dropout = nn.Dropout(dropout_pe)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass through the feed-forward network.
+        
+        Args:
+            x (torch.Tensor): Input tensor of shape [batch_size, seq_len, hidden_size].
+        
+        Returns:
+            torch.Tensor: Output tensor of shape [batch_size, seq_len, hidden_size].
+        """
         x = self.W_1(x)
         x = self.relu(x)
         x = self.dropout(x)

@@ -16,6 +16,26 @@ logger = logging.getLogger(__name__)
 
 
 def run_train(config_file: Path):
+    """
+    Execute the complete transformer training pipeline.
+    
+    This function orchestrates the entire training process including model
+    initialization, dataset preparation, tokenizer setup, and training execution.
+    It supports optional experiment tracking via Weights & Biases based on
+    configuration settings.
+    
+    Args:
+        config_file (Path): Path to the TOML configuration file containing all
+            training parameters including model architecture, dataset settings,
+            tokenizer configuration, and experiment tracking options.
+    
+    Note:
+        The function automatically handles:
+        - Model and dataset initialization with memory optimization
+        - Device selection (CUDA/CPU) based on configuration
+        - Experiment tracking activation based on config.experiment.active
+        - Loss function setup with appropriate padding token handling
+    """
     config = Config(config_file=config_file)
 
     transformer, dataset = build_transformer(config)
