@@ -1,0 +1,31 @@
+[model]
+hidden_size     = 128        # Very small for memory-constrained systems
+max_seq_len     = 256        # Short sequences to save memory
+vocab_size      = 8000       # Small vocabulary
+dropout_pe      = 0.1
+
+# Encoder specific configs
+n_heads         = 4          # Fewer attention heads
+#d_k             = 32         # Smaller key dimension
+ff_hidden_size  = 512        # Small feed-forward network
+n_layers        = 2          # Very few layers
+
+[tokenizer]
+kind        = 'sentencepiece'                         # sentencepiece | custom
+model       = './models/en-de/wmt/shared_small'       # separate model for small config
+sample_size = 10000                                   # Small sample for tokenizer training
+algorithm   = 'bpe'                                   # bpe | unigram
+recreate    = false                                    # Use the previously created tokenizer model?
+
+[training]
+batch_size     = 8           # Very small batch size
+epochs         = 10
+learning_rate  = 0.001       # Slightly higher LR for smaller model
+device         = "auto"                                    # auto | cuda | cpu
+
+[dataset]
+path           = "./data/"
+
+[loss]
+type           = "cross_entropy"
+label_smoothing = 0.1

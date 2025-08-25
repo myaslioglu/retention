@@ -74,6 +74,7 @@ def get_dataloader(ds: Dataset, config: Config):
     Fixed dataloader that doesn't pass device to collate function.
     Device transfer will happen in the model.forward() method.
     Enables pin_memory for GPU performance when CUDA is available.
+    Optimized for memory efficiency.
     """
     # Determine if we should use pin_memory for GPU optimization
     use_pin_memory = torch.cuda.is_available()
@@ -88,8 +89,9 @@ def get_dataloader(ds: Dataset, config: Config):
             eos_id=ds.tokenizer.eos_id,
             max_seq_len=config.model.max_seq_len
         ),
-        num_workers=0,  # Avoid multiprocessing issues
-        pin_memory=use_pin_memory  # Enable for GPU performance when CUDA available
+        num_workers=0,  # Avoid multiprocessing issues - reduces memory overhead
+        pin_memory=use_pin_memory,  # Enable for GPU performance when CUDA available
+        drop_last=True,  # Drop last incomplete batch to maintain consistent batch sizes
     )
 
 

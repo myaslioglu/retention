@@ -10,3 +10,4 @@ tqdm~=4.67.1
 sentencepiece~=0.2.1
 protobuf~=6.32.0
 wandb~=0.21.1
+psutil~=5.9.0

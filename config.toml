@@ -7,18 +7,18 @@ dropout_pe      = 0.1
 # Encoder specific configs
 n_heads         = 8          # Number of heads in a multihead attention block
 #d_k             = 64         # Size of key vectors in the self-attention layer
-ff_hidden_size  = 2048       # Number of neurons in the feed forward network's hidden layer
-n_layers        = 6          # Number of layers in the encoder stack
+ff_hidden_size  = 1024       # Reduced from 2048 to save memory
+n_layers        = 4          # Reduced from 6 to save memory
 
 [tokenizer]
 kind        = 'sentencepiece'                         # sentencepiece | custom
 model       = './models/en-de/wmt/shared'             # only applicable for sentencepiece tokenizer
-sample_size = 200000                                  # Number of input pairs to learn from while creating token rules
+sample_size = 50000                                   # Reduced from 200000 to save memory during tokenizer training
 algorithm   = 'bpe'                                   # bpe | unigram
-recreate    = false                                    # Use the previously created tokenizer model?
+recreate    = false                                   # Use the previously created tokenizer model?
 
 [training]
-batch_size     = 32
+batch_size     = 16          # Reduced from 32 to save memory
 epochs         = 10
 learning_rate  = 0.0005
 device         = "auto"                                    # auto | cuda | cpu

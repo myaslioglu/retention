@@ -13,15 +13,20 @@ logger = logging.getLogger(__name__)
 def train_epoch_avg_CE(model: TransformerModel,
                        train_data_loader: DataLoader[BatchTensors],
                        loss_fn,
-                       wandb_run=None) -> torch.Tensor:
+                       wandb_run=None,
+                       max_batches: int = 100) -> torch.Tensor:
     """
     Computes the average cross-entropy loss per batch for a given epoch during training.
+    
+    Memory optimized version that limits the number of batches processed to prevent RAM overflow.
 
     The function iterates through the provided training data loader, processes each batch by
     moving data to the device associated with the model, and calculates per-batch loss using
     the provided loss function. The computed batch losses are aggregated and averaged over
     the total number of batches to determine and return the mean loss for the epoch.
 
+    :param max_batches: Maximum number of batches to process to prevent memory overflow
+    :type max_batches: int
     :param wandb_run: The wandb run object to log to. If None, no logging will be done.
     :type wandb_run: wandb.Run
     :param model: The model to train. It should have a `device` attribute where computations
@@ -42,6 +47,11 @@ def train_epoch_avg_CE(model: TransformerModel,
     num_batches = 0
     
     for idx, batch in enumerate(train_data_loader):
+        # Limit number of batches to prevent memory overflow
+        if idx >= max_batches:
+            logger.info(f"Reached maximum batch limit of {max_batches}, stopping epoch")
+            break
+            
         batch_on_device = BatchTensors(
             src_batch_X=batch.src_batch_X.to(model.device),
             tgt_batch_X=batch.tgt_batch_X.to(model.device),
@@ -49,15 +59,31 @@ def train_epoch_avg_CE(model: TransformerModel,
             src_batch_X_pad_mask=batch.src_batch_X_pad_mask.to(model.device),
             tgt_batch_X_pad_mask=batch.tgt_batch_X_pad_mask.to(model.device)
         )
-        loss = train_batch_CE(model=model, batch=batch_on_device, loss_fn=loss_fn).item()
-        logger.info(f"Batch: {idx} loss: {loss}")
         
-        # Log to wandb if available
-        if wandb_run is not None:
-            wandb_run.log({"batch_loss": loss, "batch_idx": idx})
+        try:
+            loss = train_batch_CE(model=model, batch=batch_on_device, loss_fn=loss_fn).item()
+            logger.info(f"Batch: {idx} loss: {loss}")
             
-        batch_loss += loss
-        num_batches += 1
+            # Log to wandb if available
+            if wandb_run is not None:
+                wandb_run.log({"batch_loss": loss, "batch_idx": idx})
+                
+            batch_loss += loss
+            num_batches += 1
+            
+        except RuntimeError as e:
+            if "out of memory" in str(e).lower():
+                logger.error(f"GPU out of memory at batch {idx}. Try reducing batch_size or model size.")
+                # Clear cache and continue
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                break
+            else:
+                raise e
+        finally:
+            # Clear cache after each batch to prevent memory accumulation
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
     
     if num_batches == 0:
         return torch.tensor(float('inf'), device=model.device, dtype=torch.float32)

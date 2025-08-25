@@ -56,7 +56,8 @@ def init_dataset(tokenizer, config: Config):
     dataset_path = Path(config.dataset.path)
 
     # // TODO: Cater for test and validation datasets
-    train, _, _ = get_dataset(dataset_path, validation=False)
+    # Use streaming=True to avoid loading entire dataset into memory
+    train, _, _ = get_dataset(dataset_path, validation=False, streaming=True)
     train_ds = TransformerDataset(train, tokenizer, config.model.max_seq_len)
     return train_ds
 
@@ -90,25 +91,58 @@ def build_transformer(config: Config) -> tuple[TransformerModel, Dataset]:
     :return: A tuple containing the initialized `Model` and `Dataset` objects.
     :rtype: tuple[Model, Dataset]
     """
+    import psutil
+    import gc
+    
+    # Log initial memory usage
+    memory_before = psutil.virtual_memory()
+    memory_used = humanize.naturalsize(memory_before.used)
+    total_memory = humanize.naturalsize(memory_before.total)
+    logger.info(f"Memory before model creation: {memory_before.percent:.1f}% used ({memory_used}/{total_memory})")
+
     # Determine the device to use
     device = get_device(config)
+    
     # Get the tokenizer
+    logger.info("Initializing tokenizer...")
     tokenizer = init_tokenizer(config=config)
+    
+    # Log memory after tokenizer
+    memory_after_tokenizer = psutil.virtual_memory()
+    logger.info(f"Memory after tokenizer: {memory_after_tokenizer.percent:.1f}% used ({humanize.naturalsize(memory_after_tokenizer.used)}/{humanize.naturalsize(memory_after_tokenizer.total)})")
 
     # Get the dataset
+    logger.info("Initializing dataset...")
     dataset = init_dataset(config=config, tokenizer=tokenizer)
     # This is needed because the tokenizer can have vocab size != desired vocab size
     config.model.vocab_size = dataset.tokenizer.n_vocab
+    
+    # Log memory after dataset
+    memory_after_dataset = psutil.virtual_memory()
+    logger.info(f"Memory after dataset: {memory_after_dataset.percent:.1f}% used ({humanize.naturalsize(memory_after_dataset.used)}/{humanize.naturalsize(memory_after_dataset.total)})")
 
     # Get the encoder
+    logger.info("Initializing encoder...")
     encoder_model = get_encoder(conf=config).to(device)
     logger.debug("Encoder initialized and moved to %s: %s", device, encoder_model)
+    
+    # Force garbage collection
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
     # Get the decoder
+    logger.info("Initializing decoder...")
     decoder_model = get_decoder(conf=config).to(device)
     logger.debug("Decoder initialized and moved to %s: %s", device, decoder_model)
+    
+    # Force garbage collection
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
     # Get the Classifier Head
+    logger.info("Initializing classifier...")
     classifier_model = get_classifier(conf=config).to(device)
     logger.debug("Classifier initialized and moved to %s", device)
 
@@ -117,6 +151,19 @@ def build_transformer(config: Config) -> tuple[TransformerModel, Dataset]:
                    sum(p.numel() for p in decoder_model.parameters()) + \
                    sum(p.numel() for p in classifier_model.parameters())
     logger.info(f"Total model parameters: {humanize.intword(total_params)}")
+    
+    # Calculate approximate model memory usage
+    param_memory = total_params * 4  # 4 bytes per float32 parameter
+    logger.info(f"Approximate model memory usage: {humanize.naturalsize(param_memory)}")
+    
+    # Log final memory usage
+    memory_final = psutil.virtual_memory()
+    logger.info(f"Memory after model creation: {memory_final.percent:.1f}% used ({humanize.naturalsize(memory_final.used)}/{humanize.naturalsize(memory_final.total)})")
+    
+    # Force final garbage collection
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
     return TransformerModel(
         encoder=encoder_model,

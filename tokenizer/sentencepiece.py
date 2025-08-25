@@ -45,16 +45,28 @@ class SentencePieceTokenizer:
 
         if not self.model_path.with_suffix(".model").exists():
             all_samples = []
-            for i, sample in enumerate(dataset):
-                if i >= self.sample_size:
+            sample_count = 0
+            
+            # Handle both streaming and regular datasets
+            for sample in dataset:
+                if sample_count >= self.sample_size:
                     break
                 for lang_key in lang_keys:
                     all_samples.append(sample["translation"][lang_key])
+                sample_count += 1
+                
+                # Log progress for large sample sizes
+                if sample_count % 10000 == 0:
+                    logger.info(f"Processed {sample_count}/{self.sample_size} samples for tokenizer training")
 
-            # Write combined training data and tran the model
+            logger.info(f"Collected {len(all_samples)} text samples for tokenizer training")
+            logger.info(f"Requesting vocab_size: {self.vocab_size}")
+
+            # Write combined training data and train the model
             with tempfile.NamedTemporaryFile(mode='w', suffix='.txt',
                                              delete_on_close=True) as f:
                 f.write('\n'.join(all_samples))
+                logger.info(f"Training SentencePiece model with vocab_size={self.vocab_size}")
                 spm.SentencePieceTrainer.Train(
                     input=f.name,
                     model_prefix=str(self.model_path),
@@ -75,9 +87,16 @@ class SentencePieceTokenizer:
         self._model, self.actual_vocab_size = self.model
         self.pad_id = self._model.pad_id() # This is required at collate function for batch creation
 
+        logger.info(f"SentencePiece model training completed:")
+        logger.info(f"  - Requested vocab_size: {self.vocab_size}")
+        logger.info(f"  - Actual vocab_size: {self.actual_vocab_size}")
+        logger.info(f"  - Difference: {self.actual_vocab_size - self.vocab_size}")
+        logger.info(f"  - Special token IDs: PAD={self._model.pad_id()}, UNK={self._model.unk_id()}, BOS={self._model.bos_id()}, EOS={self._model.eos_id()}")
+
         if self.actual_vocab_size != self.vocab_size:
-            logger.warning("Actual vocab size (%d) does not match the provided one (%d)",
+            logger.warning("Actual vocab size (%d) does not match the requested size (%d). This is normal for SentencePiece.",
                            self.actual_vocab_size, self.vocab_size)
+            logger.info("Reasons: 1) Special tokens are handled separately, 2) Algorithm may not reach exact target, 3) Limited training data patterns")
         logger.info("SentencePiece model loaded successfully!")
 
     @property

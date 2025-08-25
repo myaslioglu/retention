@@ -17,17 +17,21 @@ from tokenizer.word import WordTokenizer
 logger = logging.getLogger(__name__)
 
 @Timer(name="load_data", text="Loading data took {:.2f} seconds")
-def get_dataset(data_path: Path, validation: object = True) -> tuple:
+def get_dataset(data_path: Path, validation: object = True, streaming: bool = True) -> tuple:
     """
     Load the WMT14 German-English dataset from the specified path. Optionally, the
     validation dataset can also be included. The data will be loaded from the
     cache if it exists; otherwise, it will be downloaded.
+    
+    Uses streaming by default to avoid loading the entire dataset into memory.
 
     :param data_path: Path to the cache directory for the dataset.
     :type data_path: Path
     :param validation: Whether to include the validation dataset. Defaults to
         True.
     :type validation: Bool
+    :param streaming: Whether to stream the dataset to save memory. Defaults to True.
+    :type streaming: Bool
     :return: If validation is True, returns a tuple containing the training,
         validation, and test datasets. If False, returns a tuple containing the
         training and test datasets.
@@ -35,7 +39,8 @@ def get_dataset(data_path: Path, validation: object = True) -> tuple:
     """
     dataset = load_dataset("wmt/wmt14", "de-en",
                  cache_dir=str(data_path),
-                 download_mode="reuse_dataset_if_exists")
+                 download_mode="reuse_dataset_if_exists",
+                 streaming=streaming)
     if validation:
         return dataset["train"], dataset["validation"], dataset["test"]
     return dataset["train"], None, dataset["test"]
