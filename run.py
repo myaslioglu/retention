@@ -37,7 +37,7 @@ def run_train(config_file: Path):
         'max_seq_len': config.model.max_seq_len,
     }
     
-    with ExperimentTracker("transformer", wandb_config) as run:
+    with ExperimentTracker("transformer", wandb_config, config_file=config_file) as run:
         avg_batch_loss = train_epoch_avg_CE(model=transformer,
                                             train_data_loader=train_data_loader,
                                             loss_fn=loss_fn,
