@@ -65,11 +65,26 @@ def init_dataset(tokenizer, config: Config):
 def init_tokenizer(config: Config):
     kind = config.tokenizer.kind
     vocab_size = config.model.vocab_size
-    tk_model_path = Path(config.tokenizer.model)
+    base_path = Path(config.tokenizer.model)
+    
+    # Create a configuration-specific path to avoid conflicts when parameters change
+    config_dir = f"{config.tokenizer.sample_size}-{config.tokenizer.algorithm}-{vocab_size}"
+    tk_model_path = base_path / config_dir / "tokenizer"
+    
+    logger.info(f"Using tokenizer path: {tk_model_path}")
+    
     if config.tokenizer.recreate:
-        # Delete the existing model and vocab files
+        # Delete the existing model and vocab files for this specific configuration
         rmtree(tk_model_path.parent, ignore_errors=True)
-    return get_tokenizer(kind, tk_model_path, vocab_size)
+        logger.info(f"Removed existing tokenizer at {tk_model_path.parent}")
+    
+    return get_tokenizer(
+        tokenizer_kind=kind, 
+        model_path=tk_model_path, 
+        vocab_size=vocab_size,
+        algorithm=config.tokenizer.algorithm,
+        sample_size=config.tokenizer.sample_size
+    )
 
 
 
