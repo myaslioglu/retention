@@ -1,7 +1,7 @@
 # [Attention Is All You Need](https://arxiv.org/pdf/1706.03762)
 
 [![Pylint](https://github.com/MayukhSobo/Transformer/actions/workflows/pylint.yml/badge.svg)](https://github.com/MayukhSobo/Transformer/actions/workflows/pylint.yml)
-[![Python 3.12+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/release/python-390/)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/release/python-390/)
 
 A complete, educational implementation of the Transformer architecture from the "Attention Is All You Need" paper, built with PyTorch. This implementation includes both encoder and decoder components with a modular, well-documented design.
 
