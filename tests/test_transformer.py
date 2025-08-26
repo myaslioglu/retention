@@ -155,27 +155,27 @@ def standalone_test_run(config_file: Path):
         ) as progress:
 
             # Load config
-            task1 = progress.add_task("Loading configuration...", total=None)
+            task = progress.add_task("Loading configuration...", total=None)
             config = Config(config_file=config_file)
-            progress.update(task1, completed=True, description="✅ Configuration loaded")
+            progress.update(task, completed=True, description="✅ Configuration loaded")
 
             # Build model
-            task2 = progress.add_task("Building transformer model...", total=None)
+            task = progress.add_task("Building transformer model...", total=None)
             transformer, ds = build_transformer(config)
-            progress.update(task2, completed=True, description="✅ Model built")
+            progress.update(task, completed=True, description="✅ Model built")
 
             # Create dataloader
-            task3 = progress.add_task("Creating data loader...", total=None)
+            task = progress.add_task("Creating data loader...", total=None)
             train_data_loader = get_dataloader(ds, config)
-            progress.update(task3, completed=True, description="✅ Data loader created")
+            progress.update(task, completed=True, description="✅ Data loader created")
 
             # Get batch
-            task4 = progress.add_task("Loading batch...", total=None)
+            task = progress.add_task("Loading batch...", total=None)
             batch = next(iter(train_data_loader))
-            progress.update(task4, completed=True, description="✅ Batch loaded")
+            progress.update(task, completed=True, description="✅ Batch loaded")
 
             # Move to device
-            task5 = progress.add_task("Moving to device...", total=None)
+            task = progress.add_task("Moving to device...", total=None)
             batch_on_device = BatchTensors(
                 src_batch_X=batch.src_batch_X.to(transformer.device),
                 tgt_batch_X=batch.tgt_batch_X.to(transformer.device),
@@ -183,15 +183,15 @@ def standalone_test_run(config_file: Path):
                 src_batch_X_pad_mask=batch.src_batch_X_pad_mask.to(transformer.device),
                 tgt_batch_X_pad_mask=batch.tgt_batch_X_pad_mask.to(transformer.device)
             )
-            progress.update(task5, completed=True, description="✅ Moved to device")
+            progress.update(task, completed=True, description="✅ Moved to device")
 
             # Forward pass
-            task6 = progress.add_task("Executing forward pass...", total=None)
+            task = progress.add_task("Executing forward pass...", total=None)
             with torch.no_grad():
                 loss_fn = get_loss_function(config, pad_id=ds.tokenizer.pad_id)
                 if config.loss.type.lower() == 'cross_entropy':
                     loss = train_batch_CE(model=transformer, batch=batch_on_device, loss_fn=loss_fn)
-                    progress.update(task6, completed=True, description="✅ Forward pass completed")
+                    progress.update(task, completed=True, description="✅ Forward pass completed")
                 else:
                     raise ValueError(f"Unsupported loss type: {config.loss.type}")
 
@@ -209,12 +209,12 @@ def standalone_test_run(config_file: Path):
             elif hasattr(transformer, 'named_parameters'):
                 param_count = sum(p.numel() for name, p in transformer.named_parameters())
                 success_info.append(f"Parameters: {param_count:,}")
-        except Exception:
+        except Exception: # pylint: disable=broad-except
             success_info.append("Parameters: Unable to count")
 
         console.print(Panel("\n".join(success_info), title="🎉 Test Successful", style="green"))
 
-    except Exception as e:
+    except Exception as e: # pylint: disable=broad-except
         console.print(Panel(f"Error: {str(e)}", title="💥 Test Failed", style="red"))
         raise
 

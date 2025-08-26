@@ -32,7 +32,8 @@ disable=missing-module-docstring,
         unspecified-encoding,
         logging-fstring-interpolation,
         unused-argument,
-        no-value-for-parameter
+        no-value-for-parameter,
+        too-many-return-statements
 
 [REPORTS]
 # Set the output format. Available formats are text, parseable, colorized, json

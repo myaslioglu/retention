@@ -7,7 +7,7 @@ from typing import Union
 import torch
 from codetiming import Timer
 from datasets import load_dataset
-from datasets.arrow_dataset import Dataset
+from datasets.arrow_dataset import Dataset as HFDataset
 from sentencepiece import SentencePieceProcessor
 from torch.utils.data import IterableDataset
 
@@ -50,7 +50,7 @@ def get_dataset(data_path: Path, validation: object = True, streaming: bool = Tr
     return dataset["train"], None, dataset["test"]
 
 
-class TransformerDataset(IterableDataset):
+class TransformerDataset(IterableDataset):  # pylint: disable=abstract-method
     """
     An iterable dataset for tokenizing and processing language translation data efficiently.
     
@@ -69,19 +69,17 @@ class TransformerDataset(IterableDataset):
         The dataset implements lazy iteration for memory efficiency and produces
         tokenized tensor pairs suitable for training translation models.
     """
-    def __init__(self, dataset: Dataset,
+    def __init__(self, dataset: HFDataset,
                  tokenizer: Union[SentencePieceProcessor, WordTokenizer],
                  max_seq_len: int):
         self.tokenizer: Union[SentencePieceProcessor, WordTokenizer] = tokenizer
         self.max_seq_len = max_seq_len
         self.dataset = dataset
 
-
         # Get language keys
         first_sample = next(iter(dataset))
         lang_keys = list(first_sample["translation"].keys())
         self.tokenizer.train(dataset, lang_keys)
-
 
     def __iter__(self) -> Iterator[Tuple[torch.Tensor, torch.Tensor]]:
         for sample in self.dataset:

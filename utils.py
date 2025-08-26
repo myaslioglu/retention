@@ -64,10 +64,8 @@ def collate_fn(batch, pad_id: int, bos_id: int, eos_id: int, max_seq_len: int):
         tgt_batch_X[i] = torch.tensor(tgt_X, dtype=torch.long)
         tgt_batch_y[i] = torch.tensor(tgt_y, dtype=torch.long)
 
-    src_batch_X_pad_mask = src_batch_X == pad_id
-    tgt_batch_X_pad_mask = tgt_batch_X == pad_id
     return BatchTensors(src_batch_X, tgt_batch_X, tgt_batch_y,
-                        src_batch_X_pad_mask, tgt_batch_X_pad_mask)
+                        src_batch_X == pad_id, tgt_batch_X == pad_id)
 
 def get_dataloader(ds: Dataset, config: Config):
     """

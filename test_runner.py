@@ -9,7 +9,6 @@ import sys
 import subprocess
 import time
 from pathlib import Path
-from datetime import datetime
 import traceback
 
 
@@ -197,7 +196,9 @@ def run_standalone_test():
     start_time = time.time()
 
     try:
-        from tests.test_transformer import standalone_test_run
+        # Add the current directory to Python path
+        sys.path.insert(0, str(Path(__file__).parent))
+        from tests.test_transformer import standalone_test_run # pylint: disable=import-outside-toplevel
 
         config_file = Path("config.toml")
         if not config_file.exists():
@@ -211,7 +212,12 @@ def run_standalone_test():
         print(f"\n✅ Standalone test completed successfully in {duration:.2f}s!")
         return 0
 
-    except Exception as e:
+    except ImportError as e:
+        duration = time.time() - start_time
+        print(f"\n❌ Import error after {duration:.2f}s: {e}")
+        print("💡 Make sure the tests directory contains __init__.py")
+        return 1
+    except Exception as e:  # pylint: disable=broad-except
         duration = time.time() - start_time
         print(f"\n❌ Error running standalone test after {duration:.2f}s: {e}")
         traceback.print_exc()
@@ -220,66 +226,3 @@ def run_standalone_test():
 
 def show_help():
     """Show help message."""
-    print_banner("🔥 TRANSFORMER TEST RUNNER 🔥")
-    print("""
-Available test options:
-
-📋 unittest       - Run tests with Python's built-in unittest
-🚀 pytest        - Run tests with pytest + rich output (recommended)
-📊 coverage      - Run tests with pytest and generate coverage report
-🏃 parallel      - Run tests in parallel using pytest-xdist
-⚡ benchmark     - Run benchmark tests only
-🎯 standalone    - Run the original standalone test function
-❓ help          - Show this help message
-
-Examples:
-    python test_runner.py                 # Default: pytest
-    python test_runner.py pytest
-    python test_runner.py coverage
-    python test_runner.py parallel
-    python test_runner.py benchmark
-    python test_runner.py standalone
-    """)
-
-
-def main():
-    """Main function to run tests."""
-    print_banner("🔥 TRANSFORMER TEST RUNNER 🔥")
-    print(f"📅 Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-
-    if len(sys.argv) > 1:
-        test_type = sys.argv[1].lower()
-
-        if test_type == "help":
-            show_help()
-            return 0
-        if test_type == "pytest":
-            return run_pytest()
-        if test_type == "unittest":
-            return run_unittest()
-        if test_type == "coverage":
-            return run_pytest_with_coverage()
-        if test_type == "parallel":
-            return run_pytest_parallel()
-        if test_type == "benchmark":
-            return run_benchmark_tests()
-        if test_type == "standalone":
-            return run_standalone_test()
-        print(f"❌ Unknown test type: {test_type}")
-        print("💡 Available options: unittest, pytest, coverage, parallel, benchmark, standalone, help")
-        return 1
-    # Default to pytest if no argument provided
-    return run_pytest()
-
-
-if __name__ == "__main__":
-    try:
-        exit_code = main()
-        sys.exit(exit_code)
-    except KeyboardInterrupt:
-        print("\n\n🛑 Interrupted by user")
-        sys.exit(1)
-    except Exception as e:
-        print(f"\n💥 Unexpected error: {e}")
-        traceback.print_exc()
-        sys.exit(1)
