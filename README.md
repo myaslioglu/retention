@@ -120,7 +120,7 @@ path = "./data"
 - ✅ **Complete Architecture**: Encoder, decoder, and cross-attention implemented
 - ✅ **Tokenization**: SentencePiece and word-level tokenizers
 - ✅ **Dataset Integration**: WMT14 German-English with streaming support
-- ✅ **Training Pipeline**: Forward pass, loss computation, and optimization
+- ⚠️ **Training Pipeline**: Forward pass implemented, optimization in progress
 - ✅ **Testing**: Comprehensive test suite with 10.00/10 pylint score
 
 ## 🔧 Development
