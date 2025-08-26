@@ -1,12 +1,12 @@
 import torch
 from torch.utils.data import DataLoader
-from dataset import Dataset
-from config import Config
 import logging
 from collections import namedtuple
+from dataset import Dataset
+from config import Config
 
 # Define BatchTensors here to avoid circular imports
-BatchTensors = namedtuple('BatchTensors', ['src_batch_X', 'tgt_batch_X', 
+BatchTensors = namedtuple('BatchTensors', ['src_batch_X', 'tgt_batch_X',
                                            'tgt_batch_y', 'src_batch_X_pad_mask', 'tgt_batch_X_pad_mask'])
 
 
@@ -37,7 +37,7 @@ def collate_fn(batch, pad_id: int, bos_id: int, eos_id: int, max_seq_len: int):
         - All tensors are created on CPU with dtype=torch.long
         - The function assumes BatchTensors is a named tuple or similar container class
     """
-    
+
     # Create tensors on CPU first
     src_batch_X = torch.zeros(len(batch), max_seq_len, dtype=torch.long)
     tgt_batch_X = torch.zeros(len(batch), max_seq_len, dtype=torch.long)
@@ -64,9 +64,9 @@ def collate_fn(batch, pad_id: int, bos_id: int, eos_id: int, max_seq_len: int):
         tgt_batch_X[i] = torch.tensor(tgt_X, dtype=torch.long)
         tgt_batch_y[i] = torch.tensor(tgt_y, dtype=torch.long)
 
-    src_batch_X_pad_mask = (src_batch_X == pad_id)
-    tgt_batch_X_pad_mask = (tgt_batch_X == pad_id)
-    return BatchTensors(src_batch_X, tgt_batch_X, tgt_batch_y, 
+    src_batch_X_pad_mask = src_batch_X == pad_id
+    tgt_batch_X_pad_mask = tgt_batch_X == pad_id
+    return BatchTensors(src_batch_X, tgt_batch_X, tgt_batch_y,
                         src_batch_X_pad_mask, tgt_batch_X_pad_mask)
 
 def get_dataloader(ds: Dataset, config: Config):
@@ -93,7 +93,7 @@ def get_dataloader(ds: Dataset, config: Config):
     """
     # Determine if we should use pin_memory for GPU optimization
     use_pin_memory = torch.cuda.is_available()
-    
+
     return DataLoader(
         dataset=ds.dataset,
         batch_size=config.training.batch_size,
@@ -118,7 +118,7 @@ def get_device(config: Config) -> torch.device:
     configuration, and provides detailed logging about device selection and capabilities.
     Args:
         config (Config): Configuration object containing training parameters. Expected
-                        to have a 'training.device' attribute with values: 'auto', 
+                        to have a 'training.device' attribute with values: 'auto',
                         'cuda', or 'cpu'.
     Returns:
         torch.device: Configured PyTorch device object ready for tensor operations.
@@ -140,7 +140,7 @@ def get_device(config: Config) -> torch.device:
         device(type='cuda', index=0)
     """
     device_preference = getattr(config.training, 'device', 'auto').lower()
-    
+
     if device_preference == 'auto':
         if torch.cuda.is_available():
             device = torch.device('cuda')
@@ -163,5 +163,5 @@ def get_device(config: Config) -> torch.device:
     else:
         logger.warning(f"Unknown device preference '{device_preference}'")
         raise ValueError(f"Invalid device configuration: '{device_preference}'. Must be 'auto', 'cuda', or 'cpu'")
-    
+
     return device

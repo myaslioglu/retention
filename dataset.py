@@ -52,23 +52,22 @@ def get_dataset(data_path: Path, validation: object = True, streaming: bool = Tr
 
 class TransformerDataset(IterableDataset):
     """
-    TransformerDataset is an iterable dataset designed for tokenizing and processing
-    language translation data efficiently. It takes an existing dataset, tokenizes
-    the input and target text using a specified tokenizer, and ensures the sequence
-    length is restricted to a defined maximum.
-
-    This dataset is particularly useful for preparing data for training machine
-    translation models. It supports lazy iteration over the dataset, converting text
-    samples into tensors of tokenized data, which can then be directly used as
-    inputs to models.
-
-    :ivar tokenizer: Tokenizer is used to tokenize input and target texts.
-    :type tokenizer: Union[SentencePieceProcessor, WordTokenizer]
-    :ivar max_seq_len: Maximum allowed sequence length for tokenized data.
-    :type max_seq_len: int
-    :ivar dataset: Underlying dataset containing text samples with a translation
-                   format.
-    :type dataset: Dataset
+    An iterable dataset for tokenizing and processing language translation data efficiently.
+    
+    This dataset takes an existing dataset, tokenizes the input and target text using 
+    a specified tokenizer, and ensures the sequence length is restricted to a defined 
+    maximum. It supports lazy iteration over the dataset, converting text samples into 
+    tensors of tokenized data for direct use in translation models.
+    
+    Args:
+        dataset (Dataset): Underlying dataset containing text samples with translations.
+        tokenizer (Union[SentencePieceProcessor, WordTokenizer]): Tokenizer used to 
+            process input and target texts.
+        max_seq_len (int): Maximum allowed sequence length for tokenized data.
+    
+    Note:
+        The dataset implements lazy iteration for memory efficiency and produces
+        tokenized tensor pairs suitable for training translation models.
     """
     def __init__(self, dataset: Dataset,
                  tokenizer: Union[SentencePieceProcessor, WordTokenizer],

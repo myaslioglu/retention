@@ -4,8 +4,9 @@ Pytest configuration and fixtures.
 This file contains global pytest configuration and shared fixtures.
 """
 
-import pytest
 import torch
+import pytest
+import logging
 from rich.console import Console
 
 # Initialize console for rich output
@@ -42,6 +43,5 @@ def setup_test_environment():
 @pytest.fixture
 def suppress_logs(caplog):
     """Fixture to suppress logs during testing."""
-    import logging
     caplog.set_level(logging.WARNING)
     return caplog

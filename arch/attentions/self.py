@@ -44,10 +44,9 @@ class SelfAttention(nn.Module):
 
 
         # Create the masking buffer
-        # TODO: This can go into forward block if dynamic padding is used
         self.masking = masking
         causal_mask: torch.Tensor = torch.triu(
-            torch.ones(max_seq_len, max_seq_len, dtype=torch.bool), 
+            torch.ones(max_seq_len, max_seq_len, dtype=torch.bool),
             diagonal=1)
         self.register_buffer('causal_mask', causal_mask, persistent=True)
 

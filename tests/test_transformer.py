@@ -1,30 +1,32 @@
 """
 Test suite for the transformer model using pytest.
 
-This module contains tests for verifying the correctness and functionality 
+This module contains tests for verifying the correctness and functionality
 of the transformer model implementation with beautiful output and comprehensive reporting.
 """
 
-import pytest
 import sys
 import os
-from pathlib import Path
-import torch
-import logging
 import time
-from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
-from rich.progress import Progress, SpinnerColumn, TextColumn
+import logging
+from pathlib import Path
 
-# Add the parent directory to the path to import modules
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import pytest
+import torch
+
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from model import build_transformer
 from config import Config
 from utils import get_dataloader, BatchTensors
 from train import train_batch_CE
 from loss import get_loss_function
+
+# Add the parent directory to the path to import modules
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Initialize rich console for beautiful output
 console = Console()
@@ -36,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 class TestTransformerModel:
     """Test cases for the transformer model using pytest."""
-    
+
     @pytest.fixture(scope="class")
     def config_file(self):
         """Fixture for configuration file."""
@@ -44,15 +46,15 @@ class TestTransformerModel:
         if not config_path.exists():
             pytest.skip(f"Configuration file {config_path} not found")
         return config_path
-    
+
     @pytest.fixture(scope="class")
     def config(self, config_file):
         """Fixture for loaded configuration."""
         with console.status("[bold green]Loading configuration..."):
             config = Config(config_file=config_file)
-        console.print(f"✅ Configuration loaded successfully", style="bold green")
+        console.print("✅ Configuration loaded successfully", style="bold green")
         return config
-    
+
     @pytest.fixture(scope="class")
     def transformer_and_dataset(self, config):
         """Fixture for transformer model and dataset."""
@@ -62,29 +64,29 @@ class TestTransformerModel:
             console=console,
         ) as progress:
             task = progress.add_task("Building transformer model and dataset...", total=None)
-            
+
             start_time = time.time()
             transformer, ds = build_transformer(config)
             build_time = time.time() - start_time
-            
+
             progress.update(task, completed=True, description=f"✅ Built in {build_time:.2f}s")
-        
+
         # Display model info in a nice table
         table = Table(title="🤖 Model Information")
         table.add_column("Property", style="cyan", no_wrap=True)
         table.add_column("Value", style="magenta")
-        
+
         param_count = sum(p.numel() for p in transformer.parameters())
         table.add_row("Total Parameters", f"{param_count:,}")
         table.add_row("Device", str(transformer.device))
         table.add_row("Hidden Size", str(config.model.hidden_size))
         table.add_row("Number of Layers", str(config.model.n_layers))
         table.add_row("Number of Heads", str(config.model.n_heads))
-        
+
         console.print(table)
-        
+
         return transformer, ds
-    
+
     @pytest.fixture
     def dataloader(self, transformer_and_dataset, config):
         """Fixture for data loader."""
@@ -93,23 +95,23 @@ class TestTransformerModel:
             train_data_loader = get_dataloader(ds, config)
         console.print("✅ Data loader created", style="bold green")
         return train_data_loader
-    
+
     @pytest.mark.unit
     def test_config_loading(self, config):
         """Test that configuration is loaded correctly."""
         console.print(Panel.fit("⚙️ Testing Configuration Loading", style="bold blue"))
-        
+
         # Verify essential config attributes exist
         sections = ['model', 'training', 'dataset', 'loss']
         for section in sections:
             assert hasattr(config, section), f"Config should have {section} section"
-        
+
         # Create configuration summary table
         table = Table(title="📋 Configuration Summary")
         table.add_column("Section", style="cyan", no_wrap=True)
         table.add_column("Property", style="green")
         table.add_column("Value", style="yellow")
-        
+
         # Model config
         model_config = config.model
         table.add_row("Model", "Hidden Size", str(model_config.hidden_size))
@@ -117,24 +119,24 @@ class TestTransformerModel:
         table.add_row("", "Vocabulary Size", str(model_config.vocab_size))
         table.add_row("", "Number of Layers", str(model_config.n_layers))
         table.add_row("", "Number of Heads", str(model_config.n_heads))
-        
+
         # Training config
         training_config = config.training
         table.add_row("Training", "Batch Size", str(training_config.batch_size))
         table.add_row("", "Learning Rate", str(training_config.learning_rate))
         table.add_row("", "Device", str(training_config.device))
-        
+
         # Loss config
         table.add_row("Loss", "Type", str(config.loss.type))
         table.add_row("", "Label Smoothing", str(config.loss.label_smoothing))
-        
+
         console.print(table)
-        
+
         # Verify key values
         assert model_config.hidden_size > 0, "Hidden size should be positive"
         assert model_config.max_seq_len > 0, "Max sequence length should be positive"
         assert training_config.batch_size > 0, "Batch size should be positive"
-        
+
         console.print("✅ Configuration validation completed", style="bold green")
 
 
@@ -144,19 +146,19 @@ def standalone_test_run(config_file: Path):
     Standalone test function for transformer forward pass with beautiful output.
     """
     console.print(Panel.fit("🔥 Standalone Transformer Test", style="bold red"))
-    
+
     try:
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-            
+
             # Load config
             task1 = progress.add_task("Loading configuration...", total=None)
             config = Config(config_file=config_file)
             progress.update(task1, completed=True, description="✅ Configuration loaded")
-            
+
             # Build model
             task2 = progress.add_task("Building transformer model...", total=None)
             transformer, ds = build_transformer(config)
@@ -166,12 +168,12 @@ def standalone_test_run(config_file: Path):
             task3 = progress.add_task("Creating data loader...", total=None)
             train_data_loader = get_dataloader(ds, config)
             progress.update(task3, completed=True, description="✅ Data loader created")
-            
+
             # Get batch
             task4 = progress.add_task("Loading batch...", total=None)
             batch = next(iter(train_data_loader))
             progress.update(task4, completed=True, description="✅ Batch loaded")
-            
+
             # Move to device
             task5 = progress.add_task("Moving to device...", total=None)
             batch_on_device = BatchTensors(
@@ -182,7 +184,7 @@ def standalone_test_run(config_file: Path):
                 tgt_batch_X_pad_mask=batch.tgt_batch_X_pad_mask.to(transformer.device)
             )
             progress.update(task5, completed=True, description="✅ Moved to device")
-            
+
             # Forward pass
             task6 = progress.add_task("Executing forward pass...", total=None)
             with torch.no_grad():
@@ -192,13 +194,13 @@ def standalone_test_run(config_file: Path):
                     progress.update(task6, completed=True, description="✅ Forward pass completed")
                 else:
                     raise ValueError(f"Unsupported loss type: {config.loss.type}")
-        
+
         # Success panel
         success_info = [
             f"Loss: {loss.item():.5f}",
             f"Device: {transformer.device}",
         ]
-        
+
         # Try to get parameter count if available
         try:
             if hasattr(transformer, 'parameters'):
@@ -207,11 +209,11 @@ def standalone_test_run(config_file: Path):
             elif hasattr(transformer, 'named_parameters'):
                 param_count = sum(p.numel() for name, p in transformer.named_parameters())
                 success_info.append(f"Parameters: {param_count:,}")
-        except:
+        except Exception:
             success_info.append("Parameters: Unable to count")
-        
+
         console.print(Panel("\n".join(success_info), title="🎉 Test Successful", style="green"))
-        
+
     except Exception as e:
         console.print(Panel(f"Error: {str(e)}", title="💥 Test Failed", style="red"))
         raise

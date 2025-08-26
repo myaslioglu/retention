@@ -11,7 +11,7 @@
 [tokenizer]
     kind            = 'sentencepiece'                 # sentencepiece | custom
     model           = './models/en-de/wmt/shared'     # only applicable for sentencepiece tokenizer
-    sample_size     = 200000                          # Reduced from 200000 to save memory during tokenizer training
+    sample_size     = 200000                          # How many examples to consider to train tokenizer 
     algorithm       = 'bpe'                           # bpe | unigram
     recreate        = false                           # Use the previously created tokenizer model?
 

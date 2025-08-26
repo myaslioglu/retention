@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Union
 import torch
 from config import Config
 from dataset import TransformerDataset, get_dataset
@@ -13,6 +12,8 @@ from shutil import rmtree
 import humanize
 from utils import get_device
 from dataset import Dataset
+import psutil
+import gc
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +23,12 @@ class TransformerModel:
     decoder: Decoder
     classifier: Classifier
     device: torch.device
-    
-    def forward(self, src_batch: torch.Tensor, tgt_batch: torch.Tensor, 
+
+    def forward(self, src_batch: torch.Tensor, tgt_batch: torch.Tensor,
                 src_pad_mask: torch.Tensor, tgt_pad_mask: torch.Tensor) -> torch.Tensor:
         """
         Forward pass through the complete transformer model.
-        
+
         :param src_batch: Source sequences [batch_size, seq_len]
         :param tgt_batch: Target sequences [batch_size, seq_len]
         :return: Output logits [batch_size, seq_len, vocab_size]
@@ -37,19 +38,19 @@ class TransformerModel:
 
         # Decoder forward pass with cross-attention to encoder output
         decoder_output = self.decoder(tgt_batch, tgt_pad_mask, encoder_output)
-        
+
         # Classifier forward pass to get vocabulary logits
         logits = self.classifier(decoder_output)
-        
+
         return logits
-    
+
     def to(self, device: torch.device):
         """
         Move all model components to the specified device.
-        
+
         Args:
             device (torch.device): Target device for model components.
-            
+
         Returns:
             TransformerModel: Self reference for method chaining.
         """
@@ -63,20 +64,20 @@ class TransformerModel:
 def init_dataset(tokenizer, config: Config):
     """
     Initialize the training dataset with streaming support for memory efficiency.
-    
+
     This function loads the WMT14 German-English dataset in streaming mode to avoid
     loading the entire dataset into memory, which can cause RAM overflow issues.
-    
+
     Args:
         tokenizer: Tokenizer instance (SentencePiece or Word tokenizer) for text
             processing.
         config (Config): Configuration object containing dataset path and model
             parameters.
-    
+
     Returns:
         TransformerDataset: Initialized dataset ready for training with the
             specified tokenizer and maximum sequence length.
-    
+
     Note:
         Currently only loads the training split. Validation and test datasets
         are not yet implemented (marked as TODO).
@@ -93,12 +94,12 @@ def init_dataset(tokenizer, config: Config):
 def init_tokenizer(config: Config):
     """
     Initialize a tokenizer with configuration-specific model paths.
-    
+
     This function creates a tokenizer with a unique directory structure based on
     the tokenizer configuration parameters (sample_size, algorithm, vocab_size).
     This ensures that different tokenizer configurations don't conflict with
     each other and allows for easy parameter experimentation.
-    
+
     Args:
         config (Config): Configuration object containing tokenizer parameters:
             - tokenizer.kind: Type of tokenizer ('sentencepiece' or 'custom')
@@ -107,11 +108,11 @@ def init_tokenizer(config: Config):
             - tokenizer.algorithm: Algorithm type ('bpe' or 'unigram')
             - tokenizer.recreate: Whether to recreate existing models
             - model.vocab_size: Target vocabulary size
-    
+
     Returns:
         Tokenizer: Initialized tokenizer instance (SentencePiece or Word tokenizer)
             ready for training and encoding.
-    
+
     Note:
         The tokenizer model path follows the pattern:
         base_path/sample_size-algorithm-vocab_size/tokenizer.model
@@ -120,21 +121,21 @@ def init_tokenizer(config: Config):
     kind = config.tokenizer.kind
     vocab_size = config.model.vocab_size
     base_path = Path(config.tokenizer.model)
-    
+
     # Create a configuration-specific path to avoid conflicts when parameters change
     config_dir = f"{config.tokenizer.sample_size}-{config.tokenizer.algorithm}-{vocab_size}"
     tk_model_path = base_path / config_dir / "tokenizer"
-    
+
     logger.info(f"Using tokenizer path: {tk_model_path}")
-    
+
     if config.tokenizer.recreate:
         # Delete the existing model and vocab files for this specific configuration
         rmtree(tk_model_path.parent, ignore_errors=True)
         logger.info(f"Removed existing tokenizer at {tk_model_path.parent}")
-    
+
     return get_tokenizer(
-        tokenizer_kind=kind, 
-        model_path=tk_model_path, 
+        tokenizer_kind=kind,
+        model_path=tk_model_path,
         vocab_size=vocab_size,
         algorithm=config.tokenizer.algorithm,
         sample_size=config.tokenizer.sample_size
@@ -160,41 +161,44 @@ def build_transformer(config: Config) -> tuple[TransformerModel, Dataset]:
     :return: A tuple containing the initialized `Model` and `Dataset` objects.
     :rtype: tuple[Model, Dataset]
     """
-    import psutil
-    import gc
-    
+
     # Log initial memory usage
     memory_before = psutil.virtual_memory()
     memory_used = humanize.naturalsize(memory_before.used)
     total_memory = humanize.naturalsize(memory_before.total)
-    logger.info(f"Memory before model creation: {memory_before.percent:.1f}% used ({memory_used}/{total_memory})")
+    logger.info(f"Memory before model creation: {memory_before.percent:.1f}% "
+                f"used ({memory_used}/{total_memory})")
 
     # Determine the device to use
     device = get_device(config)
-    
+
     # Get the tokenizer
     logger.info("Initializing tokenizer...")
     tokenizer = init_tokenizer(config=config)
-    
+
     # Log memory after tokenizer
     memory_after_tokenizer = psutil.virtual_memory()
-    logger.info(f"Memory after tokenizer: {memory_after_tokenizer.percent:.1f}% used ({humanize.naturalsize(memory_after_tokenizer.used)}/{humanize.naturalsize(memory_after_tokenizer.total)})")
+    logger.info(f"Memory after tokenizer: {memory_after_tokenizer.percent:.1f}% "
+                f"used ({humanize.naturalsize(memory_after_tokenizer.used)}/"
+                f"{humanize.naturalsize(memory_after_tokenizer.total)})")
 
     # Get the dataset
     logger.info("Initializing dataset...")
     dataset = init_dataset(config=config, tokenizer=tokenizer)
     # This is needed because the tokenizer can have vocab size != desired vocab size
     config.model.vocab_size = dataset.tokenizer.n_vocab
-    
+
     # Log memory after dataset
     memory_after_dataset = psutil.virtual_memory()
-    logger.info(f"Memory after dataset: {memory_after_dataset.percent:.1f}% used ({humanize.naturalsize(memory_after_dataset.used)}/{humanize.naturalsize(memory_after_dataset.total)})")
+    logger.info(f"Memory after dataset: {memory_after_dataset.percent:.1f}% "
+                f"used ({humanize.naturalsize(memory_after_dataset.used)}/"
+                f"{humanize.naturalsize(memory_after_dataset.total)})")
 
     # Get the encoder
     logger.info("Initializing encoder...")
     encoder_model = get_encoder(conf=config).to(device)
     logger.debug("Encoder initialized and moved to %s: %s", device, encoder_model)
-    
+
     # Force garbage collection
     gc.collect()
     if torch.cuda.is_available():
@@ -204,7 +208,7 @@ def build_transformer(config: Config) -> tuple[TransformerModel, Dataset]:
     logger.info("Initializing decoder...")
     decoder_model = get_decoder(conf=config).to(device)
     logger.debug("Decoder initialized and moved to %s: %s", device, decoder_model)
-    
+
     # Force garbage collection
     gc.collect()
     if torch.cuda.is_available():
@@ -220,15 +224,17 @@ def build_transformer(config: Config) -> tuple[TransformerModel, Dataset]:
                    sum(p.numel() for p in decoder_model.parameters()) + \
                    sum(p.numel() for p in classifier_model.parameters())
     logger.info(f"Total model parameters: {humanize.intword(total_params)}")
-    
+
     # Calculate approximate model memory usage
     param_memory = total_params * 4  # 4 bytes per float32 parameter
     logger.info(f"Approximate model memory usage: {humanize.naturalsize(param_memory)}")
-    
+
     # Log final memory usage
     memory_final = psutil.virtual_memory()
-    logger.info(f"Memory after model creation: {memory_final.percent:.1f}% used ({humanize.naturalsize(memory_final.used)}/{humanize.naturalsize(memory_final.total)})")
-    
+    logger.info(f"Memory after model creation: {memory_final.percent:.1f}% "
+                f"used ({humanize.naturalsize(memory_final.used)}/"
+                f"{humanize.naturalsize(memory_final.total)})")
+
     # Force final garbage collection
     gc.collect()
     if torch.cuda.is_available():

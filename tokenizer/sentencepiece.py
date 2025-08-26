@@ -6,8 +6,6 @@ from codetiming import Timer
 from datasets.arrow_dataset import Dataset
 
 logger = logging.getLogger(__name__)
-
-
 class SentencePieceTokenizer:
     def __init__(self, model_path: Path,
                  vocab_size: int,
@@ -36,14 +34,14 @@ class SentencePieceTokenizer:
     def model(self):
         """
         Load and return the trained SentencePiece model with vocabulary size.
-        
+
         This property loads the SentencePiece model from the saved .model file
         and returns both the model instance and its vocabulary size.
-        
+
         Returns:
             tuple[smp.SentencePieceProcessor, int]: A tuple containing the loaded
                 SentencePiece processor and the actual vocabulary size.
-        
+
         Note:
             The model file must exist at the specified model path with .model extension.
         """
@@ -59,7 +57,7 @@ class SentencePieceTokenizer:
         if not self.model_path.with_suffix(".model").exists():
             all_samples = []
             sample_count = 0
-            
+
             # Handle both streaming and regular datasets
             for sample in dataset:
                 if sample_count >= self.sample_size:
@@ -67,10 +65,10 @@ class SentencePieceTokenizer:
                 for lang_key in lang_keys:
                     all_samples.append(sample["translation"][lang_key])
                 sample_count += 1
-                
-                # Log progress for large sample sizes
+
                 if sample_count % 10000 == 0:
-                    logger.info(f"Processed {sample_count}/{self.sample_size} samples for tokenizer training")
+                    logger.info("Processed %d/%d samples for tokenizer training",
+                               sample_count, self.sample_size)
 
             logger.info(f"Collected {len(all_samples)} text samples for tokenizer training")
             logger.info(f"Requesting vocab_size: {self.vocab_size}")
@@ -100,23 +98,29 @@ class SentencePieceTokenizer:
         self._model, self.actual_vocab_size = self.model
         self.pad_id = self._model.pad_id() # This is required at collate function for batch creation
 
-        logger.info(f"SentencePiece model training completed:")
-        logger.info(f"  - Requested vocab_size: {self.vocab_size}")
-        logger.info(f"  - Actual vocab_size: {self.actual_vocab_size}")
-        logger.info(f"  - Difference: {self.actual_vocab_size - self.vocab_size}")
-        logger.info(f"  - Special token IDs: PAD={self._model.pad_id()}, UNK={self._model.unk_id()}, BOS={self._model.bos_id()}, EOS={self._model.eos_id()}")
+        logger.info("SentencePiece model training completed:")
+        logger.debug(f"  - Special token IDs: "
+                     f"PAD={self._model.pad_id()}, "
+                     f"UNK={self._model.unk_id()}, "
+                     f"BOS={self._model.bos_id()}, "
+                     f"EOS={self._model.eos_id()}")
 
         if self.actual_vocab_size != self.vocab_size:
-            logger.warning("Actual vocab size (%d) does not match the requested size (%d). This is normal for SentencePiece.",
-                           self.actual_vocab_size, self.vocab_size)
-            logger.info("Reasons: 1) Special tokens are handled separately, 2) Algorithm may not reach exact target, 3) Limited training data patterns")
+            logger.warning(
+                "Actual vocab size (%d) does not match the requested size (%d). "
+                "This is normal for SentencePiece.",
+                self.actual_vocab_size, self.vocab_size)
+            logger.info(
+                "Reasons: 1) Special tokens are handled separately, "
+                "2) Algorithm may not reach exact target, "
+                "3) Limited training data patterns")
         logger.info("SentencePiece model loaded successfully!")
 
     @property
     def n_vocab(self):
         """
         Get the actual vocabulary size of the trained tokenizer.
-        
+
         Returns:
             int: The actual vocabulary size after training, which may differ
                 from the requested vocabulary size.
@@ -126,19 +130,19 @@ class SentencePieceTokenizer:
     def encode(self, src_txt: str, tgt_txt: str) -> tuple[list[int], list[int]] | tuple[None, None]:
         """
         Encode source and target text into token sequences.
-        
+
         This method tokenizes both source and target text using the trained
         SentencePiece model and returns the corresponding token ID sequences.
-        
+
         Args:
             src_txt (str): Source text to be tokenized.
             tgt_txt (str): Target text to be tokenized.
-        
+
         Returns:
             tuple[list[int], list[int]] | tuple[None, None]: A tuple containing
                 (src_tokens, tgt_tokens) where each is a list of token IDs, or
                 (None, None) if the tokenizer model hasn't been trained yet.
-        
+
         Note:
             Returns (None, None) if the SentencePiece model hasn't been trained.
             Make sure to call the train() method before using encode().
@@ -146,7 +150,6 @@ class SentencePieceTokenizer:
         if not self._model:
             logger.error("Please train the sentencepiece tokenizer first")
             return None, None
-        src_tokens = self._model.encode(src_txt, out_type=int)
-        tgt_tokens = self._model.encode(tgt_txt, out_type=int)
+        src_tokens = self._model.Encode(src_txt, out_type=int)
+        tgt_tokens = self._model.Encode(tgt_txt, out_type=int)
         return src_tokens, tgt_tokens
-

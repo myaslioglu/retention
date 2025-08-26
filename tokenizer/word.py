@@ -10,8 +10,8 @@ class WordTokenizer:
         if not unknown_token:
             unknown_token = '<UNK>'
         self.unknown_token = unknown_token
-        self.word_to_id = dict()
-        self.id_to_word = dict()
+        self.word_to_id = {}
+        self.id_to_word = {}
         self.word_to_id[self.unknown_token] = 0
         self.id_to_word[0] = self.unknown_token
         self.next_id = 1 # Reserve 0 for UNKNOWN words

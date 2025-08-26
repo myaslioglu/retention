@@ -42,26 +42,26 @@ class ExperimentTracker:
         self.log_dir = log_dir
         self.config_file = config_file
         self.run = None
-    
+
     def __enter__(self):
         os.makedirs(self.log_dir, exist_ok=True)
-        
+
         timestamp = datetime.now().strftime("%d-%b-%Y-%I:%M%p").lower()
-        
+
         if self.config_file:
             config_name = Path(self.config_file).stem  # Get filename without extension
         else:
             config_name = "default"
-            
+
         run_name = f"{config_name}-{timestamp}"
-        
+
         self.run = wandb.init(
-            project=self.project_name, 
+            project=self.project_name,
             config=self.config,
             dir=self.log_dir,
             name=run_name
         )
         return self.run
-    
+
     def __exit__(self, *args):
         wandb.finish()
