@@ -81,7 +81,7 @@ Transformer/
 
 ## ⚙️ Configuration
 
-Default model configuration (~116 million parameters):
+Default model configuration (~101 million parameters, using distinct embeddings):
 
 ```toml
 [model]
@@ -89,7 +89,7 @@ vocab_size = 37000
 hidden_size = 512
 max_seq_len = 512
 n_heads = 8
-n_layers = 8
+n_layers = 6
 ff_hidden_size = 2048
 dropout_pe = 0.1
 
