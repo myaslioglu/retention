@@ -16,6 +16,7 @@ dependencies = [
     "psutil",
     "humanize",
     "wandb",
+    "black>=25.1.0",
 ]
 
 [project.optional-dependencies]

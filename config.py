@@ -10,8 +10,9 @@ class Config:
     def __init__(self, config_file: Path):
         self._config = None
         if config_file.is_file():
-            with open(config_file, 'rb') as f:
+            with open(config_file, "rb") as f:
                 self._config = Box(tomllib.load(f))
+
     @property
     def model(self):
         return self._config.model
@@ -37,6 +38,6 @@ class Config:
         return self._config.experiment
 
 
-if __name__ == '__main__':
-    config = Config(config_file=Path('config.toml'))
-    logger.info("Model.ffwfs = %s", config.model.get('ffwfs'))
+if __name__ == "__main__":
+    config = Config(config_file=Path("config.toml"))
+    logger.info("Model.ffwfs = %s", config.model.get("ffwfs"))

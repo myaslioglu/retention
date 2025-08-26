@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import math
 
+
 class SelfAttention(nn.Module):
     """
     Implements a Self-Attention mechanism for use in neural network architectures.
@@ -12,14 +13,20 @@ class SelfAttention(nn.Module):
     learnable weight matrices for query, key, and value computations.
     """
 
-    def __init__(self, hidden_size: int, max_seq_len: int,
-                 d_k: int, dropout_pe: float, masking: bool = False):
+    def __init__(
+        self,
+        hidden_size: int,
+        max_seq_len: int,
+        d_k: int,
+        dropout_pe: float,
+        masking: bool = False,
+    ):
         """
         Initializes the Self-Attention instance with specified parameters.
-        
+
         This includes the creation of linear layers for key, value, and query matrices
         used in attention mechanisms, as well as a dropout layer and optional causal masking.
-        
+
         Args:
             hidden_size (int): The size of the input hidden feature dimension.
             max_seq_len (int): Maximum sequence length for creating causal mask.
@@ -38,43 +45,46 @@ class SelfAttention(nn.Module):
         self.W_v = nn.Linear(hidden_size, d_k)  # Value matrix
 
         # -1 represents the last index of [BATCH, SEQ_LEN, SEQ_LEN]
-        self.softmax = nn.Softmax(dim=-1) # Used in attention scores
+        self.softmax = nn.Softmax(dim=-1)  # Used in attention scores
 
         self.attn_dropout = nn.Dropout(p=dropout_pe)
-
 
         # Create the masking buffer
         self.masking = masking
         causal_mask: torch.Tensor = torch.triu(
-            torch.ones(max_seq_len, max_seq_len, dtype=torch.bool),
-            diagonal=1)
-        self.register_buffer('causal_mask', causal_mask, persistent=True)
+            torch.ones(max_seq_len, max_seq_len, dtype=torch.bool), diagonal=1
+        )
+        self.register_buffer("causal_mask", causal_mask, persistent=True)
 
-    def forward(self, x: torch.Tensor, padding_mask: torch.Tensor = None) -> torch.Tensor:
+    def forward(
+        self, x: torch.Tensor, padding_mask: torch.Tensor = None
+    ) -> torch.Tensor:
         """
         Performs forward pass of the self-attention mechanism.
-        
+
         Computes query, key, and value vectors from input, calculates attention scores,
         applies masking if specified, and returns the weighted value vectors.
-        
+
         Args:
             x (torch.Tensor): Input tensor of shape [BATCH, SEQ_LEN, HIDDEN_SIZE].
             padding_mask (torch.Tensor, optional): Mask for padding tokens. Defaults to None.
-            
+
         Returns:
             torch.Tensor: Output tensor of shape [BATCH, SEQ_LEN, d_k].
         """
         # [BATCH, SEQ_LEN, d_k]
-        Q = self.W_q(x) # Query Vector
-        K = self.W_k(x) # Key Vector
-        V = self.W_v(x) # Value Vector
+        Q = self.W_q(x)  # Query Vector
+        K = self.W_k(x)  # Key Vector
+        V = self.W_v(x)  # Value Vector
 
         # Perform Q.K
         # Q -> [BATCH, SEQ_LEN, d_k]
         # K -> [BATCH, SEQ_LEN, d_k]
         # So we need to transpose K to calculate dot product
         K_t = SelfAttention.transpose(K)
-        scores = Q @ K_t    # [BATCH, SEQ_LEN, SEQ_LEN], a perfect square matrix for each batch
+        scores = (
+            Q @ K_t
+        )  # [BATCH, SEQ_LEN, SEQ_LEN], a perfect square matrix for each batch
 
         # Now scale the attention scores
         scores = scores / math.sqrt(self.d_k)
@@ -93,7 +103,7 @@ class SelfAttention(nn.Module):
             scores = scores.masked_fill(mask, neg_inf)
 
         # Apply Softmax
-        scores = self.softmax(scores) # [BATCH, SEQ_LEN, SEQ_LEN]
+        scores = self.softmax(scores)  # [BATCH, SEQ_LEN, SEQ_LEN]
 
         # Apply dropout
         W = self.attn_dropout(scores)
@@ -103,7 +113,7 @@ class SelfAttention(nn.Module):
             W = W.masked_fill(padding_mask.unsqueeze(-1), 0.0)
 
         # Linear Projection
-        return W @ V # [BATCH, SEQ_LEN, d_k]
+        return W @ V  # [BATCH, SEQ_LEN, d_k]
 
     @staticmethod
     def transpose(key: torch.Tensor) -> torch.Tensor:
@@ -115,7 +125,7 @@ class SelfAttention(nn.Module):
 
         Args:
             key (torch.Tensor): A tensor to be transposed of shape [BATCH, SEQ_LEN, d_k].
-            
+
         Returns:
             torch.Tensor: A tensor with its second and third dimensions swapped.
         """

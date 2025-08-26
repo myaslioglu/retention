@@ -5,12 +5,12 @@ import torch.nn as nn
 class FeedForward(nn.Module):
     """
     Position-wise feed-forward network used in transformer architectures.
-    
+
     This module implements the feed-forward network described in "Attention Is All You Need".
     It consists of two linear transformations with a ReLU activation in between,
     followed by dropout for regularization. This is applied to each position separately
     and identically in transformer layers.
-    
+
     Attributes:
         W_1 (nn.Linear): First linear transformation that expands the hidden dimension
             to the feed-forward dimension.
@@ -19,12 +19,11 @@ class FeedForward(nn.Module):
         relu (nn.ReLU): ReLU activation function applied between the linear layers.
         dropout (nn.Dropout): Dropout layer for regularization.
     """
-    def __init__(self, hidden_size: int,
-                 ff_hidden_size: int,
-                 dropout_pe: float):
+
+    def __init__(self, hidden_size: int, ff_hidden_size: int, dropout_pe: float):
         """
         Initialize the feed-forward network with specified dimensions.
-        
+
         Args:
             hidden_size (int): Dimension of the input and output features.
             ff_hidden_size (int): Dimension of the intermediate hidden layer
@@ -40,10 +39,10 @@ class FeedForward(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Forward pass through the feed-forward network.
-        
+
         Args:
             x (torch.Tensor): Input tensor of shape [batch_size, seq_len, hidden_size].
-        
+
         Returns:
             torch.Tensor: Output tensor of shape [batch_size, seq_len, hidden_size].
         """

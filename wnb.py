@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
+
 class ExperimentTracker:
     """
     A context manager for tracking machine learning experiments using Weights & Biases (wandb).
@@ -36,7 +37,10 @@ class ExperimentTracker:
         Run names are automatically generated in the format: "{config_name}-{timestamp}"
         where timestamp follows the pattern "dd-mmm-yyyy-hh:mmam/pm".
     """
-    def __init__(self, project_name, config=None, log_dir="experiment_logs", config_file=None):
+
+    def __init__(
+        self, project_name, config=None, log_dir="experiment_logs", config_file=None
+    ):
         self.project_name = project_name
         self.config = config or {}
         self.log_dir = log_dir
@@ -59,7 +63,7 @@ class ExperimentTracker:
             project=self.project_name,
             config=self.config,
             dir=self.log_dir,
-            name=run_name
+            name=run_name,
         )
         return self.run
 

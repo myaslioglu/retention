@@ -17,6 +17,7 @@ import gc
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class TransformerModel:
     encoder: Encoder
@@ -24,8 +25,13 @@ class TransformerModel:
     classifier: Classifier
     device: torch.device
 
-    def forward(self, src_batch: torch.Tensor, tgt_batch: torch.Tensor,
-                src_pad_mask: torch.Tensor, tgt_pad_mask: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self,
+        src_batch: torch.Tensor,
+        tgt_batch: torch.Tensor,
+        src_pad_mask: torch.Tensor,
+        tgt_pad_mask: torch.Tensor,
+    ) -> torch.Tensor:
         """
         Forward pass through the complete transformer model.
 
@@ -123,7 +129,9 @@ def init_tokenizer(config: Config):
     base_path = Path(config.tokenizer.model)
 
     # Create a configuration-specific path to avoid conflicts when parameters change
-    config_dir = f"{config.tokenizer.sample_size}-{config.tokenizer.algorithm}-{vocab_size}"
+    config_dir = (
+        f"{config.tokenizer.sample_size}-{config.tokenizer.algorithm}-{vocab_size}"
+    )
     tk_model_path = base_path / config_dir / "tokenizer"
 
     logger.info(f"Using tokenizer path: {tk_model_path}")
@@ -138,10 +146,8 @@ def init_tokenizer(config: Config):
         model_path=tk_model_path,
         vocab_size=vocab_size,
         algorithm=config.tokenizer.algorithm,
-        sample_size=config.tokenizer.sample_size
+        sample_size=config.tokenizer.sample_size,
     )
-
-
 
 
 def build_transformer(config: Config) -> tuple[TransformerModel, Dataset]:
@@ -166,8 +172,10 @@ def build_transformer(config: Config) -> tuple[TransformerModel, Dataset]:
     memory_before = psutil.virtual_memory()
     memory_used = humanize.naturalsize(memory_before.used)
     total_memory = humanize.naturalsize(memory_before.total)
-    logger.info(f"Memory before model creation: {memory_before.percent:.1f}% "
-                f"used ({memory_used}/{total_memory})")
+    logger.info(
+        f"Memory before model creation: {memory_before.percent:.1f}% "
+        f"used ({memory_used}/{total_memory})"
+    )
 
     # Determine the device to use
     device = get_device(config)
@@ -178,9 +186,11 @@ def build_transformer(config: Config) -> tuple[TransformerModel, Dataset]:
 
     # Log memory after tokenizer
     memory_after_tokenizer = psutil.virtual_memory()
-    logger.info(f"Memory after tokenizer: {memory_after_tokenizer.percent:.1f}% "
-                f"used ({humanize.naturalsize(memory_after_tokenizer.used)}/"
-                f"{humanize.naturalsize(memory_after_tokenizer.total)})")
+    logger.info(
+        f"Memory after tokenizer: {memory_after_tokenizer.percent:.1f}% "
+        f"used ({humanize.naturalsize(memory_after_tokenizer.used)}/"
+        f"{humanize.naturalsize(memory_after_tokenizer.total)})"
+    )
 
     # Get the dataset
     logger.info("Initializing dataset...")
@@ -190,9 +200,11 @@ def build_transformer(config: Config) -> tuple[TransformerModel, Dataset]:
 
     # Log memory after dataset
     memory_after_dataset = psutil.virtual_memory()
-    logger.info(f"Memory after dataset: {memory_after_dataset.percent:.1f}% "
-                f"used ({humanize.naturalsize(memory_after_dataset.used)}/"
-                f"{humanize.naturalsize(memory_after_dataset.total)})")
+    logger.info(
+        f"Memory after dataset: {memory_after_dataset.percent:.1f}% "
+        f"used ({humanize.naturalsize(memory_after_dataset.used)}/"
+        f"{humanize.naturalsize(memory_after_dataset.total)})"
+    )
 
     # Get the encoder
     logger.info("Initializing encoder...")
@@ -220,9 +232,11 @@ def build_transformer(config: Config) -> tuple[TransformerModel, Dataset]:
     logger.debug("Classifier initialized and moved to %s", device)
 
     # Log total parameters
-    total_params = sum(p.numel() for p in encoder_model.parameters()) + \
-                   sum(p.numel() for p in decoder_model.parameters()) + \
-                   sum(p.numel() for p in classifier_model.parameters())
+    total_params = (
+        sum(p.numel() for p in encoder_model.parameters())
+        + sum(p.numel() for p in decoder_model.parameters())
+        + sum(p.numel() for p in classifier_model.parameters())
+    )
     logger.info(f"Total model parameters: {humanize.intword(total_params)}")
 
     # Calculate approximate model memory usage
@@ -231,9 +245,11 @@ def build_transformer(config: Config) -> tuple[TransformerModel, Dataset]:
 
     # Log final memory usage
     memory_final = psutil.virtual_memory()
-    logger.info(f"Memory after model creation: {memory_final.percent:.1f}% "
-                f"used ({humanize.naturalsize(memory_final.used)}/"
-                f"{humanize.naturalsize(memory_final.total)})")
+    logger.info(
+        f"Memory after model creation: {memory_final.percent:.1f}% "
+        f"used ({humanize.naturalsize(memory_final.used)}/"
+        f"{humanize.naturalsize(memory_final.total)})"
+    )
 
     # Force final garbage collection
     gc.collect()
@@ -244,8 +260,5 @@ def build_transformer(config: Config) -> tuple[TransformerModel, Dataset]:
         encoder=encoder_model,
         decoder=decoder_model,
         classifier=classifier_model,
-        device=device
-    ), Dataset(
-        dataset=dataset,
-        tokenizer=tokenizer
-    )
+        device=device,
+    ), Dataset(dataset=dataset, tokenizer=tokenizer)

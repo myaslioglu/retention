@@ -6,11 +6,20 @@ from dataset import Dataset
 from config import Config
 
 # Define BatchTensors here to avoid circular imports
-BatchTensors = namedtuple('BatchTensors', ['src_batch_X', 'tgt_batch_X',
-                                           'tgt_batch_y', 'src_batch_X_pad_mask', 'tgt_batch_X_pad_mask'])
+BatchTensors = namedtuple(
+    "BatchTensors",
+    [
+        "src_batch_X",
+        "tgt_batch_X",
+        "tgt_batch_y",
+        "src_batch_X_pad_mask",
+        "tgt_batch_X_pad_mask",
+    ],
+)
 
 
 logger = logging.getLogger(__name__)
+
 
 def collate_fn(batch, pad_id: int, bos_id: int, eos_id: int, max_seq_len: int):
     """
@@ -45,10 +54,10 @@ def collate_fn(batch, pad_id: int, bos_id: int, eos_id: int, max_seq_len: int):
 
     for i, (src_tkn, tgt_tkn) in enumerate(batch):
         # For encoder input: SRC_TOKENS + EOS + [PAD]
-        src_X = src_tkn[:max_seq_len - 1] + [eos_id]
+        src_X = src_tkn[: max_seq_len - 1] + [eos_id]
 
         # For decoder input: BOS + TGT_TOKENS + [PAD]
-        d_tkn = tgt_tkn[:max_seq_len - 1]
+        d_tkn = tgt_tkn[: max_seq_len - 1]
         tgt_X = [bos_id] + d_tkn
 
         # For decoder target: TGT_TOKENS + EOS + [PAD]
@@ -64,8 +73,14 @@ def collate_fn(batch, pad_id: int, bos_id: int, eos_id: int, max_seq_len: int):
         tgt_batch_X[i] = torch.tensor(tgt_X, dtype=torch.long)
         tgt_batch_y[i] = torch.tensor(tgt_y, dtype=torch.long)
 
-    return BatchTensors(src_batch_X, tgt_batch_X, tgt_batch_y,
-                        src_batch_X == pad_id, tgt_batch_X == pad_id)
+    return BatchTensors(
+        src_batch_X,
+        tgt_batch_X,
+        tgt_batch_y,
+        src_batch_X == pad_id,
+        tgt_batch_X == pad_id,
+    )
+
 
 def get_dataloader(ds: Dataset, config: Config):
     """
@@ -100,7 +115,7 @@ def get_dataloader(ds: Dataset, config: Config):
             pad_id=ds.tokenizer.pad_id,
             bos_id=ds.tokenizer.bos_id,
             eos_id=ds.tokenizer.eos_id,
-            max_seq_len=config.model.max_seq_len
+            max_seq_len=config.model.max_seq_len,
         ),
         num_workers=0,  # Avoid multiprocessing issues - reduces memory overhead
         pin_memory=use_pin_memory,  # Enable for GPU performance when CUDA available
@@ -137,29 +152,37 @@ def get_device(config: Config) -> torch.device:
         >>> print(device)
         device(type='cuda', index=0)
     """
-    device_preference = getattr(config.training, 'device', 'auto').lower()
+    device_preference = getattr(config.training, "device", "auto").lower()
 
-    if device_preference == 'auto':
+    if device_preference == "auto":
         if torch.cuda.is_available():
-            device = torch.device('cuda')
+            device = torch.device("cuda")
             logger.info(f"Auto-selected CUDA device: {torch.cuda.get_device_name(0)}")
-            logger.info(f"CUDA memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
+            logger.info(
+                f"CUDA memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+            )
         else:
-            device = torch.device('cpu')
+            device = torch.device("cpu")
             logger.info("No GPU acceleration available, auto-selected CPU")
-    elif device_preference == 'cuda':
+    elif device_preference == "cuda":
         if torch.cuda.is_available():
-            device = torch.device('cuda')
-            logger.info(f"Using configured CUDA device: {torch.cuda.get_device_name(0)}")
-            logger.info(f"CUDA memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
+            device = torch.device("cuda")
+            logger.info(
+                f"Using configured CUDA device: {torch.cuda.get_device_name(0)}"
+            )
+            logger.info(
+                f"CUDA memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB"
+            )
         else:
             logger.warning("CUDA requested but not available, falling back to CPU")
-            device = torch.device('cpu')
-    elif device_preference == 'cpu':
-        device = torch.device('cpu')
+            device = torch.device("cpu")
+    elif device_preference == "cpu":
+        device = torch.device("cpu")
         logger.info("Using configured CPU device")
     else:
         logger.warning(f"Unknown device preference '{device_preference}'")
-        raise ValueError(f"Invalid device configuration: '{device_preference}'. Must be 'auto', 'cuda', or 'cpu'")
+        raise ValueError(
+            f"Invalid device configuration: '{device_preference}'. Must be 'auto', 'cuda', or 'cpu'"
+        )
 
     return device

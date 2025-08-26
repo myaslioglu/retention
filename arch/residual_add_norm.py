@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 
+
 class ResidualAddNorm(nn.Module):
     """
     Applies residual addition followed by layer normalization.
@@ -17,8 +18,8 @@ class ResidualAddNorm(nn.Module):
         the combined residual and sublayer output.
     :type norm_layer: nn.LayerNorm
     """
-    def __init__(self, n_features: int, eps: float=1e-5,
-                 learn_affine: bool=True):
+
+    def __init__(self, n_features: int, eps: float = 1e-5, learn_affine: bool = True):
         """
         Initializes the normalization layer with specified parameters.
 
@@ -35,10 +36,10 @@ class ResidualAddNorm(nn.Module):
         :type learn_affine: Bool, optional
         """
         super().__init__()
-        self.norm_layer = nn.LayerNorm(n_features, eps,
-                                       elementwise_affine=learn_affine)
+        self.norm_layer = nn.LayerNorm(n_features, eps, elementwise_affine=learn_affine)
 
-    def forward(self, residual: torch.Tensor,
-                sublayer_output: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self, residual: torch.Tensor, sublayer_output: torch.Tensor
+    ) -> torch.Tensor:
         add = residual + sublayer_output
         return self.norm_layer(add)

@@ -6,6 +6,7 @@ from arch.residual_add_norm import ResidualAddNorm
 from arch.feed_forward import FeedForward
 from arch.attentions.self import SelfAttention
 
+
 class EncoderLayer(nn.Module):
     """
     A single encoder layer implementing the transformer encoder architecture.
@@ -38,8 +39,16 @@ class EncoderLayer(nn.Module):
         >>> output.shape
         torch.Size([32, 128, 512])
     """
-    def __init__(self, hidden_size: int, max_seq_len: int, dropout_pe: float,
-                 n_heads: int, ff_hidden_size: int, d_k: Union[int, None] = None):
+
+    def __init__(
+        self,
+        hidden_size: int,
+        max_seq_len: int,
+        dropout_pe: float,
+        n_heads: int,
+        ff_hidden_size: int,
+        d_k: Union[int, None] = None,
+    ):
         """
         Initializes the encoder layer with a multi-head attention mechanism, residual connections,
         and a feed-forward network. This layer does not include token embeddings or positional
@@ -54,13 +63,14 @@ class EncoderLayer(nn.Module):
                     a default dimension is computed using hidden size and number of heads.
         """
         super().__init__()
-        self.multi_head_attn = MultiHeadAttention(SelfAttention, n_heads, hidden_size, max_seq_len,
-                                                  dropout_pe, False, d_k)
+        self.multi_head_attn = MultiHeadAttention(
+            SelfAttention, n_heads, hidden_size, max_seq_len, dropout_pe, False, d_k
+        )
         self.residual_add_norm_attn = ResidualAddNorm(n_features=hidden_size)
         self.residual_add_norm_ff = ResidualAddNorm(n_features=hidden_size)
-        self.feed_forward = FeedForward(hidden_size,
-                                        ff_hidden_size=ff_hidden_size,
-                                        dropout_pe=dropout_pe)
+        self.feed_forward = FeedForward(
+            hidden_size, ff_hidden_size=ff_hidden_size, dropout_pe=dropout_pe
+        )
 
     def forward(self, x: torch.Tensor, pad_mask: torch.Tensor) -> torch.Tensor:
         attn_output = self.multi_head_attn(x=x, pad_mask=pad_mask)

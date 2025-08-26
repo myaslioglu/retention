@@ -12,21 +12,28 @@ class CrossAttention(nn.Module):
     context effectively. This is typically used in tasks that require correlating
     information between two separate sequences, such as in transformer architectures.
     """
-    def __init__(self, hidden_size: int, max_seq_len: int,
-                 d_k: int, dropout_pe: float, masking: bool = False):
+
+    def __init__(
+        self,
+        hidden_size: int,
+        max_seq_len: int,
+        d_k: int,
+        dropout_pe: float,
+        masking: bool = False,
+    ):
         """
         Initializes the Cross-Attention instance with specified parameters.
-        
+
         Creates linear transformation layers for query, key, and value computations,
         along with softmax and dropout layers for attention computation.
-        
+
         Args:
             hidden_size (int): Hidden size of the input sequence representations.
             max_seq_len (int): Maximum sequence length (unused in cross-attention).
             d_k (int): Dimensionality of the query/key/value vectors.
             dropout_pe (float): Dropout probability applied to attention weights.
             masking (bool): Masking parameter (unused in cross-attention). Defaults to False.
-            
+
         Note:
             Masking is not required in cross-attention, so the masking parameter is ignored.
         """
@@ -50,17 +57,17 @@ class CrossAttention(nn.Module):
     def forward(self, x: torch.Tensor, encoder_output: torch.Tensor) -> torch.Tensor:
         """
         Performs forward pass of the cross-attention mechanism.
-        
+
         Computes query vectors from decoder input and key/value vectors from encoder output,
         calculates attention scores, and returns the weighted value vectors.
-        
+
         Args:
             x (torch.Tensor): Decoder input tensor of shape [BATCH, SEQ_LEN, HIDDEN_SIZE].
             encoder_output (torch.Tensor): Encoder output tensor for key and value computation.
-            
+
         Returns:
             torch.Tensor: Output tensor of shape [BATCH, SEQ_LEN, d_k].
-            
+
         Note:
             Query vectors are computed from decoder input, while key and value vectors
             are computed from encoder output.
@@ -99,7 +106,7 @@ class CrossAttention(nn.Module):
 
         Args:
             key (torch.Tensor): A tensor to be transposed of shape [BATCH, SEQ_LEN, d_k].
-            
+
         Returns:
             torch.Tensor: A tensor with its second and third dimensions swapped.
         """

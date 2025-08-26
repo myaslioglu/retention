@@ -7,14 +7,16 @@ from arch.embedding import Embeddings
 from arch.positional_encoding import PositionalEncoding
 
 logger = logging.getLogger(__name__)
+
+
 class Encoder(nn.Module):
     """
     Transformer Encoder module for processing input sequences into contextualized embeddings.
-    
+
     This class implements a complete Transformer encoder consisting of token embeddings,
     positional encodings, and a stack of encoder layers. The encoder processes sequences
     efficiently using self-attention mechanisms, making it suitable for various NLP tasks.
-    
+
     Attributes:
         token_embedding (Embeddings): Embedding layer to convert input tokens into dense
             vector representations.
@@ -23,12 +25,21 @@ class Encoder(nn.Module):
         encoder_layers (nn.ModuleList): Stack of Transformer encoder layers for sequential
             processing of the input sequence.
     """
-    def __init__(self, vocab_size: int, hidden_size: int,
-                 seq_len: int, dropout_pe: float,
-                 n_layers: int, n_heads: int, ff_size: int, d_k:int):
+
+    def __init__(
+        self,
+        vocab_size: int,
+        hidden_size: int,
+        seq_len: int,
+        dropout_pe: float,
+        n_layers: int,
+        n_heads: int,
+        ff_size: int,
+        d_k: int,
+    ):
         """
         Initialize the Transformer encoder with specified architecture parameters.
-        
+
         Args:
             vocab_size (int): Size of the vocabulary for the token embedding layer.
             hidden_size (int): Dimensionality of token embeddings, positional encodings,
@@ -44,25 +55,29 @@ class Encoder(nn.Module):
         super().__init__()
         self.token_embedding = Embeddings(vocab_size, hidden_size)
         self.position_encoding = PositionalEncoding(seq_len, hidden_size, dropout_pe)
-        self.encoder_layers = nn.ModuleList([
-            EncoderLayer(hidden_size=hidden_size,
-                         max_seq_len=seq_len,
-                         dropout_pe=dropout_pe,
-                         n_heads=n_heads,
-                         ff_hidden_size=ff_size,
-                         d_k=d_k)
-            for _ in range(n_layers)
-        ])
+        self.encoder_layers = nn.ModuleList(
+            [
+                EncoderLayer(
+                    hidden_size=hidden_size,
+                    max_seq_len=seq_len,
+                    dropout_pe=dropout_pe,
+                    n_heads=n_heads,
+                    ff_hidden_size=ff_size,
+                    d_k=d_k,
+                )
+                for _ in range(n_layers)
+            ]
+        )
 
     def forward(self, x: torch.Tensor, pad_mask: torch.Tensor) -> torch.Tensor:
         """
         Forward pass through the encoder stack.
-        
+
         Args:
             x (torch.Tensor): Input token IDs tensor of shape [batch_size, seq_len].
             pad_mask (torch.Tensor): Padding mask tensor of shape [batch_size, seq_len]
                 where True indicates padding tokens to be ignored.
-        
+
         Returns:
             torch.Tensor: Encoded representations of shape [batch_size, seq_len, hidden_size].
         """
@@ -73,14 +88,15 @@ class Encoder(nn.Module):
             out = enc_layer(out, pad_mask)
         return out
 
+
 def get_encoder(conf: Config) -> Encoder:
     """
     Create and configure a Transformer encoder based on the provided configuration.
-    
+
     This function initializes an Encoder instance with parameters derived from the
     configuration object, including model architecture settings like hidden dimensions,
     attention heads, and layer counts.
-    
+
     Args:
         conf (Config): Configuration object containing model parameters including:
             - model.hidden_size: Hidden dimension size
@@ -91,7 +107,7 @@ def get_encoder(conf: Config) -> Encoder:
             - model.ff_hidden_size: Feed-forward hidden size
             - model.n_layers: Number of encoder layers
             - model.d_k: Key dimension (optional)
-    
+
     Returns:
         Encoder: Initialized Transformer encoder ready for training or inference.
     """
@@ -104,5 +120,13 @@ def get_encoder(conf: Config) -> Encoder:
     ff_hidden_size: int = conf.model.ff_hidden_size
     n_layers: int = conf.model.n_layers
 
-    return Encoder(vocab_size, hidden_size, max_seq_len, dropout_pe,
-                   n_layers, n_heads, ff_hidden_size, d_k)
+    return Encoder(
+        vocab_size,
+        hidden_size,
+        max_seq_len,
+        dropout_pe,
+        n_layers,
+        n_heads,
+        ff_hidden_size,
+        d_k,
+    )

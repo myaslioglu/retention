@@ -7,6 +7,8 @@ from arch.positional_encoding import PositionalEncoding
 from arch.decoder.layer import DecoderLayer
 
 logger = logging.getLogger(__name__)
+
+
 class Decoder(nn.Module):
     """
     Represents a Transformer Decoder module which processes target sequences and encoder outputs
@@ -23,22 +25,40 @@ class Decoder(nn.Module):
     :ivar decoder_layers: List of Transformer decoder layers stacked sequentially.
     :type decoder_layers: nn.ModuleList
     """
-    def __init__(self, vocab_size: int, hidden_size: int, seq_len: int,
-                 dropout_pe: float, n_layers: int, n_heads: int, ff_size: int, d_k: int):
-        super().__init__()
-        self.token_embedding = Embeddings(vocab_size=vocab_size, hidden_size=hidden_size)
-        self.position_encoding = PositionalEncoding(seq_len, hidden_size, dropout_pe)
-        self.decoder_layers = nn.ModuleList([
-            DecoderLayer(hidden_size=hidden_size,
-                max_seq_len=seq_len,
-                dropout_pe=dropout_pe,
-                n_heads=n_heads,
-                ff_hidden_size=ff_size,
-                d_k=d_k)
-            for _ in range(n_layers)
-        ])
 
-    def forward(self, x: torch.Tensor, pad_mask: torch.Tensor, encoder_output: torch.Tensor) -> torch.Tensor:
+    def __init__(
+        self,
+        vocab_size: int,
+        hidden_size: int,
+        seq_len: int,
+        dropout_pe: float,
+        n_layers: int,
+        n_heads: int,
+        ff_size: int,
+        d_k: int,
+    ):
+        super().__init__()
+        self.token_embedding = Embeddings(
+            vocab_size=vocab_size, hidden_size=hidden_size
+        )
+        self.position_encoding = PositionalEncoding(seq_len, hidden_size, dropout_pe)
+        self.decoder_layers = nn.ModuleList(
+            [
+                DecoderLayer(
+                    hidden_size=hidden_size,
+                    max_seq_len=seq_len,
+                    dropout_pe=dropout_pe,
+                    n_heads=n_heads,
+                    ff_hidden_size=ff_size,
+                    d_k=d_k,
+                )
+                for _ in range(n_layers)
+            ]
+        )
+
+    def forward(
+        self, x: torch.Tensor, pad_mask: torch.Tensor, encoder_output: torch.Tensor
+    ) -> torch.Tensor:
         out_embd = self.token_embedding(x)
         out = self.position_encoding(out_embd)
         for dec_layer in self.decoder_layers:
@@ -66,5 +86,13 @@ def get_decoder(conf: Config) -> Decoder:
     d_k: int = conf.model.get("d_k", None)
     ff_hidden_size: int = conf.model.ff_hidden_size
     n_layers: int = conf.model.n_layers
-    return Decoder(vocab_size, hidden_size, max_seq_len,
-                   dropout_pe, n_layers, n_heads, ff_hidden_size, d_k)
+    return Decoder(
+        vocab_size,
+        hidden_size,
+        max_seq_len,
+        dropout_pe,
+        n_layers,
+        n_heads,
+        ff_hidden_size,
+        d_k,
+    )

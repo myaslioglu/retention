@@ -32,7 +32,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 console = Console()
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 
@@ -63,13 +65,17 @@ class TestTransformerModel:
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-            task = progress.add_task("Building transformer model and dataset...", total=None)
+            task = progress.add_task(
+                "Building transformer model and dataset...", total=None
+            )
 
             start_time = time.time()
             transformer, ds = build_transformer(config)
             build_time = time.time() - start_time
 
-            progress.update(task, completed=True, description=f"✅ Built in {build_time:.2f}s")
+            progress.update(
+                task, completed=True, description=f"✅ Built in {build_time:.2f}s"
+            )
 
         # Display model info in a nice table
         table = Table(title="🤖 Model Information")
@@ -102,7 +108,7 @@ class TestTransformerModel:
         console.print(Panel.fit("⚙️ Testing Configuration Loading", style="bold blue"))
 
         # Verify essential config attributes exist
-        sections = ['model', 'training', 'dataset', 'loss']
+        sections = ["model", "training", "dataset", "loss"]
         for section in sections:
             assert hasattr(config, section), f"Config should have {section} section"
 
@@ -181,7 +187,7 @@ def standalone_test_run(config_file: Path):
                 tgt_batch_X=batch.tgt_batch_X.to(transformer.device),
                 tgt_batch_y=batch.tgt_batch_y.to(transformer.device),
                 src_batch_X_pad_mask=batch.src_batch_X_pad_mask.to(transformer.device),
-                tgt_batch_X_pad_mask=batch.tgt_batch_X_pad_mask.to(transformer.device)
+                tgt_batch_X_pad_mask=batch.tgt_batch_X_pad_mask.to(transformer.device),
             )
             progress.update(task, completed=True, description="✅ Moved to device")
 
@@ -189,9 +195,13 @@ def standalone_test_run(config_file: Path):
             task = progress.add_task("Executing forward pass...", total=None)
             with torch.no_grad():
                 loss_fn = get_loss_function(config, pad_id=ds.tokenizer.pad_id)
-                if config.loss.type.lower() == 'cross_entropy':
-                    loss = train_batch_CE(model=transformer, batch=batch_on_device, loss_fn=loss_fn)
-                    progress.update(task, completed=True, description="✅ Forward pass completed")
+                if config.loss.type.lower() == "cross_entropy":
+                    loss = train_batch_CE(
+                        model=transformer, batch=batch_on_device, loss_fn=loss_fn
+                    )
+                    progress.update(
+                        task, completed=True, description="✅ Forward pass completed"
+                    )
                 else:
                     raise ValueError(f"Unsupported loss type: {config.loss.type}")
 
@@ -203,18 +213,22 @@ def standalone_test_run(config_file: Path):
 
         # Try to get parameter count if available
         try:
-            if hasattr(transformer, 'parameters'):
+            if hasattr(transformer, "parameters"):
                 param_count = sum(p.numel() for p in transformer.parameters())
                 success_info.append(f"Parameters: {param_count:,}")
-            elif hasattr(transformer, 'named_parameters'):
-                param_count = sum(p.numel() for name, p in transformer.named_parameters())
+            elif hasattr(transformer, "named_parameters"):
+                param_count = sum(
+                    p.numel() for name, p in transformer.named_parameters()
+                )
                 success_info.append(f"Parameters: {param_count:,}")
-        except Exception: # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             success_info.append("Parameters: Unable to count")
 
-        console.print(Panel("\n".join(success_info), title="🎉 Test Successful", style="green"))
+        console.print(
+            Panel("\n".join(success_info), title="🎉 Test Successful", style="green")
+        )
 
-    except Exception as e: # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except
         console.print(Panel(f"Error: {str(e)}", title="💥 Test Failed", style="red"))
         raise
 

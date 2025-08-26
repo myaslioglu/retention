@@ -10,11 +10,14 @@ logger = logging.getLogger(__name__)
 # def train_with_BLEU(model: Model, dataset, batch_size: int, epoch: int):
 #     pass
 
-def train_epoch_avg_CE(model: TransformerModel,
-                       train_data_loader: DataLoader[BatchTensors],
-                       loss_fn,
-                       wandb_run=None,
-                       max_batches: int = 100) -> torch.Tensor:
+
+def train_epoch_avg_CE(
+    model: TransformerModel,
+    train_data_loader: DataLoader[BatchTensors],
+    loss_fn,
+    wandb_run=None,
+    max_batches: int = 100,
+) -> torch.Tensor:
     """
     Computes the average cross-entropy loss per batch for a training epoch.
 
@@ -59,11 +62,13 @@ def train_epoch_avg_CE(model: TransformerModel,
             tgt_batch_X=batch.tgt_batch_X.to(model.device),
             tgt_batch_y=batch.tgt_batch_y.to(model.device),
             src_batch_X_pad_mask=batch.src_batch_X_pad_mask.to(model.device),
-            tgt_batch_X_pad_mask=batch.tgt_batch_X_pad_mask.to(model.device)
+            tgt_batch_X_pad_mask=batch.tgt_batch_X_pad_mask.to(model.device),
         )
 
         try:
-            loss = train_batch_CE(model=model, batch=batch_on_device, loss_fn=loss_fn).item()
+            loss = train_batch_CE(
+                model=model, batch=batch_on_device, loss_fn=loss_fn
+            ).item()
             logger.info(f"Batch: {idx} loss: {loss: .5f}")
 
             # Wandb logging
@@ -75,7 +80,9 @@ def train_epoch_avg_CE(model: TransformerModel,
 
         except RuntimeError as e:
             if "out of memory" in str(e).lower():
-                logger.error(f"GPU out of memory at batch {idx}. Try reducing batch_size or model size.")
+                logger.error(
+                    f"GPU out of memory at batch {idx}. Try reducing batch_size or model size."
+                )
                 # Clear cache and continue
                 if torch.cuda.is_available():
                     torch.cuda.empty_cache()
@@ -87,11 +94,16 @@ def train_epoch_avg_CE(model: TransformerModel,
                 torch.cuda.empty_cache()
 
     if num_batches == 0:
-        return torch.tensor(float('inf'), device=model.device, dtype=torch.float32)
+        return torch.tensor(float("inf"), device=model.device, dtype=torch.float32)
     # Return average loss per batch
-    return torch.tensor(batch_loss / num_batches, device=model.device, dtype=torch.float32)
+    return torch.tensor(
+        batch_loss / num_batches, device=model.device, dtype=torch.float32
+    )
 
-def train_batch_CE(model: TransformerModel, batch: BatchTensors, loss_fn) -> torch.Tensor:
+
+def train_batch_CE(
+    model: TransformerModel, batch: BatchTensors, loss_fn
+) -> torch.Tensor:
     """
     Performs a single training step through the transformer model with cross-entropy loss.
 
@@ -125,8 +137,9 @@ def train_batch_CE(model: TransformerModel, batch: BatchTensors, loss_fn) -> tor
     src_batch_X_pad_mask = batch.src_batch_X_pad_mask
     tgt_batch_X_pad_mask = batch.tgt_batch_X_pad_mask
 
-    logits = model.forward(src_batch_X, tgt_batch_X,
-                           src_batch_X_pad_mask, tgt_batch_X_pad_mask)  # [BATCH_SIZE, SEQ_LEN, VOCAB_SIZE]
+    logits = model.forward(
+        src_batch_X, tgt_batch_X, src_batch_X_pad_mask, tgt_batch_X_pad_mask
+    )  # [BATCH_SIZE, SEQ_LEN, VOCAB_SIZE]
 
     # Calculate loss if a loss function is provided
     # CrossEntropy Loss expects the logits for all the inputs in the batch of size [BATCH_SIZE, VOCAB_SIZE, SEQ_LEN]
@@ -135,4 +148,4 @@ def train_batch_CE(model: TransformerModel, batch: BatchTensors, loss_fn) -> tor
         return loss_fn(logits.transpose(1, 2), tgt_batch_y)  # [B, S, V] -> [B, V, S]
 
     # Return infinite loss
-    return torch.tensor(float('inf'), device=logits.device)
+    return torch.tensor(float("inf"), device=logits.device)

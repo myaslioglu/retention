@@ -2,10 +2,10 @@ import logging
 
 
 class LogColors:
-    BLUE = '\033[94m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    RESET = '\033[0m'
+    BLUE = "\033[94m"
+    RED = "\033[91m"
+    YELLOW = "\033[93m"
+    RESET = "\033[0m"
 
 
 class ColoredFormatter(logging.Formatter):
@@ -22,13 +22,14 @@ class ColoredFormatter(logging.Formatter):
     :ivar color_map: A dictionary mapping log levels to their respective color codes.
     :type color_map: dict
     """
+
     def format(self, record: logging.LogRecord) -> str:
         color_map = {
             logging.INFO: LogColors.BLUE,
             logging.WARNING: LogColors.YELLOW,
             logging.ERROR: LogColors.RED,
         }
-        color = color_map.get(record.levelno, '')
+        color = color_map.get(record.levelno, "")
         # Inject fields used by the format string
         record.color_on = color
         record.color_off = LogColors.RESET
@@ -59,9 +60,11 @@ def setup_logging(for_notebook: bool = False, level: int = logging.INFO) -> None
 
     stream_handler = logging.StreamHandler()
     if for_notebook:
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     else:
-        formatter = ColoredFormatter('%(color_on)s%(asctime)s - %(levelname)s - %(message)s%(color_off)s')
+        formatter = ColoredFormatter(
+            "%(color_on)s%(asctime)s - %(levelname)s - %(message)s%(color_off)s"
+        )
     stream_handler.setFormatter(formatter)
 
     root_logger.addHandler(stream_handler)

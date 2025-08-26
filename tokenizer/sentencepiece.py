@@ -6,13 +6,18 @@ from codetiming import Timer
 from datasets.arrow_dataset import Dataset
 
 logger = logging.getLogger(__name__)
+
+
 class SentencePieceTokenizer:
-    def __init__(self, model_path: Path,
-                 vocab_size: int,
-                 algorithm: str,
-                 sample_size: int,
-                 add_special_tokens: bool,
-                 **kwargs):
+    def __init__(
+        self,
+        model_path: Path,
+        vocab_size: int,
+        algorithm: str,
+        sample_size: int,
+        add_special_tokens: bool,
+        **kwargs,
+    ):
         self.algorithm = algorithm
         self.sample_size = sample_size
         self.model_path = model_path
@@ -50,7 +55,10 @@ class SentencePieceTokenizer:
         model.Load(str(self.model_path.with_suffix(".model")))
         return model, model.GetPieceSize()
 
-    @Timer(name="tokenizer.train", text="Loading/training tokenizer model took {:.2f} seconds")
+    @Timer(
+        name="tokenizer.train",
+        text="Loading/training tokenizer model took {:.2f} seconds",
+    )
     def train(self, dataset: Dataset, lang_keys: list):
         self.model_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -67,17 +75,25 @@ class SentencePieceTokenizer:
                 sample_count += 1
 
                 if sample_count % 10000 == 0:
-                    logger.info("Processed %d/%d samples for tokenizer training",
-                               sample_count, self.sample_size)
+                    logger.info(
+                        "Processed %d/%d samples for tokenizer training",
+                        sample_count,
+                        self.sample_size,
+                    )
 
-            logger.info(f"Collected {len(all_samples)} text samples for tokenizer training")
+            logger.info(
+                f"Collected {len(all_samples)} text samples for tokenizer training"
+            )
             logger.info(f"Requesting vocab_size: {self.vocab_size}")
 
             # Write combined training data and train the model
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.txt',
-                                             delete_on_close=True) as f:
-                f.write('\n'.join(all_samples))
-                logger.info(f"Training SentencePiece model with vocab_size={self.vocab_size}")
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".txt", delete_on_close=True
+            ) as f:
+                f.write("\n".join(all_samples))
+                logger.info(
+                    f"Training SentencePiece model with vocab_size={self.vocab_size}"
+                )
                 spm.SentencePieceTrainer.Train(
                     input=f.name,
                     model_prefix=str(self.model_path),
@@ -96,24 +112,31 @@ class SentencePieceTokenizer:
                     shuffle_input_sentence=True,  # Better statistical coverage
                 )
         self._model, self.actual_vocab_size = self.model
-        self.pad_id = self._model.pad_id() # This is required at collate function for batch creation
+        self.pad_id = (
+            self._model.pad_id()
+        )  # This is required at collate function for batch creation
 
         logger.info("SentencePiece model training completed:")
-        logger.debug(f"  - Special token IDs: "
-                     f"PAD={self._model.pad_id()}, "
-                     f"UNK={self._model.unk_id()}, "
-                     f"BOS={self._model.bos_id()}, "
-                     f"EOS={self._model.eos_id()}")
+        logger.debug(
+            f"  - Special token IDs: "
+            f"PAD={self._model.pad_id()}, "
+            f"UNK={self._model.unk_id()}, "
+            f"BOS={self._model.bos_id()}, "
+            f"EOS={self._model.eos_id()}"
+        )
 
         if self.actual_vocab_size != self.vocab_size:
             logger.warning(
                 "Actual vocab size (%d) does not match the requested size (%d). "
                 "This is normal for SentencePiece.",
-                self.actual_vocab_size, self.vocab_size)
+                self.actual_vocab_size,
+                self.vocab_size,
+            )
             logger.info(
                 "Reasons: 1) Special tokens are handled separately, "
                 "2) Algorithm may not reach exact target, "
-                "3) Limited training data patterns")
+                "3) Limited training data patterns"
+            )
         logger.info("SentencePiece model loaded successfully!")
 
     @property
@@ -127,7 +150,9 @@ class SentencePieceTokenizer:
         """
         return self.actual_vocab_size
 
-    def encode(self, src_txt: str, tgt_txt: str) -> tuple[list[int], list[int]] | tuple[None, None]:
+    def encode(
+        self, src_txt: str, tgt_txt: str
+    ) -> tuple[list[int], list[int]] | tuple[None, None]:
         """
         Encode source and target text into token sequences.
 

@@ -5,16 +5,17 @@ from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
+
 class WordTokenizer:
     def __init__(self, vocab_size: int, unknown_token: str = None):
         if not unknown_token:
-            unknown_token = '<UNK>'
+            unknown_token = "<UNK>"
         self.unknown_token = unknown_token
         self.word_to_id = {}
         self.id_to_word = {}
         self.word_to_id[self.unknown_token] = 0
         self.id_to_word[0] = self.unknown_token
-        self.next_id = 1 # Reserve 0 for UNKNOWN words
+        self.next_id = 1  # Reserve 0 for UNKNOWN words
         self._n_vocab = vocab_size
         self.pad_id = 0
         self.unk_id = 1
@@ -29,7 +30,9 @@ class WordTokenizer:
                 self.id_to_word[self.next_id] = word
                 self.next_id += 1
 
-    def encode(self, src_txt: str, tgt_txt: str) -> tuple[list[int], list[int]] | tuple[None, None]:
+    def encode(
+        self, src_txt: str, tgt_txt: str
+    ) -> tuple[list[int], list[int]] | tuple[None, None]:
         pass
         # self.build_vocab(text)
         # if len(self.word_to_id) < 2 or len(self.id_to_word) < 2:

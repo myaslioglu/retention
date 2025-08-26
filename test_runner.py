@@ -31,10 +31,11 @@ def run_unittest():
     print_section("Running Tests with unittest")
     start_time = time.time()
 
-    result = subprocess.run([
-        sys.executable, "-m", "unittest",
-        "tests.test_transformer", "-v"
-    ], cwd=Path(__file__).parent, check=False)
+    result = subprocess.run(
+        [sys.executable, "-m", "unittest", "tests.test_transformer", "-v"],
+        cwd=Path(__file__).parent,
+        check=False,
+    )
 
     duration = time.time() - start_time
 
@@ -52,16 +53,22 @@ def run_pytest():
     start_time = time.time()
 
     try:
-        result = subprocess.run([
-            sys.executable, "-m", "pytest",
-            "tests/",
-            "-v",
-            "--tb=short",
-            "--color=yes",
-            "--durations=10",
-            "--html=reports/report.html",
-            "--self-contained-html"
-        ], cwd=Path(__file__).parent, check=False)
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pytest",
+                "tests/",
+                "-v",
+                "--tb=short",
+                "--color=yes",
+                "--durations=10",
+                "--html=reports/report.html",
+                "--self-contained-html",
+            ],
+            cwd=Path(__file__).parent,
+            check=False,
+        )
 
         duration = time.time() - start_time
 
@@ -76,10 +83,20 @@ def run_pytest():
     except FileNotFoundError:
         print("❌ pytest not found. Installing...")
         # Try to install pytest
-        install_result = subprocess.run([
-            sys.executable, "-m", "pip", "install",
-            "pytest", "pytest-html", "pytest-cov", "pytest-sugar", "rich"
-        ], check=False)
+        install_result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                "pytest",
+                "pytest-html",
+                "pytest-cov",
+                "pytest-sugar",
+                "rich",
+            ],
+            check=False,
+        )
         if install_result.returncode == 0:
             print("✅ pytest installed successfully! Running tests...")
             return run_pytest()
@@ -93,19 +110,25 @@ def run_pytest_with_coverage():
     start_time = time.time()
 
     try:
-        result = subprocess.run([
-            sys.executable, "-m", "pytest",
-            "tests/",
-            "--cov=.",
-            "--cov-report=term-missing",
-            "--cov-report=html:reports/coverage",
-            "-v",
-            "--tb=short",
-            "--color=yes",
-            "--durations=10",
-            "--html=reports/report.html",
-            "--self-contained-html"
-        ], cwd=Path(__file__).parent, check=False)
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pytest",
+                "tests/",
+                "--cov=.",
+                "--cov-report=term-missing",
+                "--cov-report=html:reports/coverage",
+                "-v",
+                "--tb=short",
+                "--color=yes",
+                "--durations=10",
+                "--html=reports/report.html",
+                "--self-contained-html",
+            ],
+            cwd=Path(__file__).parent,
+            check=False,
+        )
 
         duration = time.time() - start_time
 
@@ -120,10 +143,20 @@ def run_pytest_with_coverage():
 
     except FileNotFoundError:
         print("❌ pytest-cov not found. Installing...")
-        install_result = subprocess.run([
-            sys.executable, "-m", "pip", "install",
-            "pytest", "pytest-cov", "pytest-html", "pytest-sugar", "rich"
-        ], check=False)
+        install_result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                "pytest",
+                "pytest-cov",
+                "pytest-html",
+                "pytest-sugar",
+                "rich",
+            ],
+            check=False,
+        )
         if install_result.returncode == 0:
             print("✅ pytest installed successfully! Running tests...")
             return run_pytest_with_coverage()
@@ -137,14 +170,21 @@ def run_pytest_parallel():
     start_time = time.time()
 
     try:
-        result = subprocess.run([
-            sys.executable, "-m", "pytest",
-            "tests/",
-            "-v",
-            "-n", "auto",  # Auto-detect number of CPUs
-            "--html=reports/report.html",
-            "--self-contained-html"
-        ], cwd=Path(__file__).parent, check=False)
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pytest",
+                "tests/",
+                "-v",
+                "-n",
+                "auto",  # Auto-detect number of CPUs
+                "--html=reports/report.html",
+                "--self-contained-html",
+            ],
+            cwd=Path(__file__).parent,
+            check=False,
+        )
 
         duration = time.time() - start_time
 
@@ -166,15 +206,21 @@ def run_benchmark_tests():
     start_time = time.time()
 
     try:
-        result = subprocess.run([
-            sys.executable, "-m", "pytest",
-            "tests/",
-            "--benchmark-only",
-            "--benchmark-sort=mean",
-            "-v",
-            "--tb=short",
-            "--color=yes"
-        ], cwd=Path(__file__).parent, check=False)
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "pytest",
+                "tests/",
+                "--benchmark-only",
+                "--benchmark-sort=mean",
+                "-v",
+                "--tb=short",
+                "--color=yes",
+            ],
+            cwd=Path(__file__).parent,
+            check=False,
+        )
 
         duration = time.time() - start_time
 
@@ -186,7 +232,9 @@ def run_benchmark_tests():
         return result.returncode
 
     except FileNotFoundError:
-        print("❌ pytest-benchmark not found. Install with: pip install pytest-benchmark")
+        print(
+            "❌ pytest-benchmark not found. Install with: pip install pytest-benchmark"
+        )
         return run_pytest()
 
 
