@@ -16,8 +16,6 @@ Transformers can preserve the context but can't preserve the order
 
 In the above 2 sentences, attention for kills will be the same in arch,
 but they mean entirely opposite just because of positioning.
-
-++++++++++++ THIS MODULE IS USED TO ADD THAT POSITIONING DETAIL TO A TRANSFORMER WHICH WAS MISSING ++++++++++++
 """
 import torch
 import torch.nn as nn
