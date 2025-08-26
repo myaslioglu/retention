@@ -6,7 +6,7 @@
     n_heads         = 8
     #d_k             = 64                 # We can keep it other than d_model / n_heads if needed
     ff_hidden_size  = 2048
-    n_layers        = 6
+    n_layers        = 8
 
 [tokenizer]
     kind            = 'sentencepiece'                 # sentencepiece | custom

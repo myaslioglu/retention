@@ -81,7 +81,7 @@ Transformer/
 
 ## ⚙️ Configuration
 
-Default model configuration (~100 million parameters):
+Default model configuration (~116 million parameters):
 
 ```toml
 [model]
