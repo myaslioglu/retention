@@ -5,29 +5,31 @@ import math
 
 class CrossAttention(nn.Module):
     """
-    Implements the Cross-Attention mechanism.
+    Implements the Cross-Attention mechanism for sequence-to-sequence models.
 
     The CrossAttention class is a module designed to compute cross-attention,
     which allows a sequence in one context to attend to a sequence in another
     context effectively. This is typically used in tasks that require correlating
-    information between two separate sequences, such as in sequence-to-sequence
-    models or arch architectures.
-
-    :ivar d_model: Hidden size of the input sequence representations.
-    :type d_model: int
-    :ivar d_k: Dimensionality of the query/key/value vectors.
-    :type d_k: int
-    :ivar W_q: Linear transformation layer to compute query vectors.
-    :type W_q: torch.nn.Linear :ivar W_k:  transformation layer to compute key vectors.
-    :type W_k: torch.nn.Linear :ivar W_v:  transformation layer to compute value vectors.
-    :type W_v: torch.nn.Linear
-    :ivar softmax: Softmax layer to compute attention weights.
-    :type softmax: torch.nn.Softmax
-    :ivar attn_dropout: Dropout layer applied to the attention weights to mitigate overfitting.
-    :type attn_dropout: torch.nn.Dropout
+    information between two separate sequences, such as in transformer architectures.
     """
     def __init__(self, hidden_size: int, max_seq_len: int,
                  d_k: int, dropout_pe: float, masking: bool = False):
+        """
+        Initializes the Cross-Attention instance with specified parameters.
+        
+        Creates linear transformation layers for query, key, and value computations,
+        along with softmax and dropout layers for attention computation.
+        
+        Args:
+            hidden_size (int): Hidden size of the input sequence representations.
+            max_seq_len (int): Maximum sequence length (unused in cross-attention).
+            d_k (int): Dimensionality of the query/key/value vectors.
+            dropout_pe (float): Dropout probability applied to attention weights.
+            masking (bool): Masking parameter (unused in cross-attention). Defaults to False.
+            
+        Note:
+            Masking is not required in cross-attention, so the masking parameter is ignored.
+        """
         super().__init__()
         self.d_model = hidden_size
         self.d_k = d_k
@@ -46,6 +48,23 @@ class CrossAttention(nn.Module):
         _ = masking
 
     def forward(self, x: torch.Tensor, encoder_output: torch.Tensor) -> torch.Tensor:
+        """
+        Performs forward pass of the cross-attention mechanism.
+        
+        Computes query vectors from decoder input and key/value vectors from encoder output,
+        calculates attention scores, and returns the weighted value vectors.
+        
+        Args:
+            x (torch.Tensor): Decoder input tensor of shape [BATCH, SEQ_LEN, HIDDEN_SIZE].
+            encoder_output (torch.Tensor): Encoder output tensor for key and value computation.
+            
+        Returns:
+            torch.Tensor: Output tensor of shape [BATCH, SEQ_LEN, d_k].
+            
+        Note:
+            Query vectors are computed from decoder input, while key and value vectors
+            are computed from encoder output.
+        """
         # // NOTE: We pass encoder output to the value and key vector
         Q = self.W_q(x)
         K = self.W_k(encoder_output)
@@ -76,15 +95,14 @@ class CrossAttention(nn.Module):
         Transposes the input tensor along specific dimensions.
 
         This function takes a tensor and swaps its second and third dimensions.
-        It is useful for preparing the key tensor in various machine learning
-        contexts, such as attention mechanisms in neural networks.
+        It is useful for preparing the key tensor in attention mechanisms.
 
-        :param key: A tensor to be transposed.
-        :type key: Torch.Tensor
-        :return: A tensor with its second and third dimensions swapped.
-        :rtype: Torch.Tensor
+        Args:
+            key (torch.Tensor): A tensor to be transposed of shape [BATCH, SEQ_LEN, d_k].
+            
+        Returns:
+            torch.Tensor: A tensor with its second and third dimensions swapped.
         """
-
         # Take the key vector of dim [BATCH, SEQ_LEN, d_k]
         # Swap dim 1 and dim 2
         return key.transpose(1, 2)

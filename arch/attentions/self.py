@@ -10,29 +10,23 @@ class SelfAttention(nn.Module):
     sequence attends to all other elements, creating a representation of the input
     that considers relationships between sequence elements. It employs separate
     learnable weight matrices for query, key, and value computations.
-
-    :ivar d_model: Dimensionality of the input feature space (hidden size).
-    :type d_model: Int
-    :ivar d_k: Dimensionality of the key, value, and query vectors.
-    :type d_k: Int- :ivar W_q: Learnable linear transformation for computing query vectors.
-    :type W_q: Nn.Linear
-    :ivar W_k: Learnable linear transformation for computing key vectors.
-    :type W_k: Nn.Linear
-    :ivar W_v: Learnable linear transformation for computing value vectors.
-    :type W_v: Nn.Linear
     """
 
     def __init__(self, hidden_size: int, max_seq_len: int,
                  d_k: int, dropout_pe: float, masking: bool = False):
         """
-        Initializes the instance of the class with the specified parameters. This
-        includes the creation of linear layers for key, value, and query matrices
-        used in attention mechanisms, as well as a dropout layer.
-
-        :param hidden_size: The size of the input hidden feature dimension.
-        :param d_k: Dimensionality of the key, value, and query representations.
-        :param dropout_pe: The dropout probability to be applied to the attention
-            mechanism outputs to help regularize the model.
+        Initializes the Self-Attention instance with specified parameters.
+        
+        This includes the creation of linear layers for key, value, and query matrices
+        used in attention mechanisms, as well as a dropout layer and optional causal masking.
+        
+        Args:
+            hidden_size (int): The size of the input hidden feature dimension.
+            max_seq_len (int): Maximum sequence length for creating causal mask.
+            d_k (int): Dimensionality of the key, value, and query representations.
+            dropout_pe (float): The dropout probability to be applied to the attention
+                mechanism outputs to help regularize the model.
+            masking (bool): Whether to apply causal masking. Defaults to False.
         """
         super().__init__()
         self.d_model = hidden_size
@@ -58,6 +52,19 @@ class SelfAttention(nn.Module):
         self.register_buffer('causal_mask', causal_mask, persistent=True)
 
     def forward(self, x: torch.Tensor, padding_mask: torch.Tensor = None) -> torch.Tensor:
+        """
+        Performs forward pass of the self-attention mechanism.
+        
+        Computes query, key, and value vectors from input, calculates attention scores,
+        applies masking if specified, and returns the weighted value vectors.
+        
+        Args:
+            x (torch.Tensor): Input tensor of shape [BATCH, SEQ_LEN, HIDDEN_SIZE].
+            padding_mask (torch.Tensor, optional): Mask for padding tokens. Defaults to None.
+            
+        Returns:
+            torch.Tensor: Output tensor of shape [BATCH, SEQ_LEN, d_k].
+        """
         # [BATCH, SEQ_LEN, d_k]
         Q = self.W_q(x) # Query Vector
         K = self.W_k(x) # Key Vector
@@ -105,15 +112,14 @@ class SelfAttention(nn.Module):
         Transposes the input tensor along specific dimensions.
 
         This function takes a tensor and swaps its second and third dimensions.
-        It is useful for preparing the key tensor in various machine learning
-        contexts, such as attention mechanisms in neural networks.
+        It is useful for preparing the key tensor in attention mechanisms.
 
-        :param key: A tensor to be transposed.
-        :type key: Torch.Tensor
-        :return: A tensor with its second and third dimensions swapped.
-        :rtype: Torch.Tensor
+        Args:
+            key (torch.Tensor): A tensor to be transposed of shape [BATCH, SEQ_LEN, d_k].
+            
+        Returns:
+            torch.Tensor: A tensor with its second and third dimensions swapped.
         """
-
         # Take the key vector of dim [BATCH, SEQ_LEN, d_k]
         # Swap dim 1 and dim 2
         return key.transpose(1, 2)

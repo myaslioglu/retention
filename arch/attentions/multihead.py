@@ -6,40 +6,38 @@ from typing import Union, Type
 
 class MultiHeadAttention(nn.Module):
     """
-    Implements a multi-head self-attention mechanism. This allows the model to attend
-    to different parts of the input sequence independently using separate attention heads.
-    The outputs of all attention heads are concatenated and projected through a linear
-    transformation.
-
-    :ivar d_k: The size of the query/key vectors used in each attention head. If not,
-        provided during initialization, it will be calculated as `hidden_size // n_heads`.
-    :type d_k: Int
-    :ivar self_attention_heads: A list of self-attention heads, one for each attention head.
-    :type self_attention_heads: Nn.ModuleList
-    :ivar W_o: The linear projection layer to combine and project the concatenated
-        outputs of all attention heads back to the `hidden_size` dimension.
-    :type W_o: Nn.Linear
+    Implements a multi-head attention mechanism for neural networks.
+    
+    This allows the model to attend to different parts of the input sequence 
+    independently using separate attention heads. The outputs of all attention 
+    heads are concatenated and projected through a linear transformation.
     """
 
     def __init__(self, attention_type: Type[Union[SelfAttention, CrossAttention]],
                  n_heads: int, hidden_size: int, max_seq_len: int,
                  dropout_pe: float, masking: bool, d_k: Union[int, None] = None):
         """
-        Initializes the class instance and configures the multi-head self-attention mechanism.
-        Validates input parameters for compatibility, including ensuring the key dimension is not
-        greater than the hidden size and that the number of heads divides the hidden size evenly.
+        Initializes the multi-head attention mechanism with specified parameters.
+        
+        Validates input parameters for compatibility, including ensuring the key dimension
+        is not greater than the hidden size and that the number of heads divides the 
+        hidden size evenly.
 
-        :param n_heads: The number of attention heads.
-        :param hidden_size: The size of the input representation or embeddings.
-        :param max_seq_len: Maximum sequence length for an attention mechanism.
-        :param dropout_pe: Dropout probability for attention outputs.
-        :param masking: Whether to apply causal masking (True for decoder, False for encoder).
-        :param d_k: (Optional) The size of the query/key vectors. If not provided, it will be
-            automatically calculated as `hidden_size // n_heads`.
-        :raises ValueError: If the provided key dimension exceeds the hidden size.
-        :raises ValueError: If the number of attention heads does not evenly divide the hidden size.
+        Args:
+            attention_type (Type[Union[SelfAttention, CrossAttention]]): Type of attention 
+                mechanism to use (SelfAttention or CrossAttention).
+            n_heads (int): The number of attention heads.
+            hidden_size (int): The size of the input representation or embeddings.
+            max_seq_len (int): Maximum sequence length for attention mechanism.
+            dropout_pe (float): Dropout probability for attention outputs.
+            masking (bool): Whether to apply causal masking (True for decoder, False for encoder).
+            d_k (int, optional): The size of the query/key vectors. If not provided, it will be
+                automatically calculated as `hidden_size // n_heads`. Defaults to None.
+                
+        Raises:
+            ValueError: If the provided key dimension exceeds the hidden size.
+            ValueError: If the number of attention heads does not evenly divide the hidden size.
         """
-
         super().__init__()
         if d_k and d_k > hidden_size:
             raise ValueError("Key dimension must be less than or equal to hidden size")
@@ -63,6 +61,21 @@ class MultiHeadAttention(nn.Module):
 
     def forward(self, x: torch.Tensor, pad_mask: torch.Tensor,
                 encoder_output: Union[torch.Tensor, None]=None) -> torch.Tensor:
+        """
+        Performs forward pass of the multi-head attention mechanism.
+        
+        Processes input through multiple attention heads, concatenates their outputs,
+        and applies a linear projection to produce the final output.
+        
+        Args:
+            x (torch.Tensor): Input tensor of shape [BATCH_SIZE, SEQ_LEN, HIDDEN_SIZE].
+            pad_mask (torch.Tensor): Padding mask for masking padding tokens.
+            encoder_output (torch.Tensor, optional): Encoder output for cross-attention.
+                Required for CrossAttention, ignored for SelfAttention. Defaults to None.
+                
+        Returns:
+            torch.Tensor: Output tensor of shape [BATCH_SIZE, SEQ_LEN, HIDDEN_SIZE].
+        """
         head_outputs = []
 
         if self.IsSelfAttention:
