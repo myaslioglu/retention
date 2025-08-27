@@ -1,5 +1,5 @@
 [project]
-name = "Attention-is-all-you-need"
+name = "Transformer"
 version = "0.1.0"
 description = "Implementation of Transformer in Scratch"
 requires-python = ">=3.13"
