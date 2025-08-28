@@ -110,7 +110,7 @@ path = "./data"
 ## 🎯 Architecture Highlights
 
 - **Multi-Head Attention**: 8 heads with 64 dimensions each
-- **Positional Encoding**: Sinusoidal encoding with learnable parameters
+- **Positional Encoding**: Sinusoidal encoding with non-learnable/fixed parameters
 - **Feed-Forward**: Two-layer MLP (512 → 2048 → 512)
 - **Residual Connections**: Post-norm architecture with LayerNorm
 - **Cross-Attention**: Full encoder-decoder interaction
