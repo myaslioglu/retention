@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Union
 import torch
 from config import Config
 from dataset import TransformerDataset, get_dataset
@@ -66,6 +67,44 @@ class TransformerModel:
         self.device = device
         return self
 
+    def get_layer(self, layer_chain: str) -> Union[torch.nn.Module, None]:
+        parent = self
+        for layer in layer_chain.split("."):
+            model = getattr(parent, layer, None)
+            if model is None:
+                break
+            parent = model
+        if model is None:
+            logger.error(f"Layer chain {layer_chain} not found in model")
+            return None
+        else:
+            return model
+            # logger.info(f"Model for layer {layer}: {model}")
+
+    @staticmethod
+    def _eval_initializer(init_method: str):
+        match init_method:
+            case "xavier_uniform":
+                return torch.nn.init.xavier_uniform_
+            case "xavier_normal":
+                return torch.nn.init.xavier_normal_
+            case "kaiming_uniform":
+                return torch.nn.init.kaiming_uniform_
+            case "kaiming_normal":
+                return torch.nn.init.kaiming_normal_
+        logger.warning(f"Unknown init method {init_method}, defaulting to xavier_uniform")
+        return torch.nn.init.xavier_uniform_
+
+    def initialize_weights_(self, init_method: str, init_bias: bool):
+        initializer = TransformerModel._eval_initializer(init_method)
+
+        # Initialize weights for encoder
+        self.encoder._init_layers(initializer, init_bias)
+
+        # Initialize weights for decoder
+        self.decoder._init_layers(initializer, init_bias)
+
+        logger.debug(f"📝 Initialized embedding layers")
 
 def init_dataset(tokenizer, config: Config):
     """

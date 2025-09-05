@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from arch.attentions.self import SelfAttention
 from arch.attentions.cross import CrossAttention
-from typing import Union, Type
+from typing import Union, Type, List, Callable
 
 
 class MultiHeadAttention(nn.Module):
@@ -57,7 +57,7 @@ class MultiHeadAttention(nn.Module):
         self.d_k = d_k
         self.IsSelfAttention = attention_type is SelfAttention
         # Create `n_heads` number of self-attention heads
-        self.attention_heads = nn.ModuleList(
+        self.attention_heads: List[SelfAttention | CrossAttention] = nn.ModuleList(
             [
                 attention_type(
                     hidden_size=hidden_size,
@@ -121,3 +121,14 @@ class MultiHeadAttention(nn.Module):
 
         # Apply the dropout
         return self.out_dropout(projected_output)
+    
+    def _init_layer(self, initializer: Callable, init_bias: bool):
+        for i, head in enumerate(self.attention_heads):
+            if hasattr(head, '_init_layer'):
+                head._init_layer(initializer, init_bias)
+            else:
+                raise NotImplementedError(f"Head {i} does not have _init_layer method")
+            
+        initializer(self.W_o.weight)
+        if init_bias:
+            nn.init.zeros_(self.W_o.bias)

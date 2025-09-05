@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torch
-from typing import Union
+from typing import Union, Callable
 from arch.attentions.multihead import MultiHeadAttention
 from arch.residual_add_norm import ResidualAddNorm
 from arch.feed_forward import FeedForward
@@ -77,3 +77,9 @@ class EncoderLayer(nn.Module):
         res_norm = self.residual_add_norm_attn(x, attn_output)
         ff_output = self.feed_forward(res_norm)
         return self.residual_add_norm_ff(res_norm, ff_output)
+
+    def _init_layer(self, initializer: Callable, init_bias: bool):
+        if hasattr(self.multi_head_attn, "_init_layer"):
+            self.multi_head_attn._init_layer(initializer, init_bias)
+        if hasattr(self.feed_forward, "_init_layer"):
+            self.feed_forward._init_layer(initializer, init_bias)

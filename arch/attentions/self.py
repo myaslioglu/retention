@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import math
-
+from typing import Callable
 
 class SelfAttention(nn.Module):
     """
@@ -132,3 +132,13 @@ class SelfAttention(nn.Module):
         # Take the key vector of dim [BATCH, SEQ_LEN, d_k]
         # Swap dim 1 and dim 2
         return key.transpose(1, 2)
+    
+    def _init_layer(self, initializer: Callable, init_bias: bool):
+        initializer(self.W_q.weight)
+        initializer(self.W_k.weight)
+        initializer(self.W_v.weight)
+        if init_bias:
+            nn.init.zeros_(self.W_q.bias)
+            nn.init.zeros_(self.W_k.bias)
+            nn.init.zeros_(self.W_v.bias)
+

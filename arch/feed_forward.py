@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+from typing import Callable
 
 class FeedForward(nn.Module):
     """
@@ -50,3 +50,10 @@ class FeedForward(nn.Module):
         x = self.relu(x)
         x = self.dropout(x)
         return self.W_2(x)
+
+    def _init_layer(self, initializer: Callable, init_bias: bool):
+        initializer(self.W_1.weight)
+        initializer(self.W_2.weight)
+        if init_bias:
+            nn.init.zeros_(self.W_1.bias)
+            nn.init.zeros_(self.W_2.bias)

@@ -2,11 +2,9 @@ import torch
 import torch.nn as nn
 from config import Config
 from arch.encoder.layer import EncoderLayer
-import logging
+from typing import Iterator, Callable
 from arch.embedding import Embeddings
 from arch.positional_encoding import PositionalEncoding
-
-logger = logging.getLogger(__name__)
 
 
 class Encoder(nn.Module):
@@ -53,9 +51,9 @@ class Encoder(nn.Module):
             d_k (int): Dimensionality of each attention head's key and query vectors.
         """
         super().__init__()
-        self.token_embedding = Embeddings(vocab_size, hidden_size)
-        self.position_encoding = PositionalEncoding(seq_len, hidden_size, dropout_pe)
-        self.encoder_layers = nn.ModuleList(
+        self.embeddings = Embeddings(vocab_size, hidden_size)
+        self.positional_encoder = PositionalEncoding(seq_len, hidden_size, dropout_pe)
+        self.encoder_layers: Iterator[EncoderLayer] = nn.ModuleList(
             [
                 EncoderLayer(
                     hidden_size=hidden_size,
@@ -81,12 +79,19 @@ class Encoder(nn.Module):
         Returns:
             torch.Tensor: Encoded representations of shape [batch_size, seq_len, hidden_size].
         """
-        inp_embd = self.token_embedding(x)
-        out = self.position_encoding(inp_embd)
+        inp_embd = self.embeddings(x)
+        out = self.positional_encoder(inp_embd)
         for layer_id, enc_layer in enumerate(self.encoder_layers, start=1):
-            logger.debug(f"Encoder Layer: {layer_id}")
             out = enc_layer(out, pad_mask)
         return out
+    
+    def _init_layers(self, initializer: Callable, init_bias: bool):
+        if hasattr(self.embeddings, '_init_layer'):
+            self.embeddings._init_layer()
+        
+        for encoder_layer in self.encoder_layers:
+            if hasattr(encoder_layer, '_init_layer'):
+                encoder_layer._init_layer(initializer, init_bias)
 
 
 def get_encoder(conf: Config) -> Encoder:

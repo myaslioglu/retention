@@ -5,6 +5,7 @@ from config import Config
 from arch.embedding import Embeddings
 from arch.positional_encoding import PositionalEncoding
 from arch.decoder.layer import DecoderLayer
+from typing import Callable, Iterator
 
 logger = logging.getLogger(__name__)
 
@@ -38,11 +39,11 @@ class Decoder(nn.Module):
         d_k: int,
     ):
         super().__init__()
-        self.token_embedding = Embeddings(
+        self.embeddings = Embeddings(
             vocab_size=vocab_size, hidden_size=hidden_size
         )
-        self.position_encoding = PositionalEncoding(seq_len, hidden_size, dropout_pe)
-        self.decoder_layers = nn.ModuleList(
+        self.target_position_encoding = PositionalEncoding(seq_len, hidden_size, dropout_pe)
+        self.decoder_layers: Iterator[DecoderLayer] = nn.ModuleList(
             [
                 DecoderLayer(
                     hidden_size=hidden_size,
@@ -59,12 +60,19 @@ class Decoder(nn.Module):
     def forward(
         self, x: torch.Tensor, pad_mask: torch.Tensor, encoder_output: torch.Tensor
     ) -> torch.Tensor:
-        out_embd = self.token_embedding(x)
-        out = self.position_encoding(out_embd)
+        out_embd = self.embeddings(x)
+        out = self.target_position_encoding(out_embd)
         for dec_layer in self.decoder_layers:
             out = dec_layer(out, pad_mask, encoder_output)
         return out
-
+    
+    def _init_layers(self, intializer: Callable, init_bias: bool):
+        if hasattr(self.embeddings, "_init_layer"):
+            self.embeddings._init_layer()
+        
+        for decoder_layer in self.decoder_layers:
+            if hasattr(decoder_layer, "_init_layer"):
+                decoder_layer._init_layer(intializer, init_bias)
 
 def get_decoder(conf: Config) -> Decoder:
     """

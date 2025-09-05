@@ -53,6 +53,10 @@ def run_train(config_file: Path):
         "max_seq_len": config.model.max_seq_len,
     }
 
+    # We should initialize the model before training so that it converges faster
+    initializer_kind: str = config.model.initializer
+    transformer.initialize_weights_(init_method=initializer_kind, init_bias=True)
+
     # Experiment tracking can be off if running offline without internet
     if config.experiment.active:
         logger.info("Experiment tracking is enabled")

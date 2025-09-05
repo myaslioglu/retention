@@ -27,6 +27,7 @@ class Embeddings(nn.Module):
             hidden_size (int): Dimension of the embedding vectors.
         """
         super().__init__()
+        self.d_model = hidden_size
         self.embedding = nn.Embedding(vocab_size, hidden_size)
         self.factor = math.sqrt(hidden_size)
 
@@ -49,3 +50,7 @@ class Embeddings(nn.Module):
         # The paper https://arxiv.org/pdf/1706.03762 at section 3.4
         # Scales the embedding layer output with the `factor`
         return self.embedding(x) * self.factor  # [BATCH, SEQ_LEN, HIDDEN_SIZE]
+    
+    def _init_layer(self):
+        nn.init.normal_(self.embedding.weight, mean=0.0, 
+                        std=self.d_model**-0.5) # 1/sqrt(d_model)
