@@ -139,10 +139,3 @@ Attention Is All You Need Until You Need Retention, arXiv:2501.09166, 2025
 
 This fork inherits the license of the original repo. Please consult LICENSE in MayukhSobo/Transformer.
 
-
----
-
----
-
-Do you also want me to make a **separate section in the README with example plots** (e.g. how attention vs. retention scales with sequence length), or keep it lean and code-focused?
-
