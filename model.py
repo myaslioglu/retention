@@ -15,6 +15,7 @@ from utils import get_device
 from dataset import Dataset
 import psutil
 import gc
+from arch.attentions import make_attention
 
 logger = logging.getLogger(__name__)
 
