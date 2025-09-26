@@ -1,51 +1,52 @@
-# Transformer + Retention Layer
+Transformer + Retention Layer
 
-This repo extends [MayukhSobo/Transformer](https://github.com/MayukhSobo/Transformer) by integrating a **Retention Layer**, inspired by the paper:
+This project extends MayukhSobo/Transformer by adding a Retention Layer, inspired by the paper:
 
-> **Attention Is All You Need Until You Need Retention**  
-> arXiv:2501.09166, 2025
+> Attention Is All You Need Until You Need Retention
+arXiv:2501.09166 (2025)
 
-The Retention Layer augments/replaces standard self-attention with a recurrent, memory-based mechanism that captures **long-term dependencies** and enables **persistent memory** beyond the fixed context window.
+
+
+The Retention Layer replaces or augments standard self-attention with a recurrent memory mechanism that captures long-term dependencies and allows for persistent memory beyond the fixed context window.
+
 
 ---
 
-## 🔑 Key Additions
+🔑 Key Additions
 
-### 1. Retention Layer (`MultiScaleRetention`)
-- Implements **multi-scale exponential decays** per head, approximating different memory horizons.
-- Maintains a **recurrent state** per head and scale:  
-  \[
-  S_t = a \cdot S_{t-1} + h_t
-  \]
-- Adds a **learned mixer** to combine multi-scale states.
-- Includes a **gating mechanism** to blend the retained context with the current token features:
-  \[
-  y_t = \sigma(W_g x_t) \odot \text{Retained}_t + (1 - \sigma(W_g x_t)) \odot x_t
-  \]
-- Naturally **causal** (no look-ahead).
+Retention Layer (MultiScaleRetention)
 
-### 2. Configurable Attention Backend
-- The repo now supports choosing between:
-  - Standard **Multi-Head Attention (MHA)**  
-  - **Retention (MSR)** as a drop-in replacement
-- Switch via `config.toml`:
+Implements multi-scale exponential decays per head, approximating different memory horizons.
 
-```toml
+Maintains a recurrent state per head and scale:
+
+
+S_t = a \cdot S_{t-1} + h_t
+
+Adds a gating mechanism to blend retained context with current token features:
+
+
+y_t = \sigma(W_g x_t) \odot \text{Retained}_t + (1 - \sigma(W_g x_t)) \odot x_t
+
+Configurable Attention
+
+Choose between standard Multi-Head Attention (MHA) or Retention:
+
 [model]
-attention_kind = "retention"   # options: "mha", "retention"
+attention_kind = "retention"   # "mha" or "retention"
 
-3. Encoder / Decoder Integration
+Encoder / Decoder Integration
 
-Encoder self-attention: can be MHA or Retention.
+Encoder self-attention: can be MHA or Retention
 
-Decoder self-attention: can be MHA or Retention.
+Decoder self-attention: can be MHA or Retention
 
-Decoder cross-attention: left as standard MHA for stability and alignment.
+Decoder cross-attention: remains MHA for stability
 
 
-4. Tests
+Tests
 
-A basic test checks shape correctness:
+Basic shape test included:
 
 def test_retention_forward_shapes():
     layer = MultiScaleRetention(d_model=32, n_heads=4, max_seq_len=16)
@@ -58,64 +59,70 @@ def test_retention_forward_shapes():
 
 ⚡️ Why Retention?
 
-Traditional attention is quadratic in sequence length and forgets beyond its context window. Retention introduces:
+Attention is powerful but quadratic in sequence length and limited to its context window. Retention offers:
 
-Linear-time recurrence (O(L·d) vs O(L²·d)).
+Linear-time recurrence (O(L·d) vs O(L²·d))
 
-O(1) memory per token at inference, enabling streaming.
+O(1) memory per token at inference (streaming-friendly)
 
-Long-term persistence, with potential for cross-session memory when extended.
+Long-term persistence potential (cross-sequence memory)
 
-Multi-scale kernels that approximate different time horizons.
+Multi-scale kernels approximating diverse time horizons
 
 
-For a gentle introduction, see RetNet (Sun et al. 2023) and the recent Attention Is All You Need Until You Need Retention.
+For background, see:
+
+RetNet: Retentive Network (Sun et al., 2023)
+
+Attention Is All You Need Until You Need Retention (arXiv:2501.09166, 2025)
+
 
 
 ---
 
 🚀 Usage
 
-Train with standard settings:
+Train as usual:
 
 python train.py --config config.toml
 
-Switch attention mode in config to "retention" to use the new layer.
+Switch attention mode in config.toml:
+
+[model]
+attention_kind = "retention"
 
 
 ---
 
-📂 Repository Structure (key changes)
+📂 Structure (new/modified)
 
 arch/
   attentions/
     multi_head_attention.py
-    retention.py       # <-- NEW
+    retention.py       # NEW
     __init__.py        # factory: make_attention()
   encoder/
-    encoder_block.py   # retention wired in
+    encoder_block.py   # retention support
   decoder/
-    decoder_block.py   # retention wired in (self-attention only)
+    decoder_block.py   # retention support (self-attn)
 tests/
-  test_retention.py    # shape test
+  test_retention.py    # new test
 
 
 ---
 
-🧩 Limitations vs. the Paper
+🧩 Notes & Limitations
 
-This implementation is an educational approximation:
+This is an educational approximation:
 
-No persistent memory across batches/sessions (state resets per forward pass).
+Memory resets each forward pass (no persistent memory across sessions yet).
 
-No external memory store, episodic buffer, or eviction/compression.
+No episodic buffer or eviction/compression strategies.
 
-Retention here replaces self-attention; the paper may describe hybrid setups where attention and retention co-exist.
+Retention here replaces self-attention; the paper may describe hybrid attention+retention setups.
 
-Update rule is a simplified exponential decay recurrence.
+Update rule uses simple exponential decay recurrence.
 
-
-Still, it demonstrates how to slot a Retention Layer into a Transformer with minimal code changes.
 
 
 ---
@@ -137,5 +144,7 @@ Attention Is All You Need Until You Need Retention, arXiv:2501.09166, 2025
 
 📜 License
 
-This fork inherits the license of the original repo. Please consult LICENSE in MayukhSobo/Transformer.
+This fork inherits the license of the original repo. See LICENSE in MayukhSobo/Transformer.
+
+
 
