@@ -8,6 +8,7 @@
     ff_hidden_size  = 2048
     n_layers        = 6
     initializer     = "xavier_uniform"    # xavier_uniform | xavier_normal | kaiming_uniform | kaiming_normal
+    attention_kind = "retention"   # "mha" or "retention"
 
 [tokenizer]
     kind            = 'sentencepiece'                 # sentencepiece | custom
@@ -36,6 +37,3 @@
     backend         = "wandb"                  # Currently only wandb is supported
     tracking        = "cloud"                  # cloud | offline
     description     = "An experiment to implement \"Attention is all you need\" paper architecture"
-    
-    [model]
-attention_kind = "retention"   # "mha" or "retention"
