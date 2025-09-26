@@ -1,155 +1,148 @@
+# Transformer + Retention Layer
 
-# Transformer: Attention Is All You Need
+This repo extends [MayukhSobo/Transformer](https://github.com/MayukhSobo/Transformer) by integrating a **Retention Layer**, inspired by the paper:
 
-[![Pylint](https://github.com/MayukhSobo/Transformer/actions/workflows/pylint.yml/badge.svg?branch=main&event=push)](https://github.com/MayukhSobo/Transformer/actions/workflows/pylint.yml)
-[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/release/python-390/)
+> **Attention Is All You Need Until You Need Retention**  
+> arXiv:2501.09166, 2025
 
-Educational implementation of the Transformer architecture from the ["Attention Is All You Need"](https://arxiv.org/pdf/1706.03762) paper, built with PyTorch.
-
-## 🚀 Features
-
-- **Complete Encoder-Decoder Architecture** with cross-attention
-- **Modular Design** - each component can be studied independently  
-- **Multiple Tokenizers** - SentencePiece and word-level tokenization
-- **WMT14 Dataset Integration** - German-English translation
-- **Educational Focus** - well-documented code with comprehensive docstrings
-- **Production Ready** - proper error handling, logging, and testing
-
-## 🛠️ Installation
-
-```bash
-git clone https://github.com/MayukhSobo/Transformer.git
-cd Transformer
-
-# Using uv (recommended)
-uv sync
-
-# Or using pip
-pip install -r requirements.txt
-```
-
-## 📖 Usage
-
-### Basic Model Creation
-
-```python
-from model import build_transformer
-from config import Config
-
-config = Config(config_file="config.toml")
-transformer, dataset = build_transformer(config)
-
-# Forward pass
-output = transformer.forward(src_batch, tgt_batch, src_pad_mask, tgt_pad_mask)
-```
-
-### Training
-
-```python
-python main.py                    # Train with default config
-python main.py --config custom.toml  # Train with custom config
-```
-
-### Testing
-
-```python
-python test_runner.py             # Run all tests
-python test_runner.py pytest     # Run with pytest
-python test_runner.py coverage   # Generate coverage report
-```
-
-## 📁 Project Structure
-
-```
-Transformer/
-├── arch/                    # Core transformer modules
-│   ├── attentions/         # Self, multi-head, and cross-attention
-│   ├── encoder/            # Encoder components
-│   ├── decoder/            # Decoder components  
-│   ├── embedding.py        # Token embeddings
-│   ├── positional_encoding.py
-│   ├── feed_forward.py
-│   └── residual_add_norm.py
-├── tokenizer/              # Tokenization utilities
-├── tests/                  # Test suite
-├── data/                   # Dataset directory
-├── config.toml             # Model configuration
-├── model.py               # Model creation and orchestration
-├── train.py               # Training implementation
-├── dataset.py             # Dataset loading and preprocessing
-└── main.py                # CLI entry point
-```
-
-## ⚙️ Configuration
-
-Default model configuration (~101 million parameters, using distinct embeddings):
-
-```toml
-[model]
-vocab_size = 37000
-hidden_size = 512
-max_seq_len = 512
-n_heads = 8
-n_layers = 6
-ff_hidden_size = 2048
-dropout_pe = 0.1
-
-[tokenizer]
-kind = "sentencepiece"    # or "word"
-algorithm = "bpe"         # or "unigram"
-vocab_size = 32000
-
-[training]
-batch_size = 32
-epochs = 10
-learning_rate = 0.0005
-
-[dataset]
-path = "./data"
-```
-
-## 🎯 Architecture Highlights
-
-- **Multi-Head Attention**: 8 heads with 64 dimensions each
-- **Positional Encoding**: Sinusoidal encoding with non-learnable/fixed parameters
-- **Feed-Forward**: Two-layer MLP (512 → 2048 → 512)
-- **Residual Connections**: Post-norm architecture with LayerNorm
-- **Cross-Attention**: Full encoder-decoder interaction
-
-## 📊 Current Status
-
-- ✅ **Complete Architecture**: Encoder, decoder, and cross-attention implemented
-- ✅ **Tokenization**: SentencePiece and word-level tokenizers
-- ✅ **Dataset Integration**: WMT14 German-English with streaming support
-- ⚠️ **Training Pipeline**: Forward pass implemented, optimization in progress
-- ✅ **Testing**: Comprehensive test suite with 10.00/10 pylint score
-
-## 🔧 Development
-
-```bash
-# Run tests
-python test_runner.py
-
-# Run with coverage
-python test_runner.py coverage
-
-# Check code quality
-pylint $(git ls-files '*.py')
-
-# Format code
-black .
-```
-
-## 📚 References
-
-- [Attention Is All You Need](https://arxiv.org/pdf/1706.03762) - Original paper
-- [The Illustrated Transformer](http://jalammar.github.io/illustrated-transformer/) - Visual explanation
-- [The Annotated Transformer](https://nlp.seas.harvard.edu/2018/04/03/attention.html) - Implementation guide
-
-## 📄 License
-
-MIT License - Free to use for educational purposes.
+The Retention Layer augments/replaces standard self-attention with a recurrent, memory-based mechanism that captures **long-term dependencies** and enables **persistent memory** beyond the fixed context window.
 
 ---
 
-**Educational transformer implementation with complete encoder-decoder architecture and cross-attention, ready for sequence-to-sequence tasks.**
+## 🔑 Key Additions
+
+### 1. Retention Layer (`MultiScaleRetention`)
+- Implements **multi-scale exponential decays** per head, approximating different memory horizons.
+- Maintains a **recurrent state** per head and scale:  
+  \[
+  S_t = a \cdot S_{t-1} + h_t
+  \]
+- Adds a **learned mixer** to combine multi-scale states.
+- Includes a **gating mechanism** to blend the retained context with the current token features:
+  \[
+  y_t = \sigma(W_g x_t) \odot \text{Retained}_t + (1 - \sigma(W_g x_t)) \odot x_t
+  \]
+- Naturally **causal** (no look-ahead).
+
+### 2. Configurable Attention Backend
+- The repo now supports choosing between:
+  - Standard **Multi-Head Attention (MHA)**  
+  - **Retention (MSR)** as a drop-in replacement
+- Switch via `config.toml`:
+
+```toml
+[model]
+attention_kind = "retention"   # options: "mha", "retention"
+
+3. Encoder / Decoder Integration
+
+Encoder self-attention: can be MHA or Retention.
+
+Decoder self-attention: can be MHA or Retention.
+
+Decoder cross-attention: left as standard MHA for stability and alignment.
+
+
+4. Tests
+
+A basic test checks shape correctness:
+
+def test_retention_forward_shapes():
+    layer = MultiScaleRetention(d_model=32, n_heads=4, max_seq_len=16)
+    x = torch.randn(2, 10, 32)
+    y = layer(x)
+    assert y.shape == x.shape
+
+
+---
+
+⚡️ Why Retention?
+
+Traditional attention is quadratic in sequence length and forgets beyond its context window. Retention introduces:
+
+Linear-time recurrence (O(L·d) vs O(L²·d)).
+
+O(1) memory per token at inference, enabling streaming.
+
+Long-term persistence, with potential for cross-session memory when extended.
+
+Multi-scale kernels that approximate different time horizons.
+
+
+For a gentle introduction, see RetNet (Sun et al. 2023) and the recent Attention Is All You Need Until You Need Retention.
+
+
+---
+
+🚀 Usage
+
+Train with standard settings:
+
+python train.py --config config.toml
+
+Switch attention mode in config to "retention" to use the new layer.
+
+
+---
+
+📂 Repository Structure (key changes)
+
+arch/
+  attentions/
+    multi_head_attention.py
+    retention.py       # <-- NEW
+    __init__.py        # factory: make_attention()
+  encoder/
+    encoder_block.py   # retention wired in
+  decoder/
+    decoder_block.py   # retention wired in (self-attention only)
+tests/
+  test_retention.py    # shape test
+
+
+---
+
+🧩 Limitations vs. the Paper
+
+This implementation is an educational approximation:
+
+No persistent memory across batches/sessions (state resets per forward pass).
+
+No external memory store, episodic buffer, or eviction/compression.
+
+Retention here replaces self-attention; the paper may describe hybrid setups where attention and retention co-exist.
+
+Update rule is a simplified exponential decay recurrence.
+
+
+Still, it demonstrates how to slot a Retention Layer into a Transformer with minimal code changes.
+
+
+---
+
+🙏 Credits
+
+Original Transformer implementation: MayukhSobo/Transformer
+
+Retention concepts:
+
+Sun et al., Retentive Network: A Successor to Transformer for Large Language Models, 2023
+
+Attention Is All You Need Until You Need Retention, arXiv:2501.09166, 2025
+
+
+
+
+---
+
+📜 License
+
+This fork inherits the license of the original repo. Please consult LICENSE in MayukhSobo/Transformer.
+
+
+---
+
+---
+
+Do you also want me to make a **separate section in the README with example plots** (e.g. how attention vs. retention scales with sequence length), or keep it lean and code-focused?
+
