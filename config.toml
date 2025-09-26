@@ -36,3 +36,6 @@
     backend         = "wandb"                  # Currently only wandb is supported
     tracking        = "cloud"                  # cloud | offline
     description     = "An experiment to implement \"Attention is all you need\" paper architecture"
+    
+    [model]
+attention_kind = "retention"   # "mha" or "retention"
