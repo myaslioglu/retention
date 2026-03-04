@@ -1,0 +1,34 @@
+# OpenClaw Retention System Configuration
+# Haci Memory Plugin Configuration
+
+plugin:
+  name: haci-memory
+  enabled: true
+  config:
+    embedding:
+      model: all-MiniLM-L6-v2
+    faissIndexPath: ~/.openclaw/memory/faiss.index
+    memoryPath: ~/.openclaw/workspace
+    pythonPath: ~/.openclaw/workspace/venv/bin/python
+    autoRecall: true
+    cacheEnabled: true
+
+cron:
+  - name: memory-consolidation-daily
+    schedule: "55 23 * * *"
+    command: "python3 /path/to/run_consolidation.py"
+    
+  - name: retention-daily-learning
+    schedule: "55 23 * * *"
+    command: "python3 /path/to/retention_daily.py"
+    
+  - name: faiss-reindex-daily
+    schedule: "0 2 * * *"
+    command: "openclaw haci-memory rebuild"
+
+heartbeat:
+  check_frequency: 4  # Her 4. heartbeat'te retention check
+  tasks:
+    - Check retention state file
+    - Check daily learning timestamp
+    - Trigger daily learning if needed (max once per day)

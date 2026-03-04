@@ -16,3 +16,12 @@ data/*
 *.html
 wandb/
 .ipynb_checkpoints/
+
+# Kişisel veriler (OpenClaw retention system)
+retention_state.json
+*.log
+*.pkl
+*.index
+faiss.index
+checkpoints/
+memory/

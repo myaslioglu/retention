@@ -11,3 +11,12 @@ sentencepiece~=0.2.1
 protobuf~=6.32.0
 wandb~=0.21.1
 psutil~=5.9.0
+
+# OpenClaw Retention System dependencies
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.0  # veya faiss-gpu için faiss-gpu
+numpy>=1.24.0
+arch>=0.2.0  # MultiScaleRetention layer için
+python-dateutil>=2.8.0
+PyYAML>=6.0
+tomllib>=0.2.0; python_version < '3.11'  # Python 3.11+ includes tomllib
