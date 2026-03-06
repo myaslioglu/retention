@@ -36,32 +36,32 @@ attention_kind = "retention"   # "mha" or "retention"
 - Decoder cross-attention: remains MHA for stability  
 
 ### OpenClaw Retention System
-🧠 **"Çocuk gibi büyüme" felsefesiyle çalışan otomatik memory consolidation ve kişilik öğrenme sistemi.**
+🧠 **An automatic memory consolidation and personality learning system that works with a "grow like a child" philosophy.**
 
-**FAZ 1: Core Improvements (Complete)**
+**PHASE 1: Core Improvements (Complete)**
 - ✅ **Enhanced Importance Algorithm**: Multi-factor scoring (keyword 0.35, interest 0.25, temporal 0.15, structure 0.15, recency 0.10) + memory type weighting (Decision:1.2, Lesson:1.1, Achievement:1.15, etc.)
 - ✅ **Active Learning Optimizer**: Intelligent topic discovery, weekly newsletter generation, interest decay (5% daily), 46 tracked topics
 - ✅ **Feedback Integration**: Auto-capture from conversations (4 categories: positive, negative, suggestion, question), priority queue processing
 - ✅ **Deduplication**: Content-based hash detection, semantic similarity fallback, removed 53 duplicates (98 → 45 unique)
 
-**FAZ 2: Advanced Features (Complete)**
+**PHASE 2: Advanced Features (Complete)**
 - ✅ **Shared Memory Connector**: Cross-session memory transfer via global JSON store, agent-specific permissions
 - ✅ **Multi-modal Memory Manager**: Audio/Image/Video processing via Whisper + Ollama vision, modality-type mapping (audio→technical, image→insight, video→project)
 - ✅ **Real-time Compression**: Streaming ingestion with incremental FAISS indexing, LRU cache warming, **0.58ms avg query time**, background worker threads
 - ✅ **Production Cron Integration**: Daily consolidation, every-3-day deduplication/reindex, Heartbeat checks
 
-**FAZ 3: Auto-Tuning (Complete)**
+**PHASE 3: Auto-Tuning (Complete)**
 - ✅ **Bayesian Optimizer**: Hyperparameter optimization (importance_threshold, decay_rate, cache_size, max_memories_per_day, reindex_interval)
 - ✅ **Performance Monitor**: Real-time metrics (query_time, cache_hit_rate, memory_growth, consolidation_quality, system_load)
 - ✅ **Auto-tuning Scheduler**: Every 2 hours, config persistence, canary testing infrastructure
 
 **Core Components:**
-- ✅ **Otomatik Memory Consolidation**: Günlük memory'lerden önemli olanları long-term memory'ye aktarır
-- ✅ **Retention Daily Learning**: Her gün yeni memory'lerle kişilik state'ini günceller ("çocuk gibi büyüme")
-- ✅ **FAISS Semantic Search**: sentence-transformers + FAISS ile hızlı memory recall (production-ready)
-- ✅ **MultiScaleRetention Layer**: Context compression ile %56.8 token tasarrufu
-- ✅ **Cron Job Otomasyonu**: Günlük konsolidasyon, learning, reindex, auto-tuning
-- ✅ **Heartbeat Integration**: Her 4. heartbeat'te health check, active learning tasks
+- ✅ **Automatic Memory Consolidation**: Transfers important daily memories to long-term memory
+- ✅ **Retention Daily Learning**: Updates personality state daily with new memories ("child-like growth")
+- ✅ **FAISS Semantic Search**: Fast memory recall via sentence-transformers + FAISS (production-ready)
+- ✅ **MultiScaleRetention Layer**: %56.8 token savings with context compression
+- ✅ **Cron Job Automation**: Daily consolidation, learning, reindex, auto-tuning
+- ✅ **Heartbeat Integration**: Health check and active learning tasks every 4th heartbeat
 - ✅ **OpenClaw Plugin**: Native OpenClaw memory slot integration
 - ✅ **Transformer-enhanced Importance Scoring**: Transformer model for predicting memory importance (optional)
 - ✅ **Personality State Learning**: Adaptive personality embeddings from memory patterns
