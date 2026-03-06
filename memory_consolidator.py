@@ -31,23 +31,222 @@ class MemoryConsolidator:
             'öneri', 'lesson learned', 'ders', 'tecrübe'
         ]
         
-        # Memory türleri ve emojileri
+        # Memory türleri ve emojileri + ağırlıkları
         self.memory_types = {
-            'decision': {'emoji': '🤔', 'desc': 'Kararlar'},
-            'lesson': {'emoji': '📚', 'desc': 'Öğrenilen Dersler'},
-            'achievement': {'emoji': '🏆', 'desc': 'Başarılar'},
-            'preference': {'emoji': '👤', 'desc': 'Tercihler'},
-            'project': {'emoji': '🚀', 'desc': 'Projeler'},
-            'technical': {'emoji': '🔧', 'desc': 'Teknik Bilgiler'},
-            'insight': {'emoji': '💡', 'desc': 'İçgörüler'},
-            'reminder': {'emoji': '⏰', 'desc': 'Hatırlatıcılar'}
+            'decision': {'emoji': '🤔', 'desc': 'Kararlar', 'base_weight': 1.2},
+            'lesson': {'emoji': '📚', 'desc': 'Öğrenilen Dersler', 'base_weight': 1.1},
+            'achievement': {'emoji': '🏆', 'desc': 'Başarılar', 'base_weight': 1.15},
+            'preference': {'emoji': '👤', 'desc': 'Tercihler', 'base_weight': 1.0},
+            'project': {'emoji': '🚀', 'desc': 'Projeler', 'base_weight': 1.05},
+            'technical': {'emoji': '🔧', 'desc': 'Teknik Bilgiler', 'base_weight': 0.95},
+            'insight': {'emoji': '💡', 'desc': 'İçgörüler', 'base_weight': 1.0},
+            'reminder': {'emoji': '⏰', 'desc': 'Hatırlatıcılar', 'base_weight': 0.9}
         }
+        
+        # Başkan'ın ilgi alanları (learning_topics.json'dan yüklenecek)
+        self.user_interests = {}
+        self._load_user_interests()
         
         print("🧠 AUTOMATIC MEMORY CONSOLIDATOR")
         print("=" * 50)
         print(f"Memory dir: {self.memory_dir}")
         print(f"Long-term file: {self.long_term_file}")
         print(f"Archive dir: {self.archive_dir}")
+        print(f"User interests loaded: {len(self.user_interests)} topics")
+    
+    def _load_user_interests(self):
+        """learning_topics.json'dan Başkan'ın ilgi alanlarını yükle"""
+        try:
+            topics_file = Path("learning_topics.json")
+            if topics_file.exists():
+                with open(topics_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                
+                for interest in data.get('interests', []):
+                    topic = interest.get('topic', '').lower()
+                    level = interest.get('interest_level', 0.5)
+                    self.user_interests[topic] = level
+                    
+                    # Subtopic'leri de ekle
+                    for subtopic in interest.get('subtopics', []):
+                        subtopic_lower = subtopic.lower()
+                        self.user_interests[subtopic_lower] = level * 0.8  # Subtopic biraz daha düşük
+                
+                print(f"✅ Loaded {len(self.user_interests)} interest keywords")
+        except Exception as e:
+            print(f"⚠️  Could not load user interests: {e}")
+    
+    def _process_feedback_queue(self) -> List[Dict]:
+        """Process feedback queue and convert to memory entries"""
+        feedback_file = self.memory_dir / "feedback_queue.json"
+        
+        if not feedback_file.exists():
+            return []
+        
+        try:
+            with open(feedback_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            feedbacks = data.get('feedbacks', [])
+            memories = []
+            
+            print(f"\n🎯 Processing {len(feedbacks)} feedback entries from queue...")
+            
+            for fb in feedbacks:
+                # Convert feedback to memory entry
+                memory = {
+                    'date': fb.get('date', datetime.now().strftime('%Y-%m-%d')),
+                    'type': fb.get('type', 'insight'),
+                    'importance': 0.6,  # Feedback'ler higher priority
+                    'summary': fb.get('title', 'Feedback memory'),
+                    'full_text': fb.get('content', ''),
+                    'hash': hashlib.md5(fb.get('content', '').encode()).hexdigest()[:8],
+                    'word_count': len(fb.get('content', '').split()),
+                    'keyword_count': 0,
+                    'source': 'feedback',
+                    'feedback_category': fb.get('category', 'unknown'),
+                    'feedback_keyword': fb.get('keyword', '')
+                }
+                memories.append(memory)
+            
+            # Clear queue after processing
+            with open(feedback_file, 'w') as f:
+                json.dump({"feedbacks": []}, f)
+            
+            print(f"   ✅ Converted {len(memories)} feedback memories")
+            return memories
+            
+        except Exception as e:
+            print(f"❌ Error processing feedback queue: {e}")
+            return []
+    
+    def _load_user_interests(self):
+        """learning_topics.json'dan Başkan'ın ilgi alanlarını yükle"""
+        try:
+            topics_file = Path("learning_topics.json")
+            if topics_file.exists():
+                with open(topics_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                
+                for interest in data.get('interests', []):
+                    topic = interest.get('topic', '').lower()
+                    level = interest.get('interest_level', 0.5)
+                    self.user_interests[topic] = level
+                    
+                    # Subtopic'leri de ekle
+                    for subtopic in interest.get('subtopics', []):
+                        subtopic_lower = subtopic.lower()
+                        self.user_interests[subtopic_lower] = level * 0.8  # Subtopic biraz daha düşük
+                
+                print(f"✅ Loaded {len(self.user_interests)} interest keywords")
+        except Exception as e:
+            print(f"⚠️  Could not load user interests: {e}")
+    
+    def _calculate_enhanced_importance(self, text: str, date_str: str = None) -> Dict:
+        """Gelişmiş importance hesaplama: Context + Timing + Relevance"""
+        text_lower = text.lower()
+        scores = {
+            'keyword': 0.0,
+            'temporal': 0.0,
+            'interest_match': 0.0,
+            'structure': 0.0,
+            'recency': 0.0,
+            'type_weight': 1.0
+        }
+        
+        # 1. KEYWORD MATCHING (Base importance)
+        keyword_count = 0
+        for keyword in self.importance_keywords:
+            if keyword in text_lower:
+                scores['keyword'] += 0.05
+                keyword_count += 1
+                if keyword in ['karar', 'önemli', 'kritik', 'lesson learned', 'ders']:
+                    scores['keyword'] += 0.1
+        
+        # Keyword diversity bonus (çok fazla aynı keyword yerine çeşitlilik)
+        unique_keywords = len(set(k for k in self.importance_keywords if k in text_lower))
+        scores['keyword'] += min(unique_keywords * 0.02, 0.15)
+        
+        # 2. TEMPORAL FACTORS (Date references)
+        temporal_keywords = ['bugün', 'yarın', 'hafta', 'ay', 'yıl', 'pazartesi', 'salı', 'çarşamba', 'perşembe', 'cuma', 'cumartesi', 'pazar']
+        if any(word in text_lower for word in temporal_keywords):
+            scores['temporal'] += 0.1
+        
+        # Deadline/time-sensitive content
+        if any(word in text_lower for word in ['saat', 'deadline', 'tarih', 'randevu', 'hatırlat']):
+            scores['temporal'] += 0.15
+        
+        # 3. USER INTEREST ALIGNMENT
+        interest_score = 0.0
+        matched_topics = []
+        for topic, level in self.user_interests.items():
+            if topic and len(topic) > 2:  # Skip empty/short topics
+                if topic in text_lower:
+                    interest_score += level * 0.3
+                    matched_topics.append(topic)
+        
+        # Boost if multiple interest matches
+        if len(matched_topics) > 1:
+            interest_score += 0.1
+        
+        scores['interest_match'] = min(interest_score, 0.5)  # Cap at 0.5
+        
+        # 4. STRUCTURE FACTORS
+        words = text.split()
+        word_count = len(words)
+        
+        # Optimal length (10-100 words)
+        if 10 <= word_count <= 100:
+            scores['structure'] += 0.1
+        elif word_count > 100:
+            scores['structure'] += 0.05  # Longer content still valuable
+        
+        # Formatting indicators
+        if text.startswith('#') or text.startswith('- ') or text.startswith('* '):
+            scores['structure'] += 0.05
+        
+        # Contains specific details, numbers, code snippets
+        if any(char.isdigit() for char in text):
+            scores['structure'] += 0.03
+        
+        # 5. RECENCY FACTOR (if date_str provided)
+        if date_str:
+            try:
+                memory_date = datetime.strptime(date_str, "%Y-%m-%d")
+                days_old = (datetime.now() - memory_date).days
+                
+                # Exponential decay: newer memories get higher score
+                # 0 days old: +0.2, 3 days old: +0.1, 7+ days old: +0
+                if days_old == 0:
+                    scores['recency'] = 0.2
+                elif days_old <= 3:
+                    scores['recency'] = 0.1
+                elif days_old <= 7:
+                    scores['recency'] = 0.05
+                else:
+                    scores['recency'] = 0.0
+            except:
+                scores['recency'] = 0.0
+        
+        # 6. COMBINE ALL SCORES
+        base_score = (
+            scores['keyword'] * 0.35 +
+            scores['temporal'] * 0.15 +
+            scores['interest_match'] * 0.25 +
+            scores['structure'] * 0.15 +
+            scores['recency'] * 0.10
+        )
+        
+        # Apply memory type weight (will be set by caller)
+        final_score = base_score * scores['type_weight']
+        
+        return {
+            'total_score': min(final_score, 1.0),
+            'breakdown': scores,
+            'matched_topics': matched_topics,
+            'word_count': word_count,
+            'keyword_count': keyword_count
+        }
     
     def _ensure_directories(self):
         """Gerekli dizinleri oluştur"""
@@ -165,7 +364,7 @@ class MemoryConsolidator:
             return 'insight'  # Default
     
     def _extract_key_memories(self, daily_data: Dict, threshold: float = 0.3) -> List[Dict]:
-        """Daily memory'den önemli kısımları çıkar"""
+        """Daily memory'den önemli kısımları çıkar (enhanced algorithm)"""
         key_memories = []
         
         for section in daily_data['sections']:
@@ -173,13 +372,25 @@ class MemoryConsolidator:
             if not section.strip() or len(section.strip()) < 20:
                 continue
             
-            # Önemlilik skoru hesapla
-            importance = self._calculate_importance_score(section)
+            # Memory türünü belirle
+            memory_type = self._classify_memory_type(section)
+            
+            # Get type weight
+            type_weight = self.memory_types[memory_type]['base_weight']
+            
+            # Enhanced importance hesapla
+            importance_data = self._calculate_enhanced_importance(
+                section, 
+                date_str=daily_data['date_str']
+            )
+            
+            # Apply type weight
+            importance_data['total_score'] *= type_weight
+            importance_data['type_weight'] = type_weight
+            
+            importance = importance_data['total_score']
             
             if importance >= threshold:
-                # Memory türünü belirle
-                memory_type = self._classify_memory_type(section)
-                
                 # Özet oluştur (ilk 150 karakter)
                 summary = section[:150].strip()
                 if len(section) > 150:
@@ -192,32 +403,73 @@ class MemoryConsolidator:
                     'date': daily_data['date_str'],
                     'type': memory_type,
                     'importance': importance,
+                    'importance_breakdown': importance_data['breakdown'],
+                    'matched_topics': importance_data['matched_topics'],
                     'summary': summary,
                     'full_text': section[:500],  # Max 500 karakter
                     'hash': content_hash,
-                    'word_count': len(section.split())
+                    'word_count': len(section.split()),
+                    'keyword_count': importance_data['keyword_count']
                 })
         
-        # Importance'a göre sırala
+        # Importance'a göre sırala (en yüksek önce)
         key_memories.sort(key=lambda x: x['importance'], reverse=True)
         
-        # Max 5 memory (en önemliler)
-        return key_memories[:5]
+        # Max 8 memory (enhanced: biraz daha çok memory alabiliriz)
+        return key_memories[:8]
     
     def _format_memory_entry(self, memory: Dict) -> str:
-        """Memory entry'sini formatla"""
+        """Memory entry'sini formatla (enhanced with details)"""
         emoji = self.memory_types[memory['type']]['emoji']
         date_str = memory['date']
         
-        entry = f"\n### {emoji} {date_str} - {memory['type'].upper()}\n"
-        entry += f"**Önem:** {memory['importance']:.2f} | **Kelime:** {memory['word_count']}\n\n"
-        entry += f"{memory['full_text']}\n"
+        # Check if it's a feedback memory
+        is_feedback = memory.get('source') == 'feedback'
+        
+        entry = f"\n### {emoji} {date_str} - {memory['type'].upper()}"
+        if is_feedback:
+            entry += " (FEEDBACK)"
+        entry += "\n"
+        
+        entry += f"**Önem:** {memory['importance']:.2f} | **Kelime:** {memory['word_count']}"
+        
+        if memory.get('keyword_count', 0) > 0:
+            entry += f" | **Anahtar:** {memory['keyword_count']}"
+        
+        # Feedback-specific info
+        if is_feedback:
+            entry += f"\n**Feedback:** {memory.get('feedback_category', 'unknown')} - '{memory.get('feedback_keyword', '')}'"
+        
+        # Interest match varsa göster
+        if memory.get('matched_topics'):
+            topics_str = ', '.join(memory['matched_topics'][:3])  # Max 3 topic göster
+            entry += f"\n**İlgi Alanı:** {topics_str}"
+        
+        # Important factors breakdown (concise)
+        if memory.get('importance_breakdown'):
+            breakdown = memory['importance_breakdown']
+            factors = []
+            if breakdown.get('keyword', 0) > 0.1:
+                factors.append(f"keyword:{breakdown['keyword']:.2f}")
+            if breakdown.get('interest_match', 0) > 0.1:
+                factors.append(f"interest:{breakdown['interest_match']:.2f}")
+            if breakdown.get('temporal', 0) > 0.05:
+                factors.append(f"time:{breakdown['temporal']:.2f}")
+            if breakdown.get('structure', 0) > 0.05:
+                factors.append(f"struct:{breakdown['structure']:.2f}")
+            if breakdown.get('recency', 0) > 0.05:
+                factors.append(f"new:{breakdown['recency']:.2f}")
+            
+            if factors:
+                entry += f"\n**Factors:** {' | '.join(factors)}"
+        
+        entry += f"\n\n{memory['full_text']}\n"
         entry += f"\n---\n"
         
         return entry
     
     def _read_long_term_memory(self) -> List[str]:
-        """Long-term memory'yi oku"""
+        """Long-term memory'yi oku ve her memory entry'nin hash'ini extract et"""
         if not self.long_term_file.exists():
             return []
         
@@ -225,24 +477,30 @@ class MemoryConsolidator:
             with open(self.long_term_file, 'r', encoding='utf-8') as f:
                 content = f.read()
             
-            # Memory entry'lerini ayır
+            # Memory entry'lerini ayır (### ile başlayanlar)
             entries = []
+            lines = content.split('\n')
             current_entry = []
             in_entry = False
             
-            for line in content.split('\n'):
+            for line in lines:
                 if line.startswith('### '):
-                    if current_entry:
-                        entries.append('\n'.join(current_entry))
-                        current_entry = []
+                    # Yeni entry başlıyor, önceki entry'yi kaydet
+                    if current_entry and in_entry:
+                        entry_text = '\n'.join(current_entry)
+                        entries.append(entry_text)
+                    # Yeni entry başlat
+                    current_entry = [line]
                     in_entry = True
-                
-                if in_entry:
+                elif in_entry and line.strip():
                     current_entry.append(line)
             
-            if current_entry:
-                entries.append('\n'.join(current_entry))
+            # Son entry'yi ekle
+            if current_entry and in_entry:
+                entry_text = '\n'.join(current_entry)
+                entries.append(entry_text)
             
+            print(f"   📖 Parsed {len(entries)} entries from long-term memory")
             return entries
         
         except Exception as e:
@@ -250,11 +508,15 @@ class MemoryConsolidator:
             return []
     
     def _check_duplicate(self, new_memory: Dict, existing_entries: List[str]) -> bool:
-        """Duplicate memory kontrolü"""
-        new_hash = new_memory['hash']
+        """Duplicate memory kontrolü - full entry formatını hash ile karşılaştır"""
+        # New memory'yi format et
+        new_entry_str = self._format_memory_entry(new_memory)
+        new_hash = hashlib.md5(new_entry_str.encode()).hexdigest()[:12]
         
+        # Eski entry'lerin hash'lerini hesapla
         for entry in existing_entries:
-            if new_hash in entry:
+            entry_hash = hashlib.md5(entry.encode()).hexdigest()[:12]
+            if new_hash == entry_hash:
                 return True
         
         return False
@@ -269,24 +531,40 @@ class MemoryConsolidator:
         # 1. Gerekli dizinleri oluştur
         self._ensure_directories()
         
-        # 2. Daily files'ları getir
+        # 2. Process feedback queue first (higher priority)
+        feedback_memories = self._process_feedback_queue()
+        
+        # 3. Daily files'ları getir
         daily_files = self._get_daily_files(days_back)
         print(f"\n📂 Found {len(daily_files)} daily files:")
         for f in daily_files:
             print(f"   • {f.name}")
         
-        if not daily_files:
-            print("❌ No daily files found for consolidation")
+        if not daily_files and not feedback_memories:
+            print("❌ No daily files or feedback memories found for consolidation")
             return
         
-        # 3. Mevcut long-term memory'yi oku
+        # 4. Mevcut long-term memory'yi oku
         existing_entries = self._read_long_term_memory()
         print(f"\n📚 Existing long-term memories: {len(existing_entries)} entries")
         
-        # 4. Her daily file için key memories çıkar
+        # 5. Feedback memory'leri ekle (lower threshold)
         all_key_memories = []
         consolidated_count = 0
         
+        if feedback_memories:
+            print(f"\n🎯 Processing {len(feedback_memories)} feedback memories...")
+            for memory in feedback_memories:
+                # Duplicate kontrolü
+                if self._check_duplicate(memory, existing_entries):
+                    print(f"     ⚠️  Duplicate feedback skipped")
+                    continue
+                
+                all_key_memories.append(memory)
+                consolidated_count += 1
+                print(f"     ✅ Added feedback: {memory['type']} - {memory['summary'][:50]}...")
+        
+        # 6. Her daily file için key memories çıkar
         for daily_file in daily_files:
             print(f"\n📖 Processing: {daily_file.name}")
             
@@ -314,7 +592,7 @@ class MemoryConsolidator:
             print("\n❌ No new key memories to consolidate")
             return
         
-        # 5. Yeni memory'leri long-term file'a ekle
+        # 7. Yeni memory'leri long-term file'a ekle
         print(f"\n📝 Writing {consolidated_count} new memories to long-term storage...")
         
         # Mevcut content'i oku
