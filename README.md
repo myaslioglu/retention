@@ -2,206 +2,206 @@
 
 **Transformer + Retention Layer + OpenClaw Retention System + HaciCognitiveNet**
 
-Bu proje, [MayukhSobo/Transformer](https://github.com/MayukhSobo/Transformer)'ı temel alır ve üzerine **Retention Katmanı** ekler. İlham kaynağı:
+This project extends [MayukhSobo/Transformer](https://github.com/MayukhSobo/Transformer) by adding a **Retention Layer**, inspired by the paper:
 
-> *Attention Is All You Need Until You Need Retention*  
+> **Attention Is All You Need Until You Need Retention**  
 > arXiv:2501.09166 (2025)
 
-Retention Katmanı, standart self-attention mekanizmasını, **uzun vadeli bağımlılıkları** yakalayan ve sabit bağlam penceresinin ötesinde **kalıcı bellek** sağlayan özyineli bir bellek mekanizması ile değiştirir veya tamamlar.
+The Retention Layer replaces or augments standard self-attention with a recurrent memory mechanism that captures **long-term dependencies** and allows for **persistent memory** beyond the fixed context window.
 
-Ayrıca bu depo, **OpenClaw Retention System** ve **HaciCognitiveNet** katmanlı bilişsel mimariyi içerir.
+Additionally, this repository includes the **OpenClaw Retention System** and **HaciCognitiveNet** — a multi-layered cognitive architecture.
 
 ---
 
-## 🔑 Temel Bileşenler
+## 🔑 Key Additions
 
-### Retention Katmanı (`MultiScaleRetention`)
+### Retention Layer (`MultiScaleRetention`)
 
-Her başlık için **çok-ölçekli üstel bozunma** uygular, farklı bellek ufuklarını yakalar.
+Implements **multi-scale exponential decays** per head, approximating different memory horizons.
 
-Özyineli durum güncellemesi:
+Recurrent state update:
 
 $$S_t = \alpha \cdot S_{t-1} + h_t$$
 
-Kapı mekanizması ile bağlam harmanlama:
+Gating mechanism for context blending:
 
 $$y_t = \sigma(W_g x_t) \odot \tilde{S}_t + (1 - \sigma(W_g x_t)) \odot x_t$$
 
-Nedensel yapıya sahiptir, opsiyonel padding maski destekler.
+Causal by construction, with optional padding mask.
 
-### Konfigürasyonlu Dikkat Mekanizması
+### Configurable Attention
 
-Standart **Multi-Head Attention (MHA)** veya **Retention** arasında seçim:
+Choose between standard **Multi-Head Attention (MHA)** or **Retention**:
 
 ```toml
 [model]
-attention_kind = "retention"   # "mha" veya "retention"
+attention_kind = "retention"   # "mha" or "retention"
 ```
 
-### Encoder / Decoder Entegrasyonu
+### Encoder / Decoder Integration
 
-- Encoder self-attention: MHA veya Retention
-- Decoder self-attention: MHA veya Retention  
-- Decoder cross-attention: kararlılık için MHA kalır
+- Encoder self-attention: can be MHA or Retention  
+- Decoder self-attention: can be MHA or Retention  
+- Decoder cross-attention: remains MHA for stability  
 
 ---
 
-## 🧠 HaciCognitiveNet – Katmanlı Bilişsel Mimari
+## 🧠 HaciCognitiveNet – Multi-Layered Cognitive Architecture
 
-Retention çekirdeği üzerine inşa edilen tam bir bilişsel sistem: **dünya modelleri**, **kişilik gelişimi**, **sosyal zeka** ve **olumsuz sonuç öğrenme**.
+A complete cognitive system built on top of the retention core, implementing **world models**, **personality development**, **social intelligence**, and **negative outcome learning**.
 
-### Mimari Genel Bakış
+### Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                 SEVİYE 3: META-ÖĞRENME                      │
-│  Meta-Öğrenici │ Dünya Modeli │ Kendiliğinden Evrim        │
+│                    LEVEL 3: META-LEARNING                   │
+│  Meta-Learner │ World Model │ Self-Evolution               │
 ├─────────────────────────────────────────────────────────────┤
-│                  SEVİYE 2: AKTİF ÖĞRENME                    │
-│  Merak Motoru │ Tahminsel Kodlama │ Aktif Zamanlayıcı      │
-│  Kendi Kendine Denetimli Döngü (rüya döngüleri)            │
+│                 LEVEL 2: ACTIVE LEARNING                    │
+│  Curiosity Engine │ Predictive Coding │ Active Scheduler    │
+│  Self-Supervised Loop (dream cycles)                        │
 ├─────────────────────────────────────────────────────────────┤
-│                  SEVİYE 1: ÇEKİRDEK BİLİŞ                   │
-│  Dünya Modeli (512-dim) │ Kişilik (1024-dim) │ Retention   │
-│  Üst-Biliş │ Duygusal Durum                                 │
+│                 LEVEL 1: CORE COGNITION                     │
+│  World Model (512-dim) │ Personality (1024-dim) │ Retention │
+│  Metacognition │ Emotional State                            │
 ├─────────────────────────────────────────────────────────────┤
-│                🤝 SOSYAL ZEKA                               │
-│  Duygusal Zeka │ Kişilik Gelişimi │ Konuşma Zekası         │
-│  🚫 Olumsuz Sonuç Öğrenici (7 sinyal kategorisi)           │
+│              🤝 SOCIAL INTELLIGENCE                         │
+│  Emotional IQ │ Personality Development │ Conversation Intel│
+│  🚫 Negative Outcome Learner (7 signal categories)         │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Seviye 1: Çekirdek Biliş (`cognitive_net.py`)
+### Level 1: Core Cognition (`cognitive_net.py`)
 
-- **DünyaModeli** (512-dim): Fiziksel ve sosyal dünyanın kodlanması
-- **KişilikVektörleri** (1024-dim): 8 başlık × 128 boyut (sıcaklık, empati, mizah, kararlılık, sadakat, oyunculuk, bilgelik, yaramazlık)
-- **ÜstBiliş**: Öğrenme verimliliği, bilgi boşlukları, güven kalibrasyonu öz izlemesi
-- **DuygusalDurum**: Ruh hali, merak, güven, enerji takibi
-- **RetentionÇekirdeği** (4-katmanlı): Öncelik tabanlı geri çağrılı uzun vadeli bellek
+- **WorldModel** (512-dim): Encodes understanding of physical and social world
+- **PersonalityVectors** (1024-dim): 8 heads × 128 dimensions (warmth, empathy, humor, assertiveness, loyalty, playfulness, wisdom, mischief)
+- **Metacognition**: Self-monitoring of learning efficiency, knowledge gaps, confidence
+- **EmotionalState**: Mood, curiosity, confidence, energy tracking
+- **RetentionCore** (4-layer): Long-term memory with priority-based recall
 
-### Seviye 2: Aktif Öğrenme
+### Level 2: Active Learning
 
-- **MerakMotoru** (`curiosity_engine.py`): 28 ilgi konusu, merak puanlama, keşif
-- **TahminselKodlama** (`predictive_coding.py`): Hata tahmini, şaşkınlık tespiti
-- **AktifÖğrenmeZamanlayıcısı** (`active_learning_scheduler.py`): Öncelik tabanlı planlama
-- **KendiKendineDenetimliDöngü** (`self_supervised_loop.py`): Gece rüya döngüleri, kalıp keşfi
+- **CuriosityEngine** (`curiosity_engine.py`): 28 interest topics, curiosity scoring, exploration
+- **PredictiveCoding** (`predictive_coding.py`): Error prediction, surprise detection
+- **ActiveLearningScheduler** (`active_learning_scheduler.py`): Priority scheduling, learning plans
+- **SelfSupervisedLoop** (`self_supervised_loop.py`): Night-time dream cycles, pattern discovery
 
-### Seviye 3: Meta-Öğrenme
+### Level 3: Meta-Learning
 
-- **MetaÖğrenici** (`meta_learner.py`): Strateji seçimi, hiperparametre optimizasyonu
-- **DünyaModeli** (`world_model.py`): Hayal gücü, simülasyon, gelecek tahmini
-- **KendiliğindenEvrim** (`self_evolution.py`): Mimari mutasyon, A/B testi
-- **DuyusalArayüz** (`sensory_interface.py`): Genişletilebilir sensör/aktüatör çerçevesi
+- **MetaLearner** (`meta_learner.py`): Strategy selection, hyperparameter optimization
+- **WorldModel** (`world_model.py`): Imagination, simulation, future prediction
+- **SelfEvolution** (`self_evolution.py`): Architecture mutation, parameter mutation, A/B testing
+- **SensoryInterface** (`sensory_interface.py`): Extensible framework for sensors/actuators
 
-### Sosyal Zeka (`social_trainer.py`)
+### Social Intelligence (`social_trainer.py`)
 
-- **KişilikGelişimi**: 8 özellik — sıcaklık, empati, mizah stili, kararlılık, sadakat, oyunculuk, bilgelik, yaramazlık
-- **KonuşmaZekası**: Stil analizi, etkileşim tipi tespiti, tutarlılık takibi
-- **Gelişim Aşamaları**: bebeklik → çocukluk → ergenlik → yetişkinlik → ustalık
-- **OlumsuzSonuçÖğrenici** (`negative_learner.py`): 7 sinyal kategorisi, otomatik tespit, kalıcı "asla yapma" kuralları
+- **PersonalityDevelopment**: 8 traits (warmth, empathy, humor, assertiveness, loyalty, playfulness, wisdom, mischief)
+- **ConversationIntelligence**: Style analysis, interaction type detection, consistency tracking
+- **Development Stages**: infancy → childhood → adolescence → adulthood → mastery
+- **NegativeOutcomeLearner** (`negative_learner.py`): 7 signal categories, auto-detection, permanent "never do" rules
 
-### Entegrasyon Katmanı 🆕
+### Integration Layer 🆕
 
-- **Bilişselİzleyici** (`cognitive_watcher.py`): Gerçek zamanlı mesaj analizi (<400ms), duygu tespiti, etkileşim sınıflandırma, otomatik kişilik güncelleme
-- **DünyaModeliV2** (`world_model_v2.py`): MEMORY.md'den bilgi grafiği, konu kümeleme, zaman çizelgesi, ilişki haritalama (1554 varlık, 5112 ilişki)
-- **RüyaZamanlayıcısı** (`dream_scheduler.py`): Otomatik gece 03:00 rüya döngüleri, durum konsolidasyonu, rüya kaydı
-- **HaftalıkRapor** (`weekly_report.py`): Kişilik gelişimi, öğrenme özetleri, sosyal zeka istatistikleri
-- **BilişselEntegratör** (`cognitive_integrator.py`): Tüm alt sistemleri birleştiren unified giriş noktası
+- **CognitiveWatcher** (`cognitive_watcher.py`): Real-time message analysis (<400ms), emotion detection, interaction classification, automatic personality updates
+- **WorldModelV2** (`world_model_v2.py`): Knowledge graph from MEMORY.md, topic clustering, timeline events, relationship mapping (1554 entities, 5112 relations)
+- **DreamScheduler** (`dream_scheduler.py`): Automatic nightly dream cycles at 03:00 IST, dream logging, cognitive state updates
+- **WeeklyReport** (`weekly_report.py`): Weekly cognitive development reports (personality, learning, social intelligence, emotions)
+- **CognitiveIntegrator** (`cognitive_integrator.py`): Unified entry point for all subsystems
+
+### Training Results
+
+| Metric | Value |
+|--------|-------|
+| Start Loss | 4.82 |
+| Final Loss | 0.077 |
+| Improvement | 98.4% |
+| Epochs | 39 (early stopping) |
+| Checkpoint | `cognitive_epoch_0039.pt` |
 
 ---
 
-## 🚀 Kullanım
+## 🚀 Usage
 
 ### HaciCognitiveNet CLI
 
 ```bash
-# Eğitim
+# Train cognitive network
 python haci_cognitive/main.py train
 
-# Rüya döngüsü
+# Run dream cycle
 python haci_cognitive/main.py dream
 
-# Sosyal zeka raporu
+# Social intelligence report
 python haci_cognitive/main.py social
 
-# Kişilik gelişimi
+# Personality development status
 python haci_cognitive/main.py personality
 
-# Etkileşim kaydetme
+# Log interaction for learning
 python haci_cognitive/main.py interact
 ```
 
-### Entegrasyon Katmanı
+### Integration Layer
 
 ```bash
-# Alt sistemleri başlat
+# Initialize subsystems
 python haci_cognitive/cognitive_integrator.py init
 
-# Mesaj işle
-python haci_cognitive/cognitive_integrator.py process "Merhaba Başkan"
+# Process message
+python haci_cognitive/cognitive_integrator.py process "Hello there"
 
-# Sistem durumu
+# System status
 python haci_cognitive/cognitive_integrator.py status
 
-# Haftalık rapor
+# Generate weekly report
 python haci_cognitive/cognitive_integrator.py report
 
-# Rüya döngüsü tetikle
+# Trigger dream cycle
 python haci_cognitive/cognitive_integrator.py dream
 
-# Dünya modelini doldur
+# Populate world model
 python haci_cognitive/cognitive_integrator.py populate
 ```
-
-### Eğitim Sonuçları
-
-| Metrik | Değer |
-|--------|-------|
-| Başlangıç Loss | 4.82 |
-| Final Loss | 0.077 |
-| İyileşme | %98.4 |
-| Epoch | 39 (erken durdurma) |
-| Checkpoint | `cognitive_epoch_0039.pt` |
 
 ---
 
 ## 🧩 OpenClaw Retention System
 
-**"Çocuk gibi büyüme" felsefesi ile çalışan otomatik bellek konsolidasyonu ve kişilik öğrenme sistemi.**
+**Automatic memory consolidation and personality learning system with a "grow like a child" philosophy.**
 
-### Bileşenler
+### Components
 
-- ✅ **Otomatik Bellek Konsolidasyonu**: Önemli günlük bellekleri uzun vadeli belleğe aktarma
-- ✅ **Retention Günlük Öğrenme**: Yeni belleklerle kişilik durumunu güncelleme
-- ✅ **FAISS Semantik Arama**: Sentence-transformers + FAISS ile hızlı bellek geri çağırma
-- ✅ **MultiScaleRetention Katmanı**: Bağlam sıkıştırma ile %56.8 token tasarrufu
-- ✅ **Cron Job Otomasyonu**: Günlük konsolidasyon, öğrenme, yeniden indeksleme, otomatik ayarlama
-- ✅ **Kalp Atışı Entegrasyonu**: Her 4. kalp atışında sağlık kontrolü ve aktif öğrenme
-- ✅ **OpenClaw Eklentisi**: Yerel OpenClaw bellek yuvası entegrasyonu
-- ✅ **Dönüştürücü Önem Puanlaması**: Bellek önemini tahminleyen transformer modeli
-- ✅ **Kişilik Durumu Öğrenme**: Bellek kalıplarından uyarlanabilir kişilik gömmeleri
+- ✅ **Automatic Memory Consolidation**: Transfers important daily memories to long-term memory
+- ✅ **Retention Daily Learning**: Updates personality state daily with new memories
+- ✅ **FAISS Semantic Search**: Fast memory recall via sentence-transformers + FAISS
+- ✅ **MultiScaleRetention Layer**: 56.8% token savings with context compression
+- ✅ **Cron Job Automation**: Daily consolidation, learning, reindexing, auto-tuning
+- ✅ **Heartbeat Integration**: Health check and active learning every 4th heartbeat
+- ✅ **OpenClaw Plugin**: Native OpenClaw memory slot integration
+- ✅ **Transformer Importance Scoring**: Transformer model for predicting memory importance
+- ✅ **Personality State Learning**: Adaptive personality embeddings from memory patterns
 
-### Performans
+### Performance
 
-| Metrik | Değer |
+| Metric | Value |
 |--------|-------|
-| Token Tasarrufu | %56.8 (7741 token) |
-| Hız Artışı | 2.3× (FAISS vs lineer arama) |
-| Bellek Türleri | 6 (karar, başarı, ders, tercih, proje, hatırlatıcı) |
-| Geri Çağırma Doğruluğu | ~%85 (semantik benzerlik) |
-| Sorgu Süresi | 0.58ms (ortalama) |
+| Token Savings | 56.8% (7741 tokens) |
+| Speed Increase | 2.3× (FAISS vs linear search) |
+| Memory Types | 6 (decision, achievement, lesson, preference, project, reminder) |
+| Recall Accuracy | ~85% (semantic similarity) |
+| Avg Query Time | 0.58ms |
 
-### Gereksinimler
+### Requirements
 
 ```bash
 pip install torch sentence-transformers faiss-cpu
-# veya GPU için
+# or for GPU
 pip install torch sentence-transformers faiss-gpu
 ```
 
-### OpenClaw Eklentisi
+### OpenClaw Plugin Configuration
 
-`openclaw.json` dosyasına ekleyin:
+Add to your `openclaw.json`:
 
 ```json
 "plugins": {
@@ -225,95 +225,95 @@ pip install torch sentence-transformers faiss-gpu
 }
 ```
 
-### Cron Job'lar
+### Cron Jobs
 
 ```bash
-# Bellek konsolidasyonu (her gün 23:55)
+# Memory consolidation (daily at 23:55)
 55 23 * * * python3 /path/to/run_consolidation.py
 
-# Retention günlük öğrenme (her gün 23:55)
+# Retention daily learning (daily at 23:55)
 55 23 * * * python3 /path/to/retention_daily.py
 
-# FAISS yeniden indeksleme (her gün 02:00)
+# FAISS reindex (daily at 02:00)
 0 2 * * * openclaw haci-memory rebuild
 ```
 
 ---
 
-## ⚡️ Neden Retention?
+## ⚡️ Why Retention?
 
-Attention güçlüdür ancak sekans uzunluğuna göre kuadratik ($O(L^2 \cdot d)$) karmaşıklığa sahiptir ve bağlam penceresi ile sınırlıdır. Retention sunar:
+Attention is powerful but quadratic in sequence length ($O(L^2 \cdot d)$) and limited to its context window. Retention offers:
 
-- **Doğrusal zaman özyinelemesi**: $O(L \cdot d)$
-- **Çıkarımda token başına $O(1)$ bellek**: akış dostu
-- **Uzun vadeli kalıcılık**: çapraz-sekans bellek
-- **Çok-ölçekli kernel'ler**: çeşitli zaman ufuklarını yakalama
+- **Linear-time recurrence**: $O(L \cdot d)$
+- **O(1) memory per token at inference**: streaming-friendly
+- **Long-term persistence**: cross-sequence memory potential
+- **Multi-scale kernels**: capturing diverse time horizons
 
-### Kaynakça
+### References
 
-- [RetNet: Retentive Network](https://arxiv.org/abs/2307.08621) — Sun vd., 2023
+- [RetNet: Retentive Network](https://arxiv.org/abs/2307.08621) — Sun et al., 2023
 - *Attention Is All You Need Until You Need Retention* — arXiv:2501.09166, 2025
 
 ---
 
-## 📂 Proje Yapısı
+## 📂 Project Structure
 
 ```
 arch/
   attentions/
     multi_head_attention.py
-    retention.py           # Retention katmanı
-    __init__.py            # fabrika: make_attention()
+    retention.py           # Retention layer
+    __init__.py            # factory: make_attention()
   encoder/
-    encoder_block.py       # retention desteği
+    encoder_block.py       # retention support
   decoder/
-    decoder_block.py       # retention desteği (self-attn)
+    decoder_block.py       # retention support (self-attn)
 tests/
-  test_retention.py        # retention katman testleri
+  test_retention.py        # retention layer tests
 
 # OpenClaw Retention System
-memory_consolidator.py     # Otomatik bellek konsolidasyonu
-retention_daily.py         # Günlük öğrenme ve kişilik güncellemeleri
-integrate_transformer.py   # Önem puanlaması için transformer entegrasyonu
+memory_consolidator.py     # Automatic memory consolidation
+retention_daily.py         # Daily learning & personality updates
+integrate_transformer.py   # Transformer integration for importance scoring
 simple_memory_transformer.py
-train_memory.py            # Bellek gömme eğitim hattı
-memory_dataset.py          # Bellek gömme veri seti
+train_memory.py            # Memory embedding training pipeline
+memory_dataset.py          # Memory embedding dataset
 
 # HaciCognitiveNet
 haci_cognitive/
-  cognitive_net.py            # Seviye 1: Dünya Modeli, Kişilik, ÜstBiliş, Retention
-  cognitive_state_manager.py  # Durum yönetimi
-  cognitive_trainer.py        # Eğitim hattı
-  dreaming_loop.py            # Gece rüya döngüleri
-  curiosity_engine.py         # Seviye 2: Merak güdümlü keşif
-  predictive_coding.py        # Hata tahmini ve şaşkınlık tespiti
-  active_learning_scheduler.py # Öncelik tabanlı öğrenme planlaması
-  self_supervised_loop.py     # Kendi kendine denetimli öğrenme
-  meta_learner.py             # Seviye 3: Strateji seçimi
-  world_model.py              # Dünya simülasyonu ve hayal gücü
-  self_evolution.py           # Mimari mutasyon
-  sensory_interface.py        # Duyusal arayüz çerçevesi
-  social_trainer.py           # Sosyal Zeka: Duygusal zeka, kişilik gelişimi
-  negative_learner.py         # Olumsuz sonuç öğrenme (7 sinyal kategorisi)
-  world_model_v2.py           # Bilgi grafiği ve varlık çıkarımı
-  cognitive_watcher.py        # Gerçek zamanlı mesaj analizi
-  dream_scheduler.py          # Otomatik rüya zamanlayıcısı
-  weekly_report.py            # Haftalık gelişim raporu
-  cognitive_integrator.py     # Unified entegratör
-  extract_conversations.py    # Konuşma verisi çıkarımı
-  main.py                     # CLI arayüzü
+  cognitive_net.py            # Level 1: World Model, Personality, Metacognition, Retention
+  cognitive_state_manager.py  # State persistence and management
+  cognitive_trainer.py        # Training pipeline
+  dreaming_loop.py            # Night-time dream cycles
+  curiosity_engine.py         # Level 2: Curiosity-driven exploration (28 topics)
+  predictive_coding.py        # Error prediction and surprise detection
+  active_learning_scheduler.py # Priority-based learning scheduling
+  self_supervised_loop.py     # Self-supervised learning and pattern discovery
+  meta_learner.py             # Level 3: Strategy selection
+  world_model.py              # World simulation and imagination
+  self_evolution.py           # Architecture mutation and self-improvement
+  sensory_interface.py        # Extensible sensor/actuator framework
+  social_trainer.py           # Social Intelligence: Emotional IQ, personality development
+  negative_learner.py         # Negative outcome learning (7 signal categories)
+  world_model_v2.py           # Knowledge graph and entity extraction
+  cognitive_watcher.py        # Real-time message analysis
+  dream_scheduler.py          # Automatic dream scheduler
+  weekly_report.py            # Weekly development report
+  cognitive_integrator.py     # Unified integrator
+  extract_conversations.py    # Conversation data extraction
+  main.py                     # CLI interface
 ```
 
 ---
 
-## 📜 Lisans
+## 🙏 Credits
 
-Bu depo, orijinal deponun lisansını devam ettirir. Bakınız: `LICENSE` in [MayukhSobo/Transformer](https://github.com/MayukhSobo/Transformer).
+- Original Transformer implementation: [MayukhSobo/Transformer](https://github.com/MayukhSobo/Transformer)
+- Retention concepts: Sun et al., *Retentive Network: A Successor to Transformer for Large Language Models*, 2023
+- OpenClaw Retention System: Developed for [OpenClaw AI Assistant](https://openclaw.ai)
 
 ---
 
-## 🙏 Teşekkürler
+## 📜 License
 
-- Orijinal Transformer implementasyonu: [MayukhSobo/Transformer](https://github.com/MayukhSobo/Transformer)
-- Retention konseptleri: Sun vd., *Retentive Network: A Successor to Transformer for Large Language Models*, 2023
-- OpenClaw Retention System: OpenClaw AI Assistant için geliştirildi (https://openclaw.ai)
+This fork inherits the license of the original repo. See `LICENSE` in [MayukhSobo/Transformer](https://github.com/MayukhSobo/Transformer).
