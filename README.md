@@ -234,7 +234,92 @@ train_memory.py            # Training pipeline for memory embeddings
 memory_dataset.py          # Memory embeddings dataset
 config.yaml               # OpenClaw retention system configuration
 checkpoints/              # Trained model checkpoints (git-ignored)
+
+# HaciCognitiveNet Files
+haci_cognitive/
+  cognitive_net.py            # Level 1: World Model, Personality, Metacognition, Retention Core
+  cognitive_state_manager.py  # State persistence and management
+  cognitive_trainer.py        # Training pipeline for cognitive network
+  dreaming_loop.py            # Night-time dream cycles and consolidation
+  curiosity_engine.py         # Level 2: Curiosity-driven exploration (28 topics)
+  predictive_coding.py        # Error prediction and surprise detection
+  active_learning_scheduler.py # Priority-based learning scheduling
+  self_supervised_loop.py     # Self-supervised learning and pattern discovery
+  meta_learner.py             # Level 3: Strategy selection and hyperparameter optimization
+  world_model.py              # World simulation, imagination, future prediction
+  self_evolution.py           # Architecture mutation and self-improvement
+  sensory_interface.py        # Extensible sensor/actuator framework
+  social_trainer.py           # Social Intelligence: Emotional IQ, personality development
+  negative_learner.py         # Negative outcome learning (7 signal categories)
+  extract_conversations.py    # Conversation data extraction for training
+  main.py                     # CLI interface (train, dream, social, personality, interact)
 ```
+
+---
+
+## 🧠 HaciCognitiveNet – Multi-Layered Cognitive Architecture
+
+A complete cognitive system built on top of the retention core, implementing **world models**, **personality development**, **social intelligence**, and **negative outcome learning**.
+
+### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    LEVEL 3: META-LEARNING                   │
+│  Meta-Learner │ World Model │ Self-Evolution               │
+├─────────────────────────────────────────────────────────────┤
+│                 LEVEL 2: ACTIVE LEARNING                    │
+│  Curiosity Engine │ Predictive Coding │ Active Scheduler    │
+│  Self-Supervised Loop (dream cycles)                        │
+├─────────────────────────────────────────────────────────────┤
+│                 LEVEL 1: CORE COGNITION                     │
+│  World Model (512-dim) │ Personality (1024-dim) │ Retention │
+│  Metacognition │ Emotional State                            │
+├─────────────────────────────────────────────────────────────┤
+│              🤝 SOCIAL INTELLIGENCE                         │
+│  Emotional IQ │ Personality Development │ Conversation Intel│
+│  🚫 Negative Outcome Learner (7 signal categories)         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Level 1: Core Cognition (`cognitive_net.py`)
+- **WorldModel** (512-dim): Encodes understanding of physical and social world
+- **PersonalityVectors** (1024-dim): 8 heads × 128 dimensions for personality traits
+- **Metacognition**: Self-monitoring of learning efficiency, knowledge gaps, confidence
+- **EmotionalState**: Mood, curiosity, confidence, energy tracking
+- **RetentionCore** (4-layer): Long-term memory with priority-based recall
+
+### Level 2: Active Learning
+- **CuriosityEngine** (`curiosity_engine.py`): 28 interest topics, curiosity scoring, exploration
+- **PredictiveCoding** (`predictive_coding.py`): Error prediction, surprise detection
+- **ActiveLearningScheduler** (`active_learning_scheduler.py`): Priority scheduling, learning plans
+- **SelfSupervisedLoop** (`self_supervised_loop.py`): Night-time dream cycles, pattern discovery
+
+### Level 3: Meta-Learning
+- **MetaLearner** (`meta_learner.py`): Strategy selection, hyperparameter optimization
+- **WorldModel** (`world_model.py`): Imagination, simulation, future prediction
+- **SelfEvolution** (`self_evolution.py`): Architecture mutation, parameter mutation, A/B testing
+- **SensoryInterface** (`sensory_interface.py`): Extensible framework for sensors/actuators
+
+### Social Intelligence (`social_trainer.py`)
+- **PersonalityDevelopment**: 8 traits (warmth, empathy, humor, assertiveness, loyalty, playfulness, wisdom, mischief)
+- **ConversationIntelligence**: Style analysis, interaction type detection, consistency tracking
+- **Development Stages**: infancy → childhood → adolescence → adulthood → mastery
+- **NegativeOutcomeLearner** (`negative_learner.py`): 7 signal categories, auto-detection, permanent "never do" rules
+
+### CLI Interface (`main.py`)
+```bash
+python haci_cognitive/main.py train    # Train cognitive network
+python haci_cognitive/main.py dream    # Run dream cycle
+python haci_cognitive/main.py social   # Social intelligence report
+python haci_cognitive/main.py personality  # Personality development status
+python haci_cognitive/main.py interact # Log interaction for learning
+```
+
+### Training Results
+- **Loss:** 4.82 → 0.077 (98.4% improvement)
+- **Epochs:** 39 (early stopping)
+- **Checkpoint:** `cognitive_epoch_0039.pt`
 
 ---
 
