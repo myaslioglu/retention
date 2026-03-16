@@ -1,93 +1,62 @@
 #!/usr/bin/env python3
 """
-PRODUCTION MEMORY CONSOLIDATION SCRIPT
-Enhanced memory consolidator with all FAZ 1 improvements + Multi-modal
+RUN MEMORY CONSOLIDATION
+Cron job tarafından çalıştırılacak script
 """
 
 import sys
 import os
-import json
 from pathlib import Path
-from datetime import datetime
+import importlib.util
+import importlib.machinery
 
 # Add workspace to path
-sys.path.insert(0, str(Path(__file__).parent))
+workspace_path = "/Users/muratyaslioglu/.openclaw/workspace"
+sys.path.append(workspace_path)
 
-from memory_consolidator import MemoryConsolidator
-from learning_topics_manager import LearningTopicsManager
-from multimodal_memory_manager import MultiModalMemoryManager
-
-def run_production_consolidation():
-    """Run production consolidation with enhanced features"""
+# Import the consolidator (v2 version)
+try:
+    # The actual file is memory_consolidator.py.v2
+    module_path = os.path.join(workspace_path, "memory_consolidator.py.v2")
+    module_name = "memory_consolidator_v2"
     
-    print("🚀 PRODUCTION MEMORY CONSOLIDATION")
-    print("=" * 60)
+    # Use SourceFileLoader to load from file with any extension
+    loader = importlib.machinery.SourceFileLoader(module_name, module_path)
+    spec = importlib.util.spec_from_loader(module_name, loader)
+    if spec is None:
+        raise ImportError(f"Could not create spec for {module_path}")
     
-    # 1. Initialize consolidator
-    consolidator = MemoryConsolidator()
+    consolidator_module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = consolidator_module
+    spec.loader.exec_module(consolidator_module)
     
-    # 2. Initialize learning topics manager
-    print("\n🧠 Loading Learning Topics Manager...")
-    topics_manager = LearningTopicsManager()
-    
-    # 3. Apply interest decay (daily)
-    topics_manager.decay_interests(daily_decay=0.02)
-    
-    # 4. Initialize and integrate multimodal memories
-    print("\n🎭 Loading Multi-modal Memory Manager...")
-    multimodal_manager = MultiModalMemoryManager()
-    
-    # Integrate multimodal memories into consolidation
-    multimodal_integrated = multimodal_manager.integrate_with_consolidator(
-        consolidator, 
-        days_back=3
-    )
-    
-    # 5. Run consolidation (3 days back, threshold 0.25)
-    print("\n📦 Running Enhanced Consolidation...")
-    consolidator.consolidate(days_back=3, importance_threshold=0.25)
-    
-    # 6. Learning topics newsletter (weekly on Sunday)
-    today = datetime.now()
-    if today.weekday() == 6:  # Sunday
-        print("\n📧 Generating Weekly Learning Newsletter...")
-        newsletter = topics_manager.generate_weekly_newsletter()
-        
-        # Save newsletter
-        newsletter_file = Path("memory") / f"newsletter_{today.strftime('%Y-%m-%d')}.md"
-        with open(newsletter_file, 'w', encoding='utf-8') as f:
-            f.write(newsletter)
-        
-        print(f"   ✅ Newsletter saved: {newsletter_file}")
-        topics_manager.mark_newsletter_sent()
-    else:
-        print("\n📭 Newsletter not today (only Sundays)")
-    
-    # 7. Memory health check
-    print("\n🔍 Memory Health Check...")
-    mem_file = Path("MEMORY.md")
-    multimodal_meta = Path("memory/multimodal/multimodal_metadata.json")
-    
-    if mem_file.exists():
-        with open(mem_file, 'r') as f:
-            content = f.read()
-        
-        # Count memories
-        memory_count = content.count('### ')
-        print(f"   📊 Total long-term memories: {memory_count}")
-        
-        # Check multimodal stats
-        if multimodal_meta.exists():
-            with open(multimodal_meta, 'r') as f:
-                mm_data = json.load(f)
-            print(f"   🎭 Multi-modal memories: {mm_data['stats']['total_processed']}")
-            print(f"     • Audio: {mm_data['stats']['total_audio']}")
-            print(f"     • Images: {mm_data['stats']['total_images']}")
-            print(f"     • Videos: {mm_data['stats']['total_videos']}")
-    
-    print("\n" + "=" * 60)
-    print("✅ PRODUCTION CONSOLIDATION COMPLETED!")
-    print("=" * 60)
+    MemoryConsolidator = consolidator_module.MemoryConsolidator
+except Exception as e:
+    print(f"❌ Error loading consolidator: {e}")
+    import traceback
+    traceback.print_exc()
+    sys.exit(1)
 
 if __name__ == "__main__":
-    run_production_consolidation()
+    print("🕒 Scheduled memory consolidation starting...")
+    consolidator = MemoryConsolidator()
+    consolidator.run_scheduled_consolidation()
+    
+    # WorldModel sync after consolidation
+    print("\n🔄 Syncing WorldModel with new memories...")
+    try:
+        from haci_cognitive.world_model_sync import sync
+        result = sync(workspace_path)
+        print(f"✅ WorldModel sync: {result.get('status', 'done')}")
+    except Exception as e:
+        print(f"⚠️ WorldModel sync error: {e}")
+    
+    # Memory clustering
+    print("\n🏷️ Clustering memories...")
+    try:
+        from haci_cognitive.memory_clusterer import MemoryClusterer
+        clusterer = MemoryClusterer(workspace_path)
+        result = clusterer.cluster_all()
+        print(f"✅ Clustering: {result.get('processed', 0)} files processed")
+    except Exception as e:
+        print(f"⚠️ Clustering error: {e}")

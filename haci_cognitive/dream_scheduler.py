@@ -243,9 +243,76 @@ class DreamScheduler:
         # 5. Cognitive state güncelle
         self._update_cognitive_state(result)
         
+        # 6. MEMORY.md'ye dream insights yaz
+        if result.get('insights') or result.get('connections'):
+            self._append_dream_insights_to_memory(result)
+        
         logger.info(f"🌙 === DREAM CYCLE TAMAMLANDI ({result['status']}, {result['duration_sec']}s) ===")
         
         return result
+    
+    def _append_dream_insights_to_memory(self, dream_result: Dict):
+        """Dream cycle sonuçlarını MEMORY.md'ye ekle."""
+        memory_file = self.workspace / "MEMORY.md"
+        
+        now = datetime.now()
+        date_str = now.strftime("%Y-%m-%d")
+        time_str = now.strftime("%H:%M")
+        
+        lines = []
+        lines.append(f"\n## 🌙 Dream Insights - {date_str}\n")
+        lines.append(f"**Tarih:** {date_str} {time_str} | **Döngü:** #{self.schedule.get('total_cycles', 0)} | **Süre:** {dream_result.get('duration_sec', 0)}s\n")
+        
+        # Insights
+        insights = dream_result.get('insights', [])
+        if insights:
+            lines.append("### 💡 Yeni Insight'lar\n")
+            for i, insight in enumerate(insights, 1):
+                if isinstance(insight, dict):
+                    text = insight.get('text', insight.get('content', str(insight)))
+                    confidence = insight.get('confidence', insight.get('score', ''))
+                    conf_str = f" (güven: {confidence:.0%})" if isinstance(confidence, (int, float)) else ""
+                    lines.append(f"{i}. {text}{conf_str}")
+                else:
+                    lines.append(f"{i}. {insight}")
+            lines.append("")
+        
+        # Connections
+        connections = dream_result.get('connections', [])
+        if connections:
+            lines.append("### 🔗 Yeni Bağlantılar\n")
+            for conn in connections:
+                if isinstance(conn, dict):
+                    src = conn.get('source', conn.get('a', ''))
+                    dst = conn.get('target', conn.get('b', ''))
+                    rel = conn.get('relation', conn.get('type', 'ilişkili'))
+                    lines.append(f"- **{src}** → {rel} → **{dst}**")
+                else:
+                    lines.append(f"- {conn}")
+            lines.append("")
+        
+        # Phases
+        phases = dream_result.get('phases', [])
+        if phases:
+            phase_names = {
+                'consolidate': '🗜️ Sıkıştırma',
+                'explore': '🔍 Keşif',
+                'generalize': '🧩 Genelleme',
+                'prune': '✂️ Temizleme',
+            }
+            phase_str = ", ".join(phase_names.get(p, p) for p in phases)
+            lines.append(f"**Fazlar:** {phase_str}\n")
+        
+        lines.append("---\n")
+        
+        # Dosyaya ekle
+        try:
+            content = memory_file.read_text(encoding='utf-8') if memory_file.exists() else "# 🧠 MEMORY - Hacı\n"
+            content += "\n" + "\n".join(lines)
+            memory_file.write_text(content, encoding='utf-8')
+            logger.info(f"📝 Dream insights MEMORY.md'ye eklendi ({len(insights)} insight)")
+        except Exception as e:
+            logger.warning(f"MEMORY.md yazma hatası: {e}")
     
     def _update_cognitive_state(self, dream_result: Dict):
         """Cognitive state dosyasını rüya sonuçlarıyla güncelle."""
