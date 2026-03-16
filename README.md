@@ -2,10 +2,13 @@
 
 **Transformer + Retention Layer + OpenClaw Retention System + HaciCognitiveNet**
 
-This project extends [MayukhSobo/Transformer](https://github.com/MayukhSobo/Transformer) by adding a **Retention Layer**, inspired by the paper:
+The core Transformer architecture in this repository is built from scratch based on the seminal paper:
 
-> **Attention Is All You Need Until You Need Retention**  
-> arXiv:2501.09166 (2025)
+> **Attention Is All You Need** — Vaswani et al., 2017
+
+[MayukhSobo/Transformer](https://github.com/MayukhSobo/Transformer) provides a clean Python implementation of this paper (originally as Jupyter notebooks). This project uses that codebase as a foundation and extends it with a **Retention Layer**, based on:
+
+> **Attention Is All You Need Until You Need Retention** — arXiv:2501.09166, 2025
 
 The Retention Layer replaces or augments standard self-attention with a recurrent memory mechanism that captures **long-term dependencies** and allows for **persistent memory** beyond the fixed context window.
 
@@ -251,8 +254,9 @@ Attention is powerful but quadratic in sequence length ($O(L^2 \cdot d)$) and li
 
 ### References
 
+- **Attention Is All You Need** — Vaswani et al., NeurIPS 2017. [arXiv:1706.03762](https://arxiv.org/abs/1706.03762). The foundational Transformer paper.
 - [RetNet: Retentive Network](https://arxiv.org/abs/2307.08621) — Sun et al., 2023
-- *Attention Is All You Need Until You Need Retention* — arXiv:2501.09166, 2025
+- **Attention Is All You Need Until You Need Retention** — arXiv:2501.09166, 2025
 
 ---
 
@@ -308,9 +312,10 @@ haci_cognitive/
 
 ## 🙏 Credits
 
-- Original Transformer implementation: [MayukhSobo/Transformer](https://github.com/MayukhSobo/Transformer)
-- Retention concepts: Sun et al., *Retentive Network: A Successor to Transformer for Large Language Models*, 2023
-- OpenClaw Retention System: Developed for [OpenClaw AI Assistant](https://openclaw.ai)
+- **Vaswani et al.** — *Attention Is All You Need* (2017). The original Transformer paper that this entire architecture is built upon.
+- [MayukhSobo/Transformer](https://github.com/MayukhSobo/Transformer) — Python implementation of the original Transformer paper. MayukhSobo translated the "Attention Is All You Need" paper into working code (Jupyter notebooks). We built on top of this codebase.
+- **Sun et al.** — *RetNet: Retentive Network* (2023) and *Attention Is All You Need Until You Need Retention* (2025). The theoretical foundation for our Retention Layer.
+- **OpenClaw** — [OpenClaw AI Assistant](https://openclaw.ai). Platform for the Retention System and HaciCognitiveNet integration.
 
 ---
 
