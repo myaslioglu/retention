@@ -1,0 +1,26 @@
+# Logs
+*.log
+watcher.log
+watcher_error.log
+
+# Memory files
+memory/
+
+# OpenClaw config
+.openclaw/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

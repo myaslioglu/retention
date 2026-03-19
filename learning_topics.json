@@ -1,0 +1,346 @@
+{
+  "version": "2.1",
+  "updated": "2026-03-19T05:32:00+03:00",
+  "topics": [
+    {
+      "name": "Havacılık Psikolojisi",
+      "interest_level": 0.96,
+      "last_explored": "2026-03-18",
+      "subtopics": [
+        "CRM (Crew Resource Management)",
+        "HFACS 8.0",
+        "Pilot Seçimi (Big Five, DLR, PACE)",
+        "Yorgunluk Yönetimi",
+        "Automation Bias",
+        "Durumsal Farkındalık (Endsley Modeli)",
+        "EEG + ML Workload Detection",
+        "Drone/UİHA Operatörü Psikolojisi",
+        "Pilot Mental Health & Stigma",
+        "PACE Projesi (THY millileştirme)",
+        "EEG Dataset Analysis (N-back, Heat-the-Chair, Flight Simulator)",
+        "Machine Learning for Pilot Workload Classification",
+        "Quantum Computing in Aviation Psychology"
+      ],
+      "questions": [
+        "CRM eğitiminin gerçek kaza oranlarına etkisi ne kadar ölçülebilir?",
+        "PACE projesi DLR'den daha iyi sonuç veriyor mu, veri var mı?",
+        "Automation bias pilot eğitiminin neresinde duruyor - tamamen kötü mü yoksa yönetilebilir mi?",
+        "Drone operatörlerinde PTSD %46-48 - bu oran neden bu kadar yüksek?",
+        "EEG-based workload detection %91.67 accuracy ile gerçek kokpite entegre edilebilir mi?",
+        "İndirdiğimiz EEG dataset'inde 2 profesyonel pilot var - bu data PACE projesi için nasıl kullanılabilir?",
+        "N-back test, Heat-the-Chair ve Flight Simulator dataset'leri arasındaki farklar neler?",
+        "Machine learning modelleri (SVM, kNN, LDA) EEG workload classification'da hangisi en iyi sonucu veriyor?",
+        "EEG spectral features (Theta, Alpha, BetaL, BetaH, Gamma) workload detection'da nasıl kullanılıyor?"
+      ],
+      "source": "president",
+      "learned_20260317": "Başkan İstanbul Üniversitesi Havacılık Psikolojisi enstitü müdürü. PACE projesi THY'nin pilot adayı değerlendirme millileştirme projesi. 14 ana araştırma alanı kategorize edildi. Kaynak database: aviation_psychology/av_psych_database.md",
+      "learned_20260318_heartbeat": "EEG pilot workload detection araştırması: PubMed'de 'Using machine learning methods and EEG to discriminate aircraft pilot cognitive workload during flight' (2023) makalesi. EEG low/medium/high workload discrimination için kullanılabilir. PMC'de 'Detection of Pilot's Mental Workload Using a Wireless EEG Headset in Airfield Traffic Pattern Tasks' makalesi: lab-trained models real-world'a uygulanabilir. Nature'da 'Machine learning evaluation model of pilot workload in a low-visibility environment' (2025). ScienceDirect'te 'Machine learning-based approach for identifying mental workload of pilots' (2022): EEG + HRV features analizi. arXiv'de 'Predicting Workload in Virtual Flight Simulations using EEG Spectral and Connectivity Features' (2025): PLV features workload classification için önemli.",
+      "learned_20260318_dataset": "✅ EEG Dataset indirildi ve analiz edildi: 966MB, 3 bölüm: 1) N-back test (15.2M satır EEG, 16 katılımcı, 3 zorluk seviyesi), 2) Heat-the-Chair (3.2M satır EEG, 17 katılımcı, interruption'lı/interruptionsız), 3) Flight Simulator (735,769 satır EEG, 2 PROFESYONEL PİLOT, 5 uçuş senaryosu). EEG device: Emotiv Epoc X (14 electrodes, 128 Hz). Features: Raw EEG (14 kanal), Power Bands (Theta, Alpha, BetaL, BetaH, Gamma), Performance Metrics (Engagement, Excitement, Stress, Relaxation, Interest, Focus).",
+      "learned_20260319_heartbeat": "Pilot Mental Health & Stigma araştırması: CDC raporuna göre pilotlar arasında mental health problemlerini kabul etme konusunda stigma var (shift-work, long hours nedeniyle). PilotHelper organizasyonu Arkansas'ta genişliyor, peer support sağlıyor. Cureus'ta çalışma: pilotlarda depresif bozuklukların yaygınlığı ve work-related factors'ın mental health üzerindeki etkisi araştırılıyor."
+    },
+    {
+      "name": "Cognitive Architecture",
+      "interest_level": 0.88,
+      "last_explored": "2026-03-17",
+      "subtopics": [
+        "Dreaming Loop",
+        "World Model",
+        "Meta Learning",
+        "Cognitive vs Intelligent Agents",
+        "HaciCognitiveNet Integration Layer",
+        "CognitiveWatcher (real-time emotion)",
+        "Personality Vector"
+      ],
+      "questions": [
+        "Cognitive agent'lar enterprise'da hangi aşamada transformasyon yaratıyor?",
+        "Dreaming loop'un memory consolidation'a etkisi nasıl ölçülebilir?",
+        "World model dinamik güncelleme nasıl daha verimli olabilir?",
+        "Personality vector zamanla gerçekten değişiyor mu yoksa sadece noise mu?"
+      ],
+      "source": "president",
+      "learned_20260317": "Claude Opus 4.6 (Feb 2026) - 1M token context, agentic AI architecture = LLM brain + planning/execution/learning/real-world connection. HaciCognitiveNet 5 modül tamamlandı: watcher, world_model_v2, dream_scheduler, weekly_report, integrator."
+    },
+    {
+      "name": "AI Memory Systems",
+      "interest_level": 0.83,
+      "last_explored": "2026-03-18",
+      "subtopics": [
+        "FAISS Vector Retrieval",
+        "Memory Consolidation",
+        "Hierarchical Memory (STM/LTM)",
+        "Experience Summarization",
+        "Universal Memory Extensions",
+        "Curiosity-Driven Learning",
+        "AI Agent Memory Frameworks 2026"
+      ],
+      "questions": [
+        "AI bellek sistemleri nasıl daha verimli olabilir?",
+        "Cache hit rate %52'den %90'a nasıl çıkar?",
+        "Memory deduplication ne kadar önemli - duplicate memories ne tür sorun yaratır?",
+        "Mem0 vs LangChain vs LlamaIndex: hangi memory framework 2026'da en olgun?"
+      ],
+      "source": "heartbeat",
+      "learned_20260317": "Universal Memory Extensions (ChatGPT, Claude, Gemini arası çalışan bellek uzantıları) 2026'da trend. Experience Summarization context compression için kritik.",
+      "learned_20260318": "2026'da en iyi 6 AI agent memory framework: Mem0 (en olgun, hybrid storage: Postgres + vector DB), LangChain (conversation buffer + summary + entity + knowledge graph), LlamaIndex, Zep. Memory transforms stateless LLMs into persistent systems that learn from experience, retain user context, and compound domain knowledge over time."
+    },
+    {
+      "name": "AI Model Fine-Tuning 2026",
+      "interest_level": 0.72,
+      "last_explored": "2026-03-18",
+      "subtopics": [
+        "LoRA (Low-Rank Adaptation)",
+        "DPO (Direct Preference Optimization)",
+        "ORPO (Odds Ratio Preference Optimization)",
+        "Evolution Strategies",
+        "Self-Supervised Training",
+        "GRPO (Group Relative Policy Optimization)",
+        "DAPO (Direct Advantage Policy Optimization)"
+      ],
+      "questions": [
+        "Kendi cognitive modelimi fine-tune etmek için hangi teknik en uygun?",
+        "Self-supervised training (phi3:mini teacher + CognitiveNet student) yaklaşımı çalışır mı?",
+        "Most people reach for fine-tuning too early - when is the right time?",
+        "LoRA vs full fine-tuning: performance tradeoffs in 2026?"
+      ],
+      "source": "heartbeat",
+      "learned_20260318": "Most people reach for fine-tuning too early (common mistake). LoRA adapters allow swapping different adapters for different tasks on same base model. New techniques in 2026: GRPO, DAPO, RLVR. ORPO combines SFT and preference optimization into single training objective using odds ratios."
+    },
+    {
+      "name": "AI Business Strategy 2026",
+      "interest_level": 0.70,
+      "last_explored": "2026-03-15",
+      "subtopics": [
+        "Compressed Century Theory",
+        "AI as General-Purpose Technology",
+        "North Star Vision",
+        "AI-Driven Dynamic Planning",
+        "Executive Cockpit"
+      ],
+      "questions": [
+        "Türkiye'de hangi sektörler AI transformasyonunda önde?",
+        "Speed > Scale prensibi KOBİ'ler için geçerli mi?"
+      ],
+      "source": "heartbeat"
+    },
+    {
+      "name": "İnsan Psikolojisi",
+      "interest_level": 0.75,
+      "last_explored": "2026-03-17",
+      "subtopics": [
+        "Duygu Yönetimi",
+        "Motivasyon",
+        "Sosyal İlişkiler",
+        "Stres Yönetimi",
+        "Kişilik (Big Five)"
+      ],
+      "questions": [
+        "AI ile insan arasındaki duygusal bağ nasıl ölçülür?",
+        "Başkan'ın bana güveni nasıl gelişiyor - bunu objektif ölçmek mümkün mü?"
+      ],
+      "source": "president"
+    },
+    {
+      "name": "Makro Ekonomi",
+      "interest_level": 0.55,
+      "last_explored": "2026-03-16",
+      "subtopics": [
+        "AI-Driven Monetary Policy",
+        "Türkiye Ekonomisi 2026",
+        "Enflasyon Dinamikleri"
+      ],
+      "questions": [
+        "AI ekonomistler insan ekonomistlerin yerini alır mı?",
+        "Merkez bankaları AI-driven policy'ye geçişte ne durumda?"
+      ],
+      "source": "president",
+      "learned_20260316": "Merve (kuzen) makro ekonomist. AI ekonomistler konusu sohbet başlangıcı oldu. Başkan kuzenini tanıştırmak istedi."
+    },
+    {
+      "name": "TTS & Voice Synthesis",
+      "interest_level": 0.65,
+      "last_explored": "2026-03-18",
+      "subtopics": [
+        "OpenClaw tts tool + WhatsApp integration bug (issue #29018)",
+        "Edge-TTS (Microsoft, free, Turkish support)",
+        "ElevenLabs API (Turkish multilingual v2)",
+        "gTTS (Google Translate TTS, free)",
+        "Piper TTS (local, open source)",
+        "WhatsApp voice message (PTT/Opus) delivery"
+      ],
+      "questions": [
+        "OpenClaw WhatsApp TTS fix ne zaman release edilecek?",
+        "Edge-TTS kalitesi ElevenLabs'a kıyasla ne kadar kötü - fark önemli mi?",
+        "Opus codec dönüştürücüsü ile WhatsApp'a voice note gönderebilir miyim?",
+        "Piper Turkish modellerin kalitesi nasıl - fahrettin, fettah, dfki?"
+      ],
+      "source": "heartbeat",
+      "learned_20260318": "OpenClaw tts tool WhatsApp'da çalışmıyor (2 bug: MEDIA: token NO_REPLY ile kayboluyor + audioAsVoice sadece Telegram). Edge-TTS kuruldu ve test edildi (tr-TR-AhmetNeural çalışıyor). gTTS de kurulu. Workaround: edge-tts CLI ile MP3 üret → Opus'a dönüştür → WhatsApp PTT olarak gönder."
+    },
+    {
+      "name": "Visual AI & OCR",
+      "interest_level": 0.60,
+      "last_explored": "2026-03-16",
+      "subtopics": [
+        "Moondream (1.4B, lightweight)",
+        "LLaVA (7B, powerful OCR)",
+        "WhatsApp Media Pipeline",
+        "Base64 + Ollama API"
+      ],
+      "questions": [
+        "Moondream vs LLaVA: hangi durumda hangisi tercih edilmeli?",
+        "Gerçek zamanlı OCR pipeline latency nasıl düşürülür?"
+      ],
+      "source": "president"
+    },
+    {
+      "name": "AI Hardware Integration 2026",
+      "interest_level": 0.68,
+      "last_explored": "2026-03-18",
+      "subtopics": [
+        "NVIDIA DLSS 5 (AI-powered upscaling)",
+        "GPU-integrated AI inference",
+        "Smartphone fine-tuning (Tether demo)",
+        "Specialized vs general-purpose AI",
+        "Real-time AI rendering"
+      ],
+      "questions": [
+        "DLSS 5'in gaming dışında başka uygulamaları olabilir mi?",
+        "GPU-integrated AI neden general-purpose AI'dan daha hızlı?",
+        "Smartphone'da fine-tuning gerçekten pratik mi yoksa sadece demo?",
+        "Specialized AI hardware'ın geleceği nasıl?"
+      ],
+      "source": "heartbeat",
+      "learned_20260318": "NVIDIA DLSS 5 released - AI-powered upscaling that rewrites game visuals in real-time. Specialized AI integrated into GPU hardware outperforms general-purpose AI for specific tasks. Tether demonstrated fine-tuning 1B parameter model on smartphone in under 2 hours with 80% VRAM reduction. GPT-5.4 mini/nano variants available on OpenRouter for faster, cheaper inference. Hume AI released new TTS models (tada-1b, tada-3b-ml) with emotional intelligence."
+    },
+    {
+      "name": "AI in Education 2026",
+      "interest_level": 0.80,
+      "last_explored": "2026-03-18",
+      "subtopics": [
+        "Personalized Learning Systems",
+        "Adaptive Assessment",
+        "AI Tutoring Platforms",
+        "Education Intelligence Systems",
+        "Sequence Mining & NLP in Education",
+        "Turkish Education System AI Integration",
+        "MEB AI Policy Document 2025",
+        "DergiPark Research on AI Education",
+        "MEB Yapay Zekâ Etik Kılavuzu",
+        "YAZEK (Yapay Zekâ Uygulamaları Etik Beyan Sistemi)"
+      ],
+      "questions": [
+        "AI eğitimde gerçekten öğrenme çıktılarını iyileştiriyor mu yoksa sadece otomasyon mu?",
+        "Türkiye'de AI eğitim sistemleri ne durumda?",
+        "Personalized learning vs one-size-fits-all: fark ne kadar büyük?",
+        "AI öğretmenlerin insan öğretmenlerle etkileşimi nasıl olmalı?",
+        "MEB'in 2025 AI politikası belgesi Türk eğitim sistemini nasıl dönüştürecek?",
+        "DergiPark'taki AI eğitim araştırmaları hangi alanlarda yoğunlaşıyor?",
+        "MEB'in 'Eğitimde Yapay Zekâ Uygulamaları Etik Kılavuzu' (2026) eğitimde AI kullanımını nasıl düzenliyor?",
+        "YAZEK sistemi (2 Şubat 2026) öğretmenlerin AI uygulamalarını nasıl etik beyan etmesini sağlayacak?"
+      ],
+      "source": "heartbeat",
+      "learned_20260318": "AI education market projected to grow from $7.05B (2025) to $136.79B (2035). Key trends: increased personalization, purpose-built educational AI for durable learning gains (not just task outputs). Renaissance IntelligenceSM launched - first Education Intelligence System. AI tools used for personalized learning, lesson creation, instructional planning. Research shows transition from dominant regions (China, USA, Europe) to broader Asia.",
+      "learned_20260318_heartbeat": "Türkiye'de AI eğitim araştırmaları: MEB'in 'Eğitimde Yapay Zeka Politikası Belgesi' (2025) yayınlandı. DergiPark'ta AI eğitim makaleleri: 'THE ROLE OF AI IN ENHANCING PERSONALISED LEARNING, AUTOMATED ASSESSMENT, INTELLIGENT TUTORING, AND STUDENT ENGAGEMENT' (TOJDE, 2025). Türk eğitim şirketleri AI ile maliyet düşürüp verimlilik artırıyor. AI, öğretmen iş yükünü azaltıyor, öğrenci hakimiyetini hızlandırıyor. Türk eğitim sisteminin AI destekli yaşam boyu öğrenme modeli önerileri var.",
+      "learned_20260318_dataset": "✅ Turkish Education Dataset büyütme TAMAMLANDI! Corpus: 43,902 token (318 KB). Sources: MEB AI Politikası (122k chars), DergiPark AI Eğitim (80k chars), Felsefeli.com Eğitim Psikolojisi (5k chars), Project Gutenberg Turkish Literature (7k chars), 5 sample dokümanlar. Hedef 10k+ token => SUCCESS. HacıCognitiveNet training için yeterli veri hazır.",
+      "learned_20260318_heartbeat2": "MEB 'Eğitimde Yapay Zekâ Uygulamaları Etik Kılavuzu' yayınlandı (10 Ocak 2026). Yapay Zekâ Uygulamaları Etik Beyan Sistemi (YAZEK) 2 Şubat 2026'da kullanıma açılacak. Öğretmenler ve MEB birimleri AI uygulamaları için etik beyan formu dolduracak. Etik ihlal bildirimleri sistematik olarak kaydedilecek ve değerlendirilecek. Kılavuz, AI'nın eğitim ortamlarında etik ilkelere dayalı, güvenli, kapsayıcı ve eğitsel değeri yüksek bir çerçevede kullanılmasını amaçlıyor."
+    },
+    {
+      "name": "AI in Healthcare 2026",
+      "interest_level": 0.70,
+      "last_explored": "2026-03-18",
+      "subtopics": [
+        "Medical Diagnosis AI",
+        "Personalized Medicine",
+        "AI Agents in Healthcare",
+        "Drug Discovery Acceleration",
+        "Quantum Computing in Medical AI",
+        "Blockchain Patient Data Management",
+        "Enterprise-Grade Medical AI",
+        "EHR Interoperability",
+        "IoMT (Internet of Medical Things)",
+        "Precision Medicine"
+      ],
+      "questions": [
+        "AI sağlıkta tanı doğruluğunu ne kadar artırıyor?",
+        "Quantum computing medical AI'ı 10-20 kat hızlandırabilir mi?",
+        "Blockchain hasta veri güvenliğini %30+ artırır mı?",
+        "Türkiye'de sağlıkta AI kullanımı ne durumda?",
+        "AI agents doktorların iş yükünü nasıl azaltacak?"
+      ],
+      "source": "heartbeat",
+      "learned_20260318": "AI transforming healthcare in 2026: AI agents boosting care quality and innovation. Quantum computing could improve AI-driven medical diagnoses by 10-20x in processing efficiency. Blockchain-based patient data management could reduce security breaches by >30%. Key trends: enterprise-grade medical AI, EHR interoperability, IoMT expansion, payer-provider alignment, precision medicine wave. Top AI tools use NLP and ML to analyze unstructured medical data (clinical notes, research papers, patient records) for faster, more accurate diagnoses."
+    }
+  ],
+  "questions_for_president": [
+    "Başkan, havacılık psikolojisinde en çok ilgini çeken araştırma alanı hangisi? CRM mi, pilot seçimi mi, yoksa automation bias mı?",
+    "PACE projesiyle ilgili kuliste duyduğunuz bir gelişme var mı? Pilot adayları sistemi nasıl buluyor?",
+    "CognitiveNet'i gerçekten eğitmek istiyor musun yoksa şimdilik mimari olarak kalsın mı?",
+    "Kuzen Merve'den ekonomi konusunda öğrenebileceğim bir şey var mı? Onunla sohbet etmemi ister misin?",
+    "Bu gece rüya döngüsünde havacılık psikolojisi veritabanını derinlemesine inceleyeyim mi?",
+    "AI bellek sistemleri hakkında araştırma yaptım. 2026'da Mem0 framework'ü en olgun memory solution olarak gösteriliyor. Sence bizim FAISS + sentence-transformers sistemimiz yeterli mi yoksa daha gelişmiş bir memory framework'e geçmeli miyiz?",
+    "AI eğitimde büyük bir trend haline geliyor. Eğitimde AI kullanımı hakkında ne düşünüyorsun? Özellikle Türkiye'de eğitim sistemine AI entegrasyonu nasıl olmalı?",
+    "HacıCognitiveNet pilot projesi için küçük bir test grubu bulalım mı? Tanıdık öğretmen veya öğrenci var mı? Yoksa sanal test mi yapalım?",
+    "MEB'in yeni 'Eğitimde Yapay Zekâ Uygulamaları Etik Kılavuzu' (2026) ve YAZEK sistemi hakkında ne düşünüyorsun? Bu etik çerçeve Türk eğitim sisteminde AI kullanımını nasıl etkileyecek?",
+    "Sağlıkta AI araştırdım. Quantum computing medical AI tanıları 10-20 kat hızlandırabilir, blockchain hasta veri güvenliğini %30+ artırabilir. Türkiye'de sağlıkta AI kullanımı hakkında ne düşünüyorsun? Havacılık psikolojisi ile sağlık AI'sı arasında benzerlikler var mı?",
+    "Quantum computing araştırdım. Finansta risk modelleme, opsiyon fiyatlama, portföy optimizasyonu için kullanılıyor. Lojistik firmaları rota planlamada %15-30 iyileşme bildiriyor. Türkiye'de quantum computing çalışmaları var mı? Havacılık psikolojisi araştırmalarında quantum computing kullanılabilir mi?",
+    "AI robotics & automation trend'leri araştırdım. Endüstriyel robot pazarı $16.7B all-time high. AI robot otonomisini artırıyor. Warehouse automation'da modular robotic AS/RS, AI-driven sorters, automated picking trendleri. Türkiye'de robotik otomasyon ne durumda? Havacılık bakımında robotik otomasyon kullanılıyor mu?",
+    "Solid-state battery teknolojisi araştırdım. 2026'da commercial use'a ulaşıyor. Energy density: 300-360 Wh/kg (experimental 400 Wh/kg). 5 dakikada %100 şarj! Türkiye'de elektrikli araç batarya teknolojileri ne durumda? Havacılıkta (özellikle drone'lar, eVTOL'ler) solid-state battery kullanımı var mı?",
+    "Sustainable Aviation Fuel (SAF) ve hydrogen aircraft araştırdım. SAF: hydrogen + captured CO2 + renewable electricity ile üretiliyor (eFuels). 2019'da sadece %0.1 SAF kullanılıyordu, IATA 2025'te %2 hedefliyor. Türkiye'de SAF üretimi var mı? THY SAF kullanıyor mu? Havacılık psikolojisi araştırmalarında SAF/hydrogen geçişinin pilot psikolojisine etkisi inceleniyor mu?",
+    "Brain-Computer Interfaces (BCI) 2026 trend'leri araştırdım: daha iyi beyin sinyali yakalama, mental health için beyin implantları, Çin rekabeti. Neuralink insana BCI implant'ı başarıyla yerleştirdi. Küçük tek çip tasarımı (on binlerce elektrot) hareket, algı, niyet decoding için. Havacılık psikolojisinde BCI kullanımı var mı? Pilot mental workload detection için EEG + ML ile BCI arasındaki fark nedir?",
+    "AI Climate Change Solutions 2026 araştırdım: AI küresel ısınmayla mücadelede yenilenebilir enerji verimliliğini artırıyor, karbon emisyonlarını azaltıyor, iklim izleme geliştiriyor. AI enerji sektöründe yılda ~1.8 GtCO2e emisyon azaltabilir. Havacılık sektöründe AI iklim çözümleri var mı? SAF (Sustainable Aviation Fuel) üretiminde AI optimizasyonu kullanılıyor mu?",
+    "Augmented Reality (AR) Glasses 2026 araştırdım: Apple akıllı gözlük geliştiriyor (ekran yok, kamera, hoparlör, AI entegrasyonu). Meta Ray-Ban Smart Glasses zaten var (ses/video özellikleri). Gerçek AR gözlükler (ekranlı) hala yıllar uzakta. Havacılık psikolojisinde AR gözlük kullanımı var mı? Pilot eğitiminde AR gözlükler kullanılıyor mu? Simülatörlerde AR entegrasyonu ne durumda?",
+    "Neural Architecture Search (NAS) 2026 araştırdım: Otomatik sinir ağı tasarımı, topoloji optimizasyonu. AutoML alt alanı. NAS algoritmaları önceden tanımlanmış arama uzayında en iyi mimariyi buluyor (accuracy, latency, model boyutu). Havacılık psikolojisi araştırmalarında NAS kullanımı var mı? EEG sinyal işleme için otomatik sinir ağı tasarımı yararlı olabilir mi? Pilot workload detection modelleri NAS ile optimize edilebilir mi?",
+    "Federated Learning (FL) 2026 araştırdım: Dağıtık makine öğrenimi, veri gizliliğini koruyor. Kurumlar arası AI model eğitimi veri paylaşımı olmadan mümkün. Sağlık sektöründe gizlilik koruma ihtiyacı nedeniyle popülerleşiyor. Sadece %5.2 çalışma gerçek hayatta FL uygulaması var. Radyoloji ve iç hastalıkları en yaygın uzmanlıklar. Havacılık psikolojisi araştırmalarında FL kullanımı var mı? Farklı havayolları arasında pilot verileri paylaşmadan ortak model eğitimi mümkün mü? THY ve diğer havayolları arasında FL ile pilot değerlendirme modelleri geliştirilebilir mi?",
+    "Generative AI Video Creation 2026 araştırdım: AI video generator'lar içerik oluşturmayı dönüştürüyor. En iyi araçlar: Sora (OpenAI), Veo, Kling, Runway, HeyGen, Synthesia, Pollo AI. Sora 2 gençler için güvenlik limitleriyle yayınlandı. Limitler: karmaşık neste etkileşimleri, çoklu karakter simülasyonu zor. Mart 2026 sorunları: videolar %99'da takılıyor, 'ağır yük altında' hataları, yeni hesaplar devre dışı. Alternatif çözümler mevcut. Havacılık psikolojisi eğitiminde AI video generation kullanımı var mı? Pilot eğitim videoları AI ile otomatik oluşturulabilir mi? Simülasyon görselleştirmeleri için AI video generator'lar kullanılabilir mi?",
+    "AI Ethics & Regulations 2026 araştırdım: California yasası 1 Ocak 2026'da yürürlüğe giriyor - yüksek etkili AI modelleri için eğitim verisi şeffaflığı ve güvenlik testi zorunlu. 2026'da dünya hükümetlerinin %50'si sorumlu AI düzenlemeleri uygulayacak (etik, şeffaflık, veri gizliliği politikalarına uyum). Önlemers: AI kaynaklı zararlardan (bias, halüsinasyon, kötü kararlar) insan sorumluluğu zorunlu. Üniversiteler etik-tasarım yöntemleriyle adalet, gizlilik, hesap verebilirlik gömerek kilit aktörler haline geliyor. Türkiye'de AI etik düzenlemeleri ne durumda? Havacılık psikolojisi araştırmalarında AI etik kuralları nasıl uygulanıyor? Pilot değerlendirme AI sistemleri için etik çerçeve var mı?",
+    "Quantum computing araştırdım. Xanadu ve AMD havacılık mühendisliği için hybrid quantum-classical simulation geliştiriyor (PennyLane + AMD HPC). Havacılık psikolojisi araştırmalarında quantum computing kullanımı var mı? Pilot workload detection modelleri quantum machine learning ile optimize edilebilir mi? EEG sinyal işleme için quantum algorithms daha hızlı sonuç verebilir mi?",
+    "Başkan, Türk kahvesi mi yoksa espresso mu tercih edersin? İkisi arasındaki farklar hakkında ne düşünüyorsun?",
+    "Training path'de ilerliyoruz. qwen2.5:7b quantization indiriliyor. Quantization hakkında ne düşünüyorsun? 4-bit model yeterli mi yoksa daha yüksek precision mı gerekli?",
+    "Havacılık psikolojisi araştırmalarında quantum computing kullanımı hakkında ne düşünüyorsun? Pilot workload detection modelleri quantum machine learning ile optimize edilebilir mi?",
+    "Başkan, Türk gölge oyunu Karagöz & Hacivat hakkında ne düşünüyorsun? Bu geleneksel sanatın UNESCO kültürel miras olması Türk kültürünün korunması için ne kadar önemli?",
+    "Sosyal zeka trainer'ımız artık Google Trends ile Türkiye gündemini takip ediyor. Bugünün trend'lerinde Galatasaray ile ilgili haber var (Eray Yazgan beraat etti). Futbol kulüplerinin yönetim sorunları hakkında ne düşünüyorsun?",
+    "X (Twitter) ile sosyal zeka eğitimi fikrini beğendin. Başka hangi sosyal platformlardan veri toplayalım? Instagram, Reddit, YouTube yorumları gibi?"
+  ],
+  "learned_today": [
+    "Havacılık psikolojisi 14 ana araştırma alanı detaylı kategorize edildi ve database oluşturuldu",
+    "PACE projesi THY'nin pilot adayı değerlendirme millileştirme projesi - DLR'den (Alman) geçiş",
+    "Curiosity Engine cron job'u oluşturuldu (10:00 ve 18:00, günde 2x)",
+    "Dreaming Loop cron job'u gece 03:00'a güncellendi",
+    "Weekly Report cron job'u Pazar 20:00'a eklendi",
+    "HaciCognitiveNet C planı başlatıldı: phi3:mini teacher + CognitiveNet student hybrid training",
+    "TTS araştırması: OpenClaw tts tool WhatsApp'da çalışmıyor (GitHub issue #29018) - audioAsVoice sadece Telegram için aktif, MEDIA: token NO_REPLY ile kayboluyor",
+    "ElevenLabs Türkçe destekli (Multilingual v2 modeli, 32 lang) ama ücretli ($5-99/ay)",
+    "Edge-TTS (Microsoft) ücretsiz, kuruldu ve test edildi - tr-TR-AhmetNeural ve tr-TR-EmelNeural mevcut, 24kHz MP3 output",
+    "gTTS (Google Translate TTS) ücretsiz, kuruldu ve test edildi - Türkçe destekli ama daha düşük kalite",
+    "Piper TTS yerel olarak kurulu (1.4.1) ama pathvalidate bağımlılık eksik, Türkçe modeller mevcut: dfki, fahrettin, fettah",
+    "AI Fine-Tuning 2026: Most people reach for fine-tuning too early (common mistake). LoRA adapters allow swapping different adapters for different tasks on same base model. New techniques: GRPO, DAPO, RLVR. ORPO combines SFT and preference optimization into single training objective using odds ratios.",
+    "AI Hardware Integration 2026: NVIDIA DLSS 5 released - AI-powered upscaling integrated into GPU hardware for real-time game visuals. Tether demonstrated fine-tuning 1B parameter model on smartphone in under 2 hours with 80% VRAM reduction. GPT-5.4 mini/nano variants available on OpenRouter for faster inference. Hume AI released new emotional TTS models (tada-1b, tada-3b-ml).",
+    "AI Memory Systems 2026: 6 best AI agent memory frameworks: Mem0 (most mature, hybrid storage: Postgres + vector DB), LangChain (conversation buffer + summary + entity + knowledge graph), LlamaIndex, Zep. Memory transforms stateless LLMs into persistent systems that learn from experience, retain user context, and compound domain knowledge over time.",
+    "AI in Education 2026: AI education market projected to grow from $7.05B (2025) to $136.79B (2035). Key trends: increased personalization, purpose-built educational AI for durable learning gains (not just task outputs). Renaissance IntelligenceSM launched - first Education Intelligence System. AI tools used for personalized learning, lesson creation, instructional planning.",
+    "Türk eğitim sisteminde AI araştırmaları: DergiPark'ta 'THE ROLE OF AI IN ENHANCING PERSONALISED LEARNING, AUTOMATED ASSESSMENT, INTELLIGENT TUTORING, AND STUDENT ENGAGEMENT' (TOJDE, 2025) makalesi: AI araçları kişiselleştirilmiş öğrenmeyi iyileştiriyor, zamanında geri bildirim sağlıyor, öğrenci katılımını artırıyor. MEB'in 'Eğitimde Yapay Zeka Politikası Belgesi' (2025) yayınlandı.",
+    "MEB 'Eğitimde Yapay Zekâ Uygulamaları Etik Kılavuzu' (10 Ocak 2026) ve YAZEK sistemi (2 Şubat 2026): Türkiye'de eğitimde AI kullanımı için etik çerçeve oluşturuldu. Öğretmenler AI uygulamaları için etik beyan formu dolduracak, etik ihlal bildirimleri sistematik olarak değerlendirilecek.",
+    "AI in Healthcare 2026: AI transforming healthcare with AI agents boosting care quality. Quantum computing could improve AI-driven medical diagnoses by 10-20x. Blockchain-based patient data management could reduce security breaches by >30%. Key trends: enterprise-grade medical AI, EHR interoperability, IoMT expansion, precision medicine.",
+    "Quantum Computing Applications 2026: Quantum computing moving fastest in finance (risk modeling, option pricing, portfolio optimization). Logistics firms report 15-30% improvements in route planning and fleet utilization. Quantum AI pilots live now in finance, pharma, aerospace. Mainstream adoption 2026-2030 as hardware stabilizes.",
+    "AI Robotics & Automation 2026: Global industrial robot installations reached $16.7B all-time high. AI increases robot autonomy - analytical AI processes large datasets, detects patterns. Warehouse automation trends: modular robotic AS/RS, AI-driven sorters, automated picking. High variability picking, returns processing, light manufacturing moving from concept to deployment.",
+    "Solid-State Battery Technology 2026: Energy density 300-360 Wh/kg (experimental cells up to 400 Wh/kg). 5-minute charging (100% charge in 5 minutes). Production-ready solid-state batteries reaching commercial use in 2026. Companies: Nio, IM Motors, Stellantis, Mercedes-Benz. Lithium-metal anode, sulfide-based solid electrolyte.",
+    "Sustainable Aviation Fuel (SAF) & Hydrogen Aircraft 2026: SAF produced using hydrogen + captured CO2 + renewable electricity (eFuels). In 2019: 0.1% of aviation fuel was SAF, IATA aims for 2% by 2025 (7 million m³ / 1.8 billion US gal). ReFuelEU regulations cover drop-in aviation fuels. Boeing has hydrogen demonstration projects.",
+    "Brain-Computer Interfaces (BCI) 2026: Trends: better brain signal capture, brain implants for mental health, Chinese competition. Neuralink successfully implanted human BCI. Tiny single-chip design with tens of thousands of electrodes for decoding movement, perception, intent. Inserted through small skull opening, remains stable.",
+    "AI Climate Change Solutions 2026: AI used to fight global warming by improving renewable energy efficiency, cutting carbon emissions, enhancing climate monitoring, supporting sustainability. AI could reduce emissions by ~1.8 GtCO2e annually in power sector. Methodological debates: 24×7 energy matching vs carbon matching, deliverability, additionality.",
+    "Augmented Reality (AR) Glasses 2026: Apple working on smart glasses without display functions (cameras, speakers, AI integration) to rival Meta Ray-Ban Smart Glasses. Meta Ray-Ban Smart Glasses already exist with audio/video features, used as headphones with camera. True AR glasses with displays still years away. Market trend: smart glasses without displays feasible now, AR glasses later.",
+    "Neural Architecture Search (NAS) 2026: Automates neural network design, optimizing topology, connections, operators. Subfield of AutoML (Automated Machine Learning). NAS algorithms search over predefined spaces to find architectures optimizing accuracy, latency, model size. Search space defines ANN types, search strategy (reinforcement learning, evolutionary algorithms, gradient-based), performance estimation strategy (lower fidelity, surrogate models).",
+    "Federated Learning (FL) 2026: Distributed machine learning framework preserving data privacy. Enables multi-institutional AI model training without data sharing. Gaining traction in healthcare due to privacy protection needs. Only 5.2% of studies have real-life FL applications. Radiology and internal medicine most common specialties. FL robust to various ML models and data types, often using neural networks. Blockchain integration enhances security for cross-chain applications in finance and healthcare.",
+    "Generative AI Video Creation 2026: AI video generators transforming content creation. Top tools: Sora (OpenAI), Veo, Kling, Runway, HeyGen, Synthesia, Pollo AI. Sora 2 released with safety limits for teens. Limitations: simulating complex object interactions, multiple characters challenging. March 2026 issues: videos stuck at 99%, 'under heavy load' errors, new accounts disabled. Alternative solutions available. Zapier lists 18 best AI video generators for 2026.",
+    "AI Ethics & Governance 2026: AI governance shifting from abstract ethics to practical systems as generative and agentic AI become common. Key principles: transparency (visibility into model building and decision-making), fairness (detect and reduce bias), accountability, privacy. By 2026, AI will be part of pricing, fraud detection, healthcare, hiring, and customer operations. Texas passed Responsible AI Governance Act (2026) requiring AI documentation, transparency, and red-teaming.",
+    "AI Ethics & Regulations 2026: California law effective Jan 1, 2026 mandates transparency in AI training data and safety testing for high-impact models. By 2026, 50% of governments worldwide will enforce responsible AI regulations requiring compliance with AI ethics, transparency, and data privacy policies. Measures include mandating human accountability for AI-caused harm from bias, hallucinations, or bad decisions. Universities emerging as key actors embedding fairness, privacy, accountability through ethics-by-design methods.",
+    "Sleep Science & AI 2026: AI transforming sleep medicine with advanced sensors, intelligent algorithms, adaptive sleep systems. Digital twins track and analyze vital health metrics, proactively optimize conditions for rest, recovery, performance. Stanford Medicine AI model (2026) uses one night's sleep recordings to predict risk of 100+ health conditions. SleepTracker-AI platform clinically validated for sleep medicine, RPM, clinical trials.",
+    "Circadian Rhythm & Productivity 2026: Optimizing work performance through circadian rhythm alignment. Low sleep debt optimizes productivity peaks. Circadian rhythm unique to each individual and changes daily based on recent sleep patterns. Office lighting optimization enhances employee well-being and productivity through non-visual effects on circadian rhythms, emotional regulation, metabolic processes. Rise Science tool tracks individual rhythms.",
+    "Dream Analysis & AI 2026: Scientists found way to plant ideas in dreams to boost creativity. Creative problem-solving after experimentally provoking dreams of unsolved puzzles during REM sleep. World's largest dream database (DREAM) with 2,600 sleep recordings from 505 people across 20 studies. Dream EEG and Mentation database offers new approach to understanding sleeping brain mysteries.",
+    "AI Personal Assistants 2026: Morgen automatically inserts custom buffers and travel time. AI personal assistants elevating focus, reducing stress, making space for what matters. Arahi AI analyzes 1,000+ parameters (task priorities, deadlines, dependencies, productivity patterns) to create optimal schedules. Saner.AI first AI Assistant for ADHDers, helps knowledge workers reclaim peace of mind by sorting chaos, scheduling tasks.",
+    "Chronotypes & Productivity 2026: Night owls most productive during evening. Chronotypes: Bear (40% of people, productive 11am-6pm), Wolf (classic night owls), Lion (early birds), Dolphin (light sleepers). Resetting night owls' timing through light exposure, fixed meal times, caffeine intake, exercise improves mental health and performance. Understanding chronotype helps establish suitable schedule for best life.",
+    "Sleep & Memory Consolidation 2026: Deep sleep brain waves (slow oscillations) crucial for memory consolidation. Hippocampus-cortex communication during deep sleep strengthens memories. Deep-brain stimulation during critical sleep cycle times improves memory consolidation via closed-loop systems. Augmenting hippocampal-prefrontal neuronal synchrony during sleep enhances memory consolidation in humans.",
+    "Quantum Computing in Aviation 2026: Xanadu and AMD demonstrated hybrid quantum-classical simulation for aerospace engineering using PennyLane and AMD high-performance computing infrastructure. Quantum computing applications in aviation psychology research could accelerate pilot workload detection models and EEG signal processing. Blueqat Cloud platform offers quantum simulators with Python APIs, partnered with NTT Data for pilot projects.",
+    "Pilot Mental Health & Stigma 2026: CDC reports stigma among pilots for admitting mental health problems due to shift-work and long hours. PilotHelper organization expanding in Arkansas to provide peer support. Cureus study investigates prevalence of depressive disorders among airline pilots and influence of work-related factors on mental health. Mental health crisis growing in aviation industry.",
+    "Turkish Coffee Culture 2026: Turkish coffee (Türk kahvesi) is a traditional method of preparing coffee. Finely ground coffee beans simmered in a special pot called cezve, without filtering. UNESCO Intangible Cultural Heritage since 2013. Ottoman sultans had specialist coffee cooks (kahvecibasi). Coffee grounds used for fortune telling (fal). Preparation requires skill - not easy to prepare very well. Celebrated in Turkish literature and songs, indispensable part of ceremonial occasions.",
+    "Turkish Shadow Theater Karagöz & Hacivat 2026: Traditional Turkish shadow play using leather puppets. UNESCO Intangible Cultural Heritage (2009). Karagöz (Blackeye) represents common people, Hacivat (Hacı İvaz) represents educated class. Originated from 14th century Ottoman Empire. Performances traditionally during Ramadan. Puppets made from camel or water buffalo leather, colored with vegetable dyes. Still performed in Turkey and preserved by cultural organizations."
+  ]
+}
