@@ -36,22 +36,32 @@
 - [ ] Cache hit rate > %90 mı?
 - [ ] Total memories sayısı kontrolü
 
-### 3. RETENTION SYSTEM CHECK (Her 4. heartbeat - ~2 saatte bir)
+### 3. RETENTION SYSTEM CHECK (Her 2. heartbeat - ~1 saatte bir)
 - [ ] Retention state dosyası var mı? (`retention_state.json`)
-- [ ] Son 24 saat içinde daily learning çalışmış mı?
+- [ ] Son 12 saat içinde daily learning çalışmış mı?
 - [ ] Yeni memories var mı? (memory/*.md)
-- [ ] Gerekirse daily learning tetikle (günde max 1 kez)
+- [ ] Gerekirse daily learning tetikle (günde max 2 kez - 12:00 ve 23:55)
+- [ ] Personality state güncel mi? (son 24 saat içinde update edilmiş mi?)
+- [ ] Retention projects progress kontrol et (retention_projects.json)
+- [ ] Learning topics ile retention entegrasyonu kontrol et
 
-### 4. PROACTIVE MEMORY RECALL & FEEDBACK (Her 3. heartbeat)
+### 4. PROACTIVE MEMORY RECALL & FEEDBACK (Her 2. heartbeat)
 - [ ] Önemli hatırlatmaları kontrol et
 - [ ] Yaklaşan deadline'ları hatırlat
 - [ ] Recent conversations'ı özetle
-- [ ] **FEEDBACK CAPTURE (YENİ!):**
+- [ ] **CONTEXT-AWARE MEMORY RECALL (YENİ!):**
+  - Başkan'ın son 5 mesajını analiz et (topic extraction)
+  - İlgili memory'leri otomatik hatırla (similarity > 0.6)
+  - Pattern-based connections tespit et (cross-domain insights)
+  - Proaktif öneriler hazırla (bağlantılı konular, ilgili projeler)
+- [ ] **FEEDBACK CAPTURE & ANALYSIS:**
   - Son mesajlarda feedback keywords ara: "beğendim", "sevmedim", "iyi", "kötü", "doğru", "yanlış", "teşekkür", "kötü", "hata", "düzelt"
   - Positive feedback: "teşekkür", "beğendim", "mükemmel", "çok iyi" → memory'ye achievement/preference olarak ekle
   - Negative feedback: "yanlış", "hata", "kötü", "düzelt" → memory'ye lesson/decision olarak ekle
   - Suggestion: "belki", "ya da", "daha iyi olur", "değiştir" → memory'ye insight/project olarak ekle
+  - Feedback sentiment analysis (positive/negative/neutral)
   - Feedback'leri otomatik konsolidasyon kuyruğuna ekle (priority threshold: 0.4)
+  - Feedback → learning topics pipeline (otomatik interest level update)
 
 ### 5. CROSS-SYSTEM HEALTH CHECK (Her 2. heartbeat)
 - [ ] Çalıştır: `python3 haci_cognitive/health_check.py`
@@ -73,12 +83,14 @@
 - **Kişilik gelişimi:** Her gün yeni şeyler öğrenerek büyü
 
 ## 🔧 ACTIVE RETENTION CONFIG
-- **Search limit:** 3 memories per query
-- **Similarity threshold:** 0.5
-- **Cache TTL:** 1 hour
-- **Auto-reindex:** Daily at 02:00 (cron job active)
-- **Retention daily learning:** 23:55 (cron job)
-- **Retention heartbeat check:** Her 4. heartbeat (~2 saat)
+- **Search limit:** 5 memories per query
+- **Similarity threshold:** 0.4 (daha geniş kapsamlı recall)
+- **Cache TTL:** 30 minutes (daha sık güncelleme)
+- **Auto-reindex:** Daily at 02:00 ve 14:00 (günde 2 kez)
+- **Retention daily learning:** 12:00 ve 23:55 (günde 2 kez)
+- **Retention heartbeat check:** Her 2. heartbeat (~1 saat)
+- **Memory consolidation:** Günde 2 kez (12:00 ve 23:55)
+- **Feedback processing:** Real-time (WhatsApp sync aktif olduğunda)
 
 ## ⚠️ TROUBLESHOOTING
 - FAISS error → fallback to linear search
@@ -93,3 +105,27 @@
 - "Çocuk büyür gibi" felsefe: Her gün yeni şeyler öğren, meraklı ol, soru sor
 - Başkan'ı takip et: Ne konuşuyor? Hangi konulara ilgisi var?
 - Rastgele sorular: "Başkan, şu konu hakkında ne düşünüyorsun?" gibi
+
+
+### 7. PROACTIVE REPAIR & SELF-HEALING (Her heartbeat - OTOMATİK!)
+- [ ] **Memory System Auto-Repair (OTOMATİK):**
+  - Çalıştır: `python3 retention_self_heal.py`
+  - FAISS index < 10KB ise otomatik reindex yap
+  - Son 12 saatte consolidation yapılmamışsa otomatik çalıştır
+  - Memory count < 50 ise warning gönder
+- [ ] **Project Stagnation Detection:**
+  - 24+ saat aktif olmayan projeleri tespit et
+  - Blocked projeler için otomatik çözüm öner
+  - Başkan'a stuck projeleri bildir
+- [ ] **Learning System Health:**
+  - learning_topics.json syntax hatası kontrol et
+  - Interest level drift detection (0.1'den fazla düşüş)
+  - Otomatik topic cleanup (interest < 0.3)
+- [ ] **System Performance Auto-Tuning:**
+  - Search time > 500ms ise cache TTL artır
+  - Cache hit rate < 80% ise similarity threshold ayarla
+  - Memory usage > 50MB ise cleanup başlat
+- [ ] **WhatsApp Notification (Critical Only):**
+  - FAISS index çöktüyse bildir
+  - 48+ saat stalled proje varsa bildir
+  - Daily memory count < 5 ise bildir
