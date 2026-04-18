@@ -1,0 +1,8 @@
+faiss.index
+faiss.index.map.pkl
+retention_state.json
+consolidation_state.json
+__pycache__/
+*.pyc
+*.log
+memory/archive/

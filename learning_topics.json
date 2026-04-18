@@ -1,0 +1,34 @@
+{
+  "interests": [
+    {
+      "topic": "havacılık psikolojisi",
+      "interest_level": 0.95,
+      "subtopics": ["pilot seçim", "crm", "insan faktörleri", "eeg", "workload", "THY", "nişantaşı üniversitesi"]
+    },
+    {
+      "topic": "yapay zeka",
+      "interest_level": 0.90,
+      "subtopics": ["retention", "transformer", "llm", "fine-tuning", "sentence-transformers", "faiss", "embedding", "mcp"]
+    },
+    {
+      "topic": "kripto",
+      "interest_level": 0.80,
+      "subtopics": ["bitcoin", "ethereum", "solana", "wallet", "trading", "coingecko"]
+    },
+    {
+      "topic": "galatasaray",
+      "interest_level": 0.85,
+      "subtopics": ["gs", "cimbom", "süper lig"]
+    },
+    {
+      "topic": "yazılım geliştirme",
+      "interest_level": 0.85,
+      "subtopics": ["python", "typescript", "claude code", "mcp", "api", "automation"]
+    },
+    {
+      "topic": "araştırma",
+      "interest_level": 0.75,
+      "subtopics": ["dataset", "yayın", "akademik", "makale"]
+    }
+  ]
+}
